@@ -10,7 +10,7 @@ export function Title({ text }: TitleProps) {
 
 const styles = StyleSheet.create({
   bigText: {
-    fontSize: 28,
-    fontWeight: "bold",
+    fontSize: 64,
+    fontFamily: "Nunito_800ExtraBold",
   },
 });
