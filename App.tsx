@@ -1,5 +1,6 @@
 import { HomeScreen } from "./src/screens/HomeScreen";
 import { useFonts } from "expo-font";
+import { SafeAreaProvider } from "react-native-safe-area-context";
 import {
   Nunito_600SemiBold,
   Nunito_700Bold,
@@ -17,5 +18,9 @@ export default function App() {
     return null;
   }
 
-  return <HomeScreen />;
+  return (
+    <SafeAreaProvider>
+      <HomeScreen />
+    </SafeAreaProvider>
+  );
 }
