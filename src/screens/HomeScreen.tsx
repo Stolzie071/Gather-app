@@ -19,6 +19,7 @@ import Star_3 from "../../assets/Decorate/Star 3.svg";
 import Star_4 from "../../assets/Decorate/Star 4.svg";
 import Title_decor from "../../assets/Decorate/title_decor.svg";
 import Title_decor_2 from "../../assets/Decorate/title_decor_2.svg";
+import Dice_decor from "../../assets/Decorate/dice_decor.svg";
 import { FrontWave } from "../components/FrontWave";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
@@ -35,6 +36,7 @@ export function HomeScreen() {
         <Star_4 style={styles.Star_4} />
         <View style={styles.waveScene}>
           <Dice_guy style={styles.Dice_guy} />
+          <Dice_decor style={styles.Dice_decor} />
           <FrontWave style={styles.frontWave} />
           <Hand style={styles.Hand} />
         </View>
@@ -202,5 +204,12 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: 12,
+  },
+
+  Dice_decor: {
+    position: "absolute",
+    left: 150,
+    top: -70,
+    transform: [{ rotate: "-12deg" }],
   },
 });
