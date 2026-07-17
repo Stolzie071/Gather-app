@@ -3,6 +3,8 @@ import { StyleSheet, View, Text } from "react-native";
 import { Title } from "../components/Title";
 import { SubTitle } from "../components/Subtitle";
 import { Button } from "../components/Button";
+import { SettingsButton } from "../components/SettingsButton";
+import { FrontWave } from "../components/FrontWave";
 import DiceIcon from "../../assets/icons/mini_dice_1.svg";
 import CupIcon from "../../assets/icons/Cup.svg";
 import ArrowIcon from "../../assets/icons/Arrow.svg";
@@ -20,7 +22,6 @@ import Star_4 from "../../assets/Decorate/Star 4.svg";
 import Title_decor from "../../assets/Decorate/title_decor.svg";
 import Title_decor_2 from "../../assets/Decorate/title_decor_2.svg";
 import Dice_decor from "../../assets/Decorate/dice_decor.svg";
-import { FrontWave } from "../components/FrontWave";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export function HomeScreen() {
@@ -77,7 +78,14 @@ export function HomeScreen() {
       </View>
 
       <Text style={[styles.version, { bottom: insets.bottom + 8 }]}>v.0.1</Text>
-
+      <SettingsButton
+        onPress={() => {}}
+        style={{
+          position: "absolute",
+          top: insets.top + 16,
+          right: 20,
+        }}
+      />
       <StatusBar style="auto" />
     </View>
   );
