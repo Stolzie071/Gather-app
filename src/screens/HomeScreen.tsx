@@ -58,7 +58,7 @@ export function HomeScreen() {
 
         <View style={styles.buttonsBlock}>
           <Button
-            text="Играть"
+            text="НеИграть"
             onPress={() => {}}
             icon={<DiceIcon width={36} height={36} />}
             rightIcon={
