@@ -119,7 +119,7 @@ const styles = StyleSheet.create({
 
   mainContent: {
     alignItems: "center",
-    gap: 40,
+    gap: 45,
   },
 
   version: {
@@ -183,7 +183,7 @@ const styles = StyleSheet.create({
     alignSelf: "center",
     top: 264,
     width: 470,
-    height: 628,
+    height: 800,
   },
 
   Star_1: {

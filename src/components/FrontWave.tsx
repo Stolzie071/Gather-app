@@ -18,7 +18,7 @@ type FrontWaveProps = {
 
 export function FrontWave({ style }: FrontWaveProps) {
   return (
-    <Svg style={style} width={470} height={628} viewBox="0 0 402 628">
+    <Svg style={style} width="100%" height={800} viewBox="0 0 402 800">
       <Defs>
         <Filter
           id="waveShadow"
