@@ -1,10 +1,4 @@
-import {
-  Pressable,
-  StyleSheet,
-  View,
-  StyleProp,
-  ViewStyle,
-} from "react-native";
+import { Pressable, StyleSheet, StyleProp, ViewStyle } from "react-native";
 import SettingsIcon from "../../assets/icons/Settings_but.svg";
 import { colors } from "../theme/colors";
 import Animated, {

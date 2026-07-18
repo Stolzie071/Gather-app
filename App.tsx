@@ -1,6 +1,7 @@
 import { HomeScreen } from "./src/screens/HomeScreen";
 import { useFonts } from "expo-font";
 import { SafeAreaProvider } from "react-native-safe-area-context";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 import {
   Nunito_600SemiBold,
   Nunito_700Bold,
@@ -19,8 +20,10 @@ export default function App() {
   }
 
   return (
-    <SafeAreaProvider>
-      <HomeScreen />
-    </SafeAreaProvider>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <SafeAreaProvider>
+        <HomeScreen />
+      </SafeAreaProvider>
+    </GestureHandlerRootView>
   );
 }

@@ -23,9 +23,12 @@ import Title_decor from "../../assets/Decorate/title_decor.svg";
 import Title_decor_2 from "../../assets/Decorate/title_decor_2.svg";
 import Dice_decor from "../../assets/Decorate/dice_decor.svg";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { useState } from "react";
+import { SettingsSheet } from "../components/SettingsSheet";
 
 export function HomeScreen() {
   const insets = useSafeAreaInsets();
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   return (
     <View style={styles.container}>
       <View style={styles.background}>
@@ -79,12 +82,17 @@ export function HomeScreen() {
 
       <Text style={[styles.version, { bottom: insets.bottom + 8 }]}>v.0.1</Text>
       <SettingsButton
-        onPress={() => {}}
+        onPress={() => setIsSettingsOpen(true)}
         style={{
           position: "absolute",
           top: insets.top + 16,
           right: 20,
         }}
+      />
+
+      <SettingsSheet
+        visible={isSettingsOpen}
+        onClose={() => setIsSettingsOpen(false)}
       />
       <StatusBar style="auto" />
     </View>
