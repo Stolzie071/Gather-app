@@ -1,5 +1,11 @@
 import { StatusBar } from "expo-status-bar";
-import { StyleSheet, View, Text, Image } from "react-native";
+import {
+  StyleSheet,
+  View,
+  Text,
+  Image,
+  useWindowDimensions,
+} from "react-native";
 import { Title } from "../components/Title";
 import { SubTitle } from "../components/Subtitle";
 import { Button } from "../components/Button";
@@ -27,11 +33,30 @@ import { useState } from "react";
 import { SettingsSheet } from "../components/SettingsSheet";
 import FrontWaveShadow from "../../assets/Decorate/Front_wave_shadow.png";
 
+const WAVE_WIDTH = 499;
+const WAVE_SIDE_OVERFLOW = 48;
+const DESIGN_HEIGHT = 874;
+const COMPACT_MAX_HEIGHT = 700;
+const COMPACT_MAX_WIDTH = 350;
+const COMPACT_WAVE_OFFSET = 16;
+const COMPACT_BUTTON_SIDE_MARGIN = 40;
+
 export function HomeScreen() {
   const insets = useSafeAreaInsets();
+  const { width: screenWidth, height: screenHeight } = useWindowDimensions();
+
+  const waveScale = (screenWidth + WAVE_SIDE_OVERFLOW * 2) / WAVE_WIDTH;
+  const verticalScale = Math.min(screenHeight / DESIGN_HEIGHT, 1);
+  const isCompactScreen =
+    screenHeight < COMPACT_MAX_HEIGHT || screenWidth < COMPACT_MAX_WIDTH;
+  const buttonIconSize = isCompactScreen ? 30 : 36;
+  const arrowWidth = isCompactScreen ? 11 : 13;
+  const arrowHeight = isCompactScreen ? 20 : 23;
+
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { paddingTop: 370 * verticalScale }]}>
       <View style={styles.background}>
         <Wave_left_top style={styles.Wave_left_top} />
         <Wave_right_down style={styles.Wave_right_down} />
@@ -39,7 +64,17 @@ export function HomeScreen() {
         <Star_2 style={styles.Star_2} />
         <Star_3 style={styles.Star_3} />
         <Star_4 style={styles.Star_4} />
-        <View style={styles.waveScene}>
+        <View
+          style={[
+            styles.waveScene,
+            {
+              top:
+                264 * verticalScale -
+                (isCompactScreen ? COMPACT_WAVE_OFFSET : 0),
+              transform: [{ scale: waveScale }],
+            },
+          ]}
+        >
           <Dice_guy style={styles.Dice_guy} />
           <Dice_decor style={styles.Dice_decor} />
           <Image
@@ -50,45 +85,73 @@ export function HomeScreen() {
           <FrontWave width="100%" height="100%" style={styles.frontWave} />
           <Hand style={styles.Hand} />
         </View>
-        <PlantsLeftBot style={styles.plantsLeft} />
-        <PlantsRightBot style={styles.plantsRight} />
+        {!isCompactScreen && (
+          <>
+            <PlantsLeftBot style={styles.plantsLeft} />
+            <PlantsRightBot style={styles.plantsRight} />
+          </>
+        )}
       </View>
 
-      <View style={styles.mainContent}>
+      <View
+        style={[
+          styles.mainContent,
+          { gap: isCompactScreen ? 28 : 45 * verticalScale },
+        ]}
+      >
         <View style={styles.titleBlock}>
           <View style={styles.logoScene}>
             <Title_decor_2 style={styles.titleDecorLeft} />
-            <Title text="Gather" />
+            <Title text="Gather" compact={isCompactScreen} />
             <Title_decor style={styles.titleDecorRight} />
           </View>
 
           <SubTitle text="Вечер станет интереснее" />
         </View>
 
-        <View style={styles.buttonsBlock}>
+        <View
+          style={[
+            styles.buttonsBlock,
+            isCompactScreen && styles.buttonsBlockCompact,
+            isCompactScreen && {
+              width: screenWidth - COMPACT_BUTTON_SIDE_MARGIN * 2,
+            },
+          ]}
+        >
           <Button
             text="Играть"
             onPress={() => {}}
-            icon={<DiceIcon width={36} height={36} />}
+            compact={isCompactScreen}
+            icon={<DiceIcon width={buttonIconSize} height={buttonIconSize} />}
             rightIcon={
-              <ArrowIcon width={13} height={23} color={colors.surface} />
+              <ArrowIcon
+                width={arrowWidth}
+                height={arrowHeight}
+                color={colors.surface}
+              />
             }
           />
           <Button
             text="Статистика"
             onPress={() => {}}
             variant="secondary"
-            icon={<CupIcon width={36} height={36} />}
+            compact={isCompactScreen}
+            icon={<CupIcon width={buttonIconSize} height={buttonIconSize} />}
             rightIcon={
-              <ArrowIcon width={13} height={23} color={colors.textPrimary} />
+              <ArrowIcon
+                width={arrowWidth}
+                height={arrowHeight}
+                color={colors.textPrimary}
+              />
             }
           />
         </View>
       </View>
 
-      <Text style={[styles.version, { bottom: insets.bottom + 8 }]}>v.0.1</Text>
+      <Text style={[styles.version, { bottom: insets.bottom + 2 }]}>v.0.1</Text>
       <SettingsButton
         onPress={() => setIsSettingsOpen(true)}
+        compact={isCompactScreen}
         style={{
           position: "absolute",
           top: insets.top + 16,
@@ -109,8 +172,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     alignItems: "center",
-    justifyContent: "space-between",
-    paddingTop: 370,
     paddingBottom: 20,
   },
 
@@ -120,12 +181,18 @@ const styles = StyleSheet.create({
 
   buttonsBlock: {
     gap: 16,
-    width: 320,
+    width: "100%",
+    maxWidth: 320,
+  },
+
+  buttonsBlockCompact: {
+    gap: 12,
   },
 
   mainContent: {
     alignItems: "center",
-    gap: 45,
+    width: "100%",
+    paddingHorizontal: 20,
   },
 
   version: {
@@ -174,22 +241,22 @@ const styles = StyleSheet.create({
 
   Dice_guy: {
     position: "absolute",
-    left: 110,
+    left: 131,
     top: -64,
   },
 
   Hand: {
     position: "absolute",
-    left: 283,
+    left: 304,
     top: 70,
   },
 
   waveScene: {
     position: "absolute",
     alignSelf: "center",
-    top: 264,
     width: 499,
     height: 775,
+    transformOrigin: "center top",
   },
 
   Star_1: {
@@ -200,18 +267,18 @@ const styles = StyleSheet.create({
   Star_2: {
     position: "absolute",
     top: 141,
-    left: 354,
+    right: 33,
   },
   Star_3: {
     position: "absolute",
     top: 196,
-    left: 356,
+    right: 47,
   },
 
   Star_4: {
     position: "absolute",
     top: 104,
-    left: 285,
+    right: 108,
   },
 
   titleDecorLeft: {
@@ -230,7 +297,7 @@ const styles = StyleSheet.create({
 
   Dice_decor: {
     position: "absolute",
-    left: 150,
+    left: 171,
     top: -70,
     transform: [{ rotate: "-12deg" }],
   },

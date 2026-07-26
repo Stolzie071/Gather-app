@@ -3,10 +3,15 @@ import { colors } from "../theme/colors";
 
 type TextProps = {
   text: string;
+  compact?: boolean;
 };
 
-export function Title({ text }: TextProps) {
-  return <Text style={styles.bigText}>{text}</Text>;
+export function Title({ text, compact = false }: TextProps) {
+  return (
+    <Text style={[styles.bigText, compact && styles.bigTextCompact]}>
+      {text}
+    </Text>
+  );
 }
 
 const styles = StyleSheet.create({
@@ -14,5 +19,9 @@ const styles = StyleSheet.create({
     fontSize: 70,
     fontFamily: "Nunito_800ExtraBold",
     color: colors.textPrimary,
+  },
+
+  bigTextCompact: {
+    fontSize: 58,
   },
 });

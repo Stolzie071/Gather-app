@@ -11,9 +11,14 @@ import Animated, {
 type SettingsButtonProps = {
   onPress: () => void;
   style?: StyleProp<ViewStyle>;
+  compact?: boolean;
 };
 
-export function SettingsButton({ onPress, style }: SettingsButtonProps) {
+export function SettingsButton({
+  onPress,
+  style,
+  compact = false,
+}: SettingsButtonProps) {
   const scale = useSharedValue(1);
   const rotate = useSharedValue(0);
 
@@ -41,8 +46,14 @@ export function SettingsButton({ onPress, style }: SettingsButtonProps) {
         });
       }}
     >
-      <Animated.View style={[styles.container, animatedStyle]}>
-        <SettingsIcon width={30} height={30} />
+      <Animated.View
+        style={[
+          styles.container,
+          compact && styles.containerCompact,
+          animatedStyle,
+        ]}
+      >
+        <SettingsIcon width={compact ? 26 : 30} height={compact ? 26 : 30} />
       </Animated.View>
     </Pressable>
   );
@@ -68,5 +79,11 @@ const styles = StyleSheet.create({
         color: "rgba(158, 124, 228, 0.25)",
       },
     ],
+  },
+
+  containerCompact: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
   },
 });
