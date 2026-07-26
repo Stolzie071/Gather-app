@@ -1,4 +1,4 @@
-import { Pressable, StyleSheet, View, Button, Dimensions } from "react-native";
+import { Pressable, StyleSheet, View, Dimensions } from "react-native";
 import { colors } from "../theme/colors";
 import { useEffect } from "react";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";

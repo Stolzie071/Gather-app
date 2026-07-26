@@ -1,10 +1,10 @@
 import { StatusBar } from "expo-status-bar";
-import { StyleSheet, View, Text } from "react-native";
+import { StyleSheet, View, Text, Image } from "react-native";
 import { Title } from "../components/Title";
 import { SubTitle } from "../components/Subtitle";
 import { Button } from "../components/Button";
 import { SettingsButton } from "../components/SettingsButton";
-import { FrontWave } from "../components/FrontWave";
+import FrontWave from "../../assets/Decorate/Front_wave.svg";
 import DiceIcon from "../../assets/icons/mini_dice_1.svg";
 import CupIcon from "../../assets/icons/Cup.svg";
 import ArrowIcon from "../../assets/icons/Arrow.svg";
@@ -25,6 +25,7 @@ import Dice_decor from "../../assets/Decorate/dice_decor.svg";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useState } from "react";
 import { SettingsSheet } from "../components/SettingsSheet";
+import FrontWaveShadow from "../../assets/Decorate/Front_wave_shadow.png";
 
 export function HomeScreen() {
   const insets = useSafeAreaInsets();
@@ -41,7 +42,12 @@ export function HomeScreen() {
         <View style={styles.waveScene}>
           <Dice_guy style={styles.Dice_guy} />
           <Dice_decor style={styles.Dice_decor} />
-          <FrontWave style={styles.frontWave} />
+          <Image
+            source={FrontWaveShadow}
+            style={styles.frontWaveShadow}
+            resizeMode="stretch"
+          />
+          <FrontWave width="100%" height="100%" style={styles.frontWave} />
           <Hand style={styles.Hand} />
         </View>
         <PlantsLeftBot style={styles.plantsLeft} />
@@ -182,8 +188,8 @@ const styles = StyleSheet.create({
     position: "absolute",
     alignSelf: "center",
     top: 264,
-    width: 470,
-    height: 800,
+    width: 499,
+    height: 775,
   },
 
   Star_1: {
@@ -227,5 +233,13 @@ const styles = StyleSheet.create({
     left: 150,
     top: -70,
     transform: [{ rotate: "-12deg" }],
+  },
+
+  frontWaveShadow: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    width: "100%",
+    height: "100%",
   },
 });
