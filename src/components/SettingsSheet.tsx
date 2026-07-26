@@ -59,7 +59,7 @@ export function SettingsSheet({ visible, onClose }: SettingsSheetProps) {
     } else {
       translateY.value = withTiming(HIDDEN_POSITION);
     }
-  }, [visible]);
+  }, [visible, translateY]);
 
   return (
     <View style={styles.container} pointerEvents={visible ? "auto" : "none"}>

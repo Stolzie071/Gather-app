@@ -1,0 +1,15 @@
+export { default as Dice_decor } from "./dice_decor.svg";
+export { default as Dice_guy } from "./dice_guy.svg";
+export { default as FrontWave } from "./Front_wave.svg";
+export { default as FrontWaveShadow } from "./Front_wave_shadow.png";
+export { default as Hand } from "./hand.svg";
+export { default as PlantsLeftBot } from "./plants_left_bot.svg";
+export { default as PlantsRightBot } from "./plants_right_bot.svg";
+export { default as Star_1 } from "./Star 1.svg";
+export { default as Star_2 } from "./Star 2.svg";
+export { default as Star_3 } from "./Star 3.svg";
+export { default as Star_4 } from "./Star 4.svg";
+export { default as Title_decor } from "./title_decor.svg";
+export { default as Title_decor_2 } from "./title_decor_2.svg";
+export { default as Wave_left_top } from "./Wave_left_top.svg";
+export { default as Wave_right_down } from "./Wave_right_down.svg";

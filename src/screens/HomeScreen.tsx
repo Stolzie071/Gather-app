@@ -6,32 +6,38 @@ import {
   Image,
   useWindowDimensions,
 } from "react-native";
-import { Title } from "../components/Title";
-import { SubTitle } from "../components/Subtitle";
-import { Button } from "../components/Button";
-import { SettingsButton } from "../components/SettingsButton";
-import FrontWave from "../../assets/Decorate/Front_wave.svg";
-import DiceIcon from "../../assets/icons/mini_dice_1.svg";
-import CupIcon from "../../assets/icons/Cup.svg";
-import ArrowIcon from "../../assets/icons/Arrow.svg";
-import { colors } from "../theme/colors";
-import PlantsLeftBot from "../../assets/Decorate/plants_left_bot.svg";
-import PlantsRightBot from "../../assets/Decorate/plants_right_bot.svg";
-import Wave_left_top from "../../assets/Decorate/Wave_left_top.svg";
-import Wave_right_down from "../../assets/Decorate/Wave_right_down.svg";
-import Dice_guy from "../../assets/Decorate/dice_guy.svg";
-import Hand from "../../assets/Decorate/hand.svg";
-import Star_1 from "../../assets/Decorate/Star 1.svg";
-import Star_2 from "../../assets/Decorate/Star 2.svg";
-import Star_3 from "../../assets/Decorate/Star 3.svg";
-import Star_4 from "../../assets/Decorate/Star 4.svg";
-import Title_decor from "../../assets/Decorate/title_decor.svg";
-import Title_decor_2 from "../../assets/Decorate/title_decor_2.svg";
-import Dice_decor from "../../assets/Decorate/dice_decor.svg";
+
+import {
+  Button,
+  SettingsButton,
+  SettingsSheet,
+  SubTitle,
+  Title,
+} from "@/components";
+
+import { ArrowIcon, CupIcon, DiceIcon } from "@assets/icons";
+import { colors } from "@/theme/colors";
+
+import {
+  Dice_decor,
+  Dice_guy,
+  FrontWave,
+  FrontWaveShadow,
+  Hand,
+  PlantsLeftBot,
+  PlantsRightBot,
+  Star_1,
+  Star_2,
+  Star_3,
+  Star_4,
+  Title_decor,
+  Title_decor_2,
+  Wave_left_top,
+  Wave_right_down,
+} from "@assets/Decorate";
+
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useState } from "react";
-import { SettingsSheet } from "../components/SettingsSheet";
-import FrontWaveShadow from "../../assets/Decorate/Front_wave_shadow.png";
 
 const WAVE_WIDTH = 499;
 const WAVE_SIDE_OVERFLOW = 48;
