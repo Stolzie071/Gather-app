@@ -35,7 +35,8 @@ const styles = StyleSheet.create({
     position: "relative",
 
     minHeight: 56,
-    padding: 14,
+    padding: 16,
+    columnGap: 16,
 
     flexDirection: "row",
     alignItems: "center",
@@ -63,7 +64,7 @@ const styles = StyleSheet.create({
     right: 0,
     bottom: 0,
 
-    height: 1,
+    height: 1.5,
     backgroundColor: colors.secondary3,
   },
 });

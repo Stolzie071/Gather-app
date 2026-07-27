@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "MyGame",
-    "slug": "MyGame",
+    "name": "Gather",
+    "slug": "gather",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",

@@ -19,7 +19,7 @@ export function SettingsSection({ title, children }: SettingsSectionProps) {
         cornerRadius={20}
         fillColor={colors.surface}
         strokeColor={colors.secondary3}
-        strokeWidth={1}
+        strokeWidth={1.5}
       >
         {children}
       </Squircle>

@@ -168,6 +168,7 @@ export function HomeScreen() {
       <SettingsSheet
         visible={isSettingsOpen}
         onClose={() => setIsSettingsOpen(false)}
+        compact={isCompactScreen}
       />
       <StatusBar style="auto" />
     </View>

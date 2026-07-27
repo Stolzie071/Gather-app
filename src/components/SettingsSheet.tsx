@@ -7,11 +7,12 @@ import {
   Dimensions,
 } from "react-native";
 import { colors } from "../theme/colors";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import { SettingsSection } from "@/components/settings/SettingsSection";
 import { SettingsRow } from "@/components/settings/SettingsRow";
 import {
+  ArrowIcon,
   DarkthemeIcon,
   SoundsIcon,
   MusicIcon,
@@ -25,6 +26,14 @@ import {
   RateIcon,
 } from "@assets/icons";
 
+import { AnimatedSwitch } from "@/components/AnimatedSwitch";
+import { AppSlider } from "@/components/AppSlider";
+
+import {
+  LanguageSelector,
+  type Language,
+} from "@/components/settings/LanguageSelector";
+
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -35,12 +44,24 @@ import Animated, {
 type SettingsSheetProps = {
   visible: boolean;
   onClose: () => void;
+  compact: boolean;
 };
 
 const SCREEN_HEIGHT = Dimensions.get("window").height;
 const HIDDEN_POSITION = SCREEN_HEIGHT + 10;
 
-export function SettingsSheet({ visible, onClose }: SettingsSheetProps) {
+export function SettingsSheet({
+  visible,
+  onClose,
+  compact,
+}: SettingsSheetProps) {
+  const [darkThemeEnabled, setDarkThemeEnabled] = useState(false);
+  const [hapticsEnabled, setHapticsEnabled] = useState(true);
+  const [keepAwakeEnabled, setKeepAwakeEnabled] = useState(false);
+  const [soundVolume, setSoundVolume] = useState(0.8);
+  const [musicVolume, setMusicVolume] = useState(0.8);
+  const [language, setLanguage] = useState<Language>("ru");
+
   const translateY = useSharedValue(HIDDEN_POSITION);
 
   const animatedStyle = useAnimatedStyle(() => {
@@ -99,68 +120,155 @@ export function SettingsSheet({ visible, onClose }: SettingsSheetProps) {
         <ScrollView
           style={styles.scroll}
           contentContainerStyle={styles.content}
-          showsVerticalScrollIndicator={true}
+          showsVerticalScrollIndicator={false}
         >
           <Text style={styles.title}>Настройки</Text>
 
           <SettingsSection>
             <SettingsRow
-              icon={<DarkthemeIcon width={28} height={28} />}
+              icon={<DarkthemeIcon width={36} height={36} />}
               title="Тёмная тема"
+              rightContent={
+                <AnimatedSwitch
+                  value={darkThemeEnabled}
+                  onValueChange={setDarkThemeEnabled}
+                  compact={compact}
+                />
+              }
             />
           </SettingsSection>
 
           <SettingsSection title="Звук">
             <SettingsRow
-              icon={<SoundsIcon width={28} height={28} />}
+              icon={<SoundsIcon width={36} height={36} />}
               title="Звуки"
               showDivider
+              rightContent={
+                <AppSlider
+                  value={soundVolume}
+                  onValueChange={setSoundVolume}
+                  compact={compact}
+                />
+              }
             />
             <SettingsRow
-              icon={<MusicIcon width={28} height={28} />}
+              icon={<MusicIcon width={36} height={36} />}
               title="Музыка"
               showDivider
+              rightContent={
+                <AppSlider
+                  value={musicVolume}
+                  onValueChange={setMusicVolume}
+                  compact={compact}
+                />
+              }
             />
             <SettingsRow
-              icon={<VibrationIcon width={28} height={28} />}
+              icon={<VibrationIcon width={36} height={36} />}
               title="Тактильная отдача"
+              rightContent={
+                <AnimatedSwitch
+                  value={hapticsEnabled}
+                  onValueChange={setHapticsEnabled}
+                  compact={compact}
+                />
+              }
             />
           </SettingsSection>
           <SettingsSection title="Приложение">
             <SettingsRow
-              icon={<LanguageIcon width={28} height={28} />}
+              icon={<LanguageIcon width={36} height={36} />}
               title="Язык"
               showDivider
+              rightContent={
+                <LanguageSelector
+                  value={language}
+                  onValueChange={setLanguage}
+                  compact={compact}
+                />
+              }
             />
             <SettingsRow
-              icon={<LockIcon width={28} height={28} />}
+              icon={<LockIcon width={36} height={36} />}
               title="Не выключать экран"
+              rightContent={
+                <AnimatedSwitch
+                  value={keepAwakeEnabled}
+                  onValueChange={setKeepAwakeEnabled}
+                  compact={compact}
+                />
+              }
             />
           </SettingsSection>
           <SettingsSection title="Информация">
             <SettingsRow
-              icon={<InfoIcon width={28} height={28} />}
+              icon={<InfoIcon width={36} height={36} />}
               title="О Gather"
               showDivider
+              rightContent={
+                <ArrowIcon
+                  width={8}
+                  height={14}
+                  color={colors.textSecondary}
+                  opacity={0.6}
+                  style={styles.infoArrow}
+                />
+              }
             />
             <SettingsRow
-              icon={<SupportIcon width={28} height={28} />}
+              icon={<SupportIcon width={36} height={36} />}
               title="Обратная связь"
               showDivider
+              rightContent={
+                <ArrowIcon
+                  width={8}
+                  height={14}
+                  color={colors.textSecondary}
+                  opacity={0.6}
+                  style={styles.infoArrow}
+                />
+              }
             />
             <SettingsRow
-              icon={<PrivacyIcon width={28} height={28} />}
+              icon={<PrivacyIcon width={36} height={36} />}
               title="Политика конфиденциальности"
               showDivider
+              rightContent={
+                <ArrowIcon
+                  width={8}
+                  height={14}
+                  color={colors.textSecondary}
+                  opacity={0.6}
+                  style={styles.infoArrow}
+                />
+              }
             />
             <SettingsRow
-              icon={<RateIcon width={28} height={28} />}
+              icon={<RateIcon width={36} height={36} />}
               title="Оценить приложение"
               showDivider
+              rightContent={
+                <ArrowIcon
+                  width={8}
+                  height={14}
+                  color={colors.textSecondary}
+                  opacity={0.6}
+                  style={styles.infoArrow}
+                />
+              }
             />
             <SettingsRow
-              icon={<DonationIcon width={28} height={28} />}
+              icon={<DonationIcon width={36} height={36} />}
               title="Поддержать разработчика"
+              rightContent={
+                <ArrowIcon
+                  width={8}
+                  height={14}
+                  color={colors.textSecondary}
+                  opacity={0.6}
+                  style={styles.infoArrow}
+                />
+              }
             />
           </SettingsSection>
         </ScrollView>
@@ -230,5 +338,8 @@ const styles = StyleSheet.create({
     lineHeight: 42,
     textAlign: "center",
     marginBottom: 18,
+  },
+  infoArrow: {
+    marginRight: 4,
   },
 });
