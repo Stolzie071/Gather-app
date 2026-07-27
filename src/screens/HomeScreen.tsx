@@ -26,14 +26,14 @@ import {
   Hand,
   PlantsLeftBot,
   PlantsRightBot,
-  Star_1,
-  Star_2,
-  Star_3,
-  Star_4,
-  Title_decor,
-  Title_decor_2,
-  Wave_left_top,
-  Wave_right_down,
+  Star1,
+  Star2,
+  Star3,
+  Star4,
+  TitleDecor,
+  TitleDecor2,
+  WaveLeftTop,
+  WaveRightDown,
 } from "@assets/Decorate";
 
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -64,12 +64,12 @@ export function HomeScreen() {
   return (
     <View style={[styles.container, { paddingTop: 370 * verticalScale }]}>
       <View style={styles.background}>
-        <Wave_left_top style={styles.Wave_left_top} />
-        <Wave_right_down style={styles.Wave_right_down} />
-        <Star_1 style={styles.Star_1} />
-        <Star_2 style={styles.Star_2} />
-        <Star_3 style={styles.Star_3} />
-        <Star_4 style={styles.Star_4} />
+        <WaveLeftTop style={styles.Wave_left_top} />
+        <WaveRightDown style={styles.Wave_right_down} />
+        <Star1 style={styles.Star_1} />
+        <Star2 style={styles.Star_2} />
+        <Star3 style={styles.Star_3} />
+        <Star4 style={styles.Star_4} />
         <View
           style={[
             styles.waveScene,
@@ -107,9 +107,9 @@ export function HomeScreen() {
       >
         <View style={styles.titleBlock}>
           <View style={styles.logoScene}>
-            <Title_decor_2 style={styles.titleDecorLeft} />
+            <TitleDecor2 style={styles.titleDecorLeft} />
             <Title text="Gather" compact={isCompactScreen} />
-            <Title_decor style={styles.titleDecorRight} />
+            <TitleDecor style={styles.titleDecorRight} />
           </View>
 
           <SubTitle text="Вечер станет интереснее" />

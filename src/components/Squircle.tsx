@@ -1,16 +1,14 @@
 import { useState, type ReactNode } from "react";
 import { SquircleView } from "react-native-figma-squircle";
-import type {
-  LayoutChangeEvent,
-  StyleProp,
-  ViewStyle,
-} from "react-native";
+import type { LayoutChangeEvent, StyleProp, ViewStyle } from "react-native";
 
 type SquircleProps = {
   children: ReactNode;
   style: StyleProp<ViewStyle>;
   cornerRadius: number;
   fillColor: string;
+  strokeColor?: string;
+  strokeWidth?: number;
 };
 
 export function Squircle({
@@ -18,6 +16,8 @@ export function Squircle({
   style,
   cornerRadius,
   fillColor,
+  strokeColor,
+  strokeWidth,
 }: SquircleProps) {
   const [layoutKey, setLayoutKey] = useState("initial");
 
@@ -39,6 +39,8 @@ export function Squircle({
         cornerRadius,
         cornerSmoothing: 0.6,
         fillColor,
+        strokeColor,
+        strokeWidth,
       }}
     >
       {children}

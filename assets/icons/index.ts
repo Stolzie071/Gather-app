@@ -1,3 +1,14 @@
 export { default as ArrowIcon } from "./Arrow.svg";
 export { default as CupIcon } from "./Cup.svg";
 export { default as DiceIcon } from "./mini_dice_1.svg";
+export { default as DarkthemeIcon } from "./Dark_theme_icon.svg";
+export { default as SoundsIcon } from "./sounds_icon.svg";
+export { default as MusicIcon } from "./Music_Icon.svg";
+export { default as VibrationIcon } from "./Vibr_Icon.svg";
+export { default as LanguageIcon } from "./Language_Icon.svg";
+export { default as LockIcon } from "./Lock_screen_Icon.svg";
+export { default as InfoIcon } from "./Info_Icon.svg";
+export { default as SupportIcon } from "./Support_Icon.svg";
+export { default as PrivacyIcon } from "./Private_Icon.svg";
+export { default as DonationIcon } from "./Donation_Icon.svg";
+export { default as RateIcon } from "./Rate_Icon.svg";
