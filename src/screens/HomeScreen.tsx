@@ -17,6 +17,7 @@ import {
 
 import { ArrowIcon, CupIcon, DiceIcon } from "@assets/icons";
 import { colors } from "@/theme/colors";
+import { useLocalization } from "@/localization/LocalizationProvider";
 
 import {
   Dice_decor,
@@ -50,6 +51,7 @@ const COMPACT_BUTTON_SIDE_MARGIN = 40;
 export function HomeScreen() {
   const insets = useSafeAreaInsets();
   const { width: screenWidth, height: screenHeight } = useWindowDimensions();
+  const { t } = useLocalization();
 
   const waveScale = (screenWidth + WAVE_SIDE_OVERFLOW * 2) / WAVE_WIDTH;
   const verticalScale = Math.min(screenHeight / DESIGN_HEIGHT, 1);
@@ -112,7 +114,7 @@ export function HomeScreen() {
             <TitleDecor style={styles.titleDecorRight} />
           </View>
 
-          <SubTitle text="Вечер станет интереснее" />
+          <SubTitle text={t("home.subtitle")} />
         </View>
 
         <View
@@ -125,7 +127,7 @@ export function HomeScreen() {
           ]}
         >
           <Button
-            text="Играть"
+            text={t("home.play")}
             onPress={() => {}}
             compact={isCompactScreen}
             icon={<DiceIcon width={buttonIconSize} height={buttonIconSize} />}
@@ -138,7 +140,7 @@ export function HomeScreen() {
             }
           />
           <Button
-            text="Статистика"
+            text={t("home.statistics")}
             onPress={() => {}}
             variant="secondary"
             compact={isCompactScreen}

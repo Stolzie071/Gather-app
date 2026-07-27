@@ -29,10 +29,8 @@ import {
 import { AnimatedSwitch } from "@/components/AnimatedSwitch";
 import { AppSlider } from "@/components/AppSlider";
 
-import {
-  LanguageSelector,
-  type Language,
-} from "@/components/settings/LanguageSelector";
+import { LanguageSelector } from "@/components/settings/LanguageSelector";
+import { useLocalization } from "@/localization/LocalizationProvider";
 
 import Animated, {
   useSharedValue,
@@ -55,12 +53,12 @@ export function SettingsSheet({
   onClose,
   compact,
 }: SettingsSheetProps) {
+  const { language, setLanguage, t } = useLocalization();
   const [darkThemeEnabled, setDarkThemeEnabled] = useState(false);
   const [hapticsEnabled, setHapticsEnabled] = useState(true);
   const [keepAwakeEnabled, setKeepAwakeEnabled] = useState(false);
   const [soundVolume, setSoundVolume] = useState(0.8);
   const [musicVolume, setMusicVolume] = useState(0.8);
-  const [language, setLanguage] = useState<Language>("ru");
 
   const translateY = useSharedValue(HIDDEN_POSITION);
 
@@ -122,12 +120,12 @@ export function SettingsSheet({
           contentContainerStyle={styles.content}
           showsVerticalScrollIndicator={false}
         >
-          <Text style={styles.title}>Настройки</Text>
+          <Text style={styles.title}>{t("settings.title")}</Text>
 
           <SettingsSection>
             <SettingsRow
               icon={<DarkthemeIcon width={36} height={36} />}
-              title="Тёмная тема"
+              title={t("settings.darkTheme")}
               rightContent={
                 <AnimatedSwitch
                   value={darkThemeEnabled}
@@ -138,10 +136,10 @@ export function SettingsSheet({
             />
           </SettingsSection>
 
-          <SettingsSection title="Звук">
+          <SettingsSection title={t("settings.sections.sound")}>
             <SettingsRow
               icon={<SoundsIcon width={36} height={36} />}
-              title="Звуки"
+              title={t("settings.items.sounds")}
               showDivider
               rightContent={
                 <AppSlider
@@ -153,7 +151,7 @@ export function SettingsSheet({
             />
             <SettingsRow
               icon={<MusicIcon width={36} height={36} />}
-              title="Музыка"
+              title={t("settings.items.music")}
               showDivider
               rightContent={
                 <AppSlider
@@ -165,7 +163,7 @@ export function SettingsSheet({
             />
             <SettingsRow
               icon={<VibrationIcon width={36} height={36} />}
-              title="Тактильная отдача"
+              title={t("settings.items.hapticFeedback")}
               rightContent={
                 <AnimatedSwitch
                   value={hapticsEnabled}
@@ -175,10 +173,10 @@ export function SettingsSheet({
               }
             />
           </SettingsSection>
-          <SettingsSection title="Приложение">
+          <SettingsSection title={t("settings.sections.application")}>
             <SettingsRow
               icon={<LanguageIcon width={36} height={36} />}
-              title="Язык"
+              title={t("settings.items.language")}
               showDivider
               rightContent={
                 <LanguageSelector
@@ -190,7 +188,7 @@ export function SettingsSheet({
             />
             <SettingsRow
               icon={<LockIcon width={36} height={36} />}
-              title="Не выключать экран"
+              title={t("settings.items.keepAwake")}
               rightContent={
                 <AnimatedSwitch
                   value={keepAwakeEnabled}
@@ -200,10 +198,10 @@ export function SettingsSheet({
               }
             />
           </SettingsSection>
-          <SettingsSection title="Информация">
+          <SettingsSection title={t("settings.sections.information")}>
             <SettingsRow
               icon={<InfoIcon width={36} height={36} />}
-              title="О Gather"
+              title={t("settings.items.about")}
               showDivider
               rightContent={
                 <ArrowIcon
@@ -217,7 +215,7 @@ export function SettingsSheet({
             />
             <SettingsRow
               icon={<SupportIcon width={36} height={36} />}
-              title="Обратная связь"
+              title={t("settings.items.feedback")}
               showDivider
               rightContent={
                 <ArrowIcon
@@ -231,7 +229,7 @@ export function SettingsSheet({
             />
             <SettingsRow
               icon={<PrivacyIcon width={36} height={36} />}
-              title="Политика конфиденциальности"
+              title={t("settings.items.privacyPolicy")}
               showDivider
               rightContent={
                 <ArrowIcon
@@ -245,7 +243,7 @@ export function SettingsSheet({
             />
             <SettingsRow
               icon={<RateIcon width={36} height={36} />}
-              title="Оценить приложение"
+              title={t("settings.items.rateApp")}
               showDivider
               rightContent={
                 <ArrowIcon
@@ -259,7 +257,7 @@ export function SettingsSheet({
             />
             <SettingsRow
               icon={<DonationIcon width={36} height={36} />}
-              title="Поддержать разработчика"
+              title={t("settings.items.supportDeveloper")}
               rightContent={
                 <ArrowIcon
                   width={8}

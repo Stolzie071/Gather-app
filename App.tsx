@@ -6,6 +6,7 @@ import { Nunito_600SemiBold } from "@expo-google-fonts/nunito/600SemiBold";
 import { Nunito_700Bold } from "@expo-google-fonts/nunito/700Bold";
 import { Nunito_800ExtraBold } from "@expo-google-fonts/nunito/800ExtraBold";
 import { Nunito_900Black } from "@expo-google-fonts/nunito/900Black";
+import { LocalizationProvider } from "@/localization/LocalizationProvider";
 
 export default function App() {
   const [fontsLoaded] = useFonts({
@@ -22,7 +23,9 @@ export default function App() {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <SafeAreaProvider>
-        <HomeScreen />
+        <LocalizationProvider>
+          <HomeScreen />
+        </LocalizationProvider>
       </SafeAreaProvider>
     </GestureHandlerRootView>
   );
