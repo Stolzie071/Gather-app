@@ -1,5 +1,5 @@
 import { Image, StyleSheet, useWindowDimensions, View } from "react-native";
-import type { NativeStackScreenProps } from "@react-navigation/native-stack";
+import type { BlankStackScreenProps } from "react-native-screen-transitions/blank-stack";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
 import { useState } from "react";
@@ -23,7 +23,7 @@ import type { RootStackParamList } from "@/navigation/types";
 const DESIGN_WIDTH = 402;
 const DESIGN_HEIGHT = 874;
 
-type SpyGameScreenProps = NativeStackScreenProps<RootStackParamList, "SpyGame">;
+type SpyGameScreenProps = BlankStackScreenProps<RootStackParamList, "SpyGame">;
 
 export function SpyGameScreen({ navigation }: SpyGameScreenProps) {
   const insets = useSafeAreaInsets();

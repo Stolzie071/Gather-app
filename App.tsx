@@ -8,14 +8,15 @@ import { Nunito_800ExtraBold } from "@expo-google-fonts/nunito/800ExtraBold";
 import { Nunito_900Black } from "@expo-google-fonts/nunito/900Black";
 import { LocalizationProvider } from "@/localization/LocalizationProvider";
 import { NavigationContainer } from "@react-navigation/native";
-import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import { createBlankStackNavigator } from "react-native-screen-transitions/blank-stack";
 import { GameListScreen } from "./src/screens/GameListScreen";
 import type { RootStackParamList } from "@/navigation/types";
 import { SpyGameScreen } from "./src/screens/games/SpyGameScreen";
 import { AliasGameScreen } from "./src/screens/games/AliasGameScreen";
 import { MafiaGameScreen } from "./src/screens/games/MafiaGameScreen";
+import { iosPageTransition } from "@/navigation/transitions";
 
-const Stack = createNativeStackNavigator<RootStackParamList>();
+const Stack = createBlankStackNavigator<RootStackParamList>();
 
 export default function App() {
   const [fontsLoaded] = useFonts({
@@ -34,15 +35,28 @@ export default function App() {
       <SafeAreaProvider>
         <LocalizationProvider>
           <NavigationContainer>
-            <Stack.Navigator
-              initialRouteName="Home"
-              screenOptions={{ headerShown: false }}
-            >
+            <Stack.Navigator initialRouteName="Home" nativeScreens={false}>
               <Stack.Screen name="Home" component={HomeScreen} />
-              <Stack.Screen name="GameList" component={GameListScreen} />
-              <Stack.Screen name="SpyGame" component={SpyGameScreen} />
-              <Stack.Screen name="AliasGame" component={AliasGameScreen} />
-              <Stack.Screen name="MafiaGame" component={MafiaGameScreen} />
+              <Stack.Screen
+                name="GameList"
+                component={GameListScreen}
+                options={iosPageTransition}
+              />
+              <Stack.Screen
+                name="SpyGame"
+                component={SpyGameScreen}
+                options={iosPageTransition}
+              />
+              <Stack.Screen
+                name="AliasGame"
+                component={AliasGameScreen}
+                options={iosPageTransition}
+              />
+              <Stack.Screen
+                name="MafiaGame"
+                component={MafiaGameScreen}
+                options={iosPageTransition}
+              />
             </Stack.Navigator>
           </NavigationContainer>
         </LocalizationProvider>

@@ -1,4 +1,4 @@
-import type { NativeStackScreenProps } from "@react-navigation/native-stack";
+import type { BlankStackScreenProps } from "react-native-screen-transitions/blank-stack";
 import type { RootStackParamList } from "@/navigation/types";
 
 import { StatusBar } from "expo-status-bar";
@@ -52,7 +52,7 @@ const COMPACT_MAX_WIDTH = 350;
 const COMPACT_WAVE_OFFSET = 16;
 const COMPACT_BUTTON_SIDE_MARGIN = 40;
 
-type HomeScreenProps = NativeStackScreenProps<RootStackParamList, "Home">;
+type HomeScreenProps = BlankStackScreenProps<RootStackParamList, "Home">;
 
 export function HomeScreen({ navigation }: HomeScreenProps) {
   const insets = useSafeAreaInsets();

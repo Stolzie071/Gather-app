@@ -19,7 +19,7 @@ import { games, type Game } from "@/data/games";
 import { useLocalization } from "@/localization/LocalizationProvider";
 import { colors } from "@/theme/colors";
 
-import type { NativeStackScreenProps } from "@react-navigation/native-stack";
+import type { BlankStackScreenProps } from "react-native-screen-transitions/blank-stack";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
@@ -69,7 +69,7 @@ function filterGames(gameList: Game[], query: string) {
   );
 }
 
-type GameListScreenProps = NativeStackScreenProps<
+type GameListScreenProps = BlankStackScreenProps<
   RootStackParamList,
   "GameList"
 >;

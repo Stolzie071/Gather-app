@@ -1,5 +1,5 @@
 import { StyleSheet, Text, View } from "react-native";
-import type { NativeStackScreenProps } from "@react-navigation/native-stack";
+import type { BlankStackScreenProps } from "react-native-screen-transitions/blank-stack";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { BackButton } from "@/components";
@@ -7,7 +7,7 @@ import { useLocalization } from "@/localization/LocalizationProvider";
 import type { RootStackParamList } from "@/navigation/types";
 import { colors } from "@/theme/colors";
 
-type AliasGameScreenProps = NativeStackScreenProps<
+type AliasGameScreenProps = BlankStackScreenProps<
   RootStackParamList,
   "AliasGame"
 >;
