@@ -5,6 +5,7 @@ import {
   Text,
   ScrollView,
   Dimensions,
+  BackHandler,
 } from "react-native";
 import { colors } from "../theme/colors";
 import { useEffect } from "react";
@@ -98,6 +99,22 @@ export function SettingsSheet({
       translateY.value = withTiming(HIDDEN_POSITION);
     }
   }, [visible, translateY]);
+
+  useEffect(() => {
+    if (!visible) {
+      return;
+    }
+
+    const backSubscription = BackHandler.addEventListener(
+      "hardwareBackPress",
+      () => {
+        onClose();
+        return true;
+      },
+    );
+
+    return () => backSubscription.remove();
+  }, [visible, onClose]);
 
   return (
     <View style={styles.container} pointerEvents={visible ? "auto" : "none"}>
