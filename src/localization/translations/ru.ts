@@ -5,6 +5,35 @@ export const ru = {
     statistics: "Статистика",
   },
 
+  gameList: {
+    title: "Во что играем?",
+    subtitle: "Выбери игру для своей компании",
+    searchPlaceholder: "Поиск игры...",
+    tabs: {
+      all: "Все игры",
+      favorites: "Избранные",
+    },
+    emptyFavorites: "Избранных игр пока что нет",
+    emptySearch: "Игры не найдены",
+    games: {
+      spy: {
+        title: "Шпион",
+        players: "3-10 игроков",
+        duration: "15-30 мин",
+      },
+      alias: {
+        title: "Alias",
+        players: "2-16 игроков",
+        duration: "30-60 мин",
+      },
+      mafia: {
+        title: "Мафия",
+        players: "6-20 игроков",
+        duration: "30+ мин",
+      },
+    },
+  },
+
   settings: {
     title: "Настройки",
     darkTheme: "Тёмная тема",

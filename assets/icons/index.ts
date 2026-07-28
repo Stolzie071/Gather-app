@@ -1,6 +1,13 @@
 export { default as ArrowIcon } from "./Arrow.svg";
+export { default as BackIcon } from "./Back_button.svg";
 export { default as CupIcon } from "./Cup.svg";
 export { default as DiceIcon } from "./mini_dice_1.svg";
+export { default as TabDiceIcon } from "./mini_dice_2.svg";
+export { default as FavoritesIcon } from "./Favorites_icon.svg";
+export { default as SearchIcon } from "./search_icon.svg";
+export { default as PlayersIcon } from "./players_icon.svg";
+export { default as TimeIcon } from "./time_icon.svg";
+export { default as SettingsIcon } from "./Settings_but.svg";
 export { default as DarkthemeIcon } from "./Dark_theme_icon.svg";
 export { default as SoundsIcon } from "./sounds_icon.svg";
 export { default as MusicIcon } from "./Music_Icon.svg";

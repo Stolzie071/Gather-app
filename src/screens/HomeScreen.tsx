@@ -1,3 +1,6 @@
+import type { NativeStackScreenProps } from "@react-navigation/native-stack";
+import type { RootStackParamList } from "@/navigation/types";
+
 import { StatusBar } from "expo-status-bar";
 import {
   StyleSheet,
@@ -35,7 +38,7 @@ import {
   TitleDecor2,
   WaveLeftTop,
   WaveRightDown,
-} from "@assets/Decorate";
+} from "@assets/Decorate/MainScreen";
 
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useState } from "react";
@@ -48,7 +51,9 @@ const COMPACT_MAX_WIDTH = 350;
 const COMPACT_WAVE_OFFSET = 16;
 const COMPACT_BUTTON_SIDE_MARGIN = 40;
 
-export function HomeScreen() {
+type HomeScreenProps = NativeStackScreenProps<RootStackParamList, "Home">;
+
+export function HomeScreen({ navigation }: HomeScreenProps) {
   const insets = useSafeAreaInsets();
   const { width: screenWidth, height: screenHeight } = useWindowDimensions();
   const { t } = useLocalization();
@@ -128,7 +133,7 @@ export function HomeScreen() {
         >
           <Button
             text={t("home.play")}
-            onPress={() => {}}
+            onPress={() => navigation.navigate("GameList")}
             compact={isCompactScreen}
             icon={<DiceIcon width={buttonIconSize} height={buttonIconSize} />}
             rightIcon={

@@ -5,6 +5,35 @@ export const en = {
     statistics: "Statistics",
   },
 
+  gameList: {
+    title: "What are we playing?",
+    subtitle: "Choose a game for your group",
+    searchPlaceholder: "Search games...",
+    tabs: {
+      all: "All games",
+      favorites: "Favorites",
+    },
+    emptyFavorites: "No favorite games yet",
+    emptySearch: "No games found",
+    games: {
+      spy: {
+        title: "Spy",
+        players: "3-10 players",
+        duration: "15-30 min",
+      },
+      alias: {
+        title: "Alias",
+        players: "2-16 players",
+        duration: "30-60 min",
+      },
+      mafia: {
+        title: "Mafia",
+        players: "6-20 players",
+        duration: "30+ min",
+      },
+    },
+  },
+
   settings: {
     title: "Settings",
     darkTheme: "Dark theme",
