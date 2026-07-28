@@ -85,6 +85,7 @@ export function GameListScreen({ navigation }: GameListScreenProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const [activeTab, setActiveTab] = useState<GameListTab>("all");
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [hasOpenedSettings, setHasOpenedSettings] = useState(false);
   const swipeProgress = useSharedValue(0);
   const swipeStartProgress = useSharedValue(0);
   const filteredGames = useMemo(
@@ -106,6 +107,11 @@ export function GameListScreen({ navigation }: GameListScreenProps) {
       duration: 320,
       easing: Easing.out(Easing.cubic),
     });
+  };
+
+  const handleOpenSettings = () => {
+    setHasOpenedSettings(true);
+    setIsSettingsOpen(true);
   };
 
   const pagePanGesture = useMemo(
@@ -321,7 +327,7 @@ export function GameListScreen({ navigation }: GameListScreenProps) {
         }}
       />
       <SettingsButton
-        onPress={() => setIsSettingsOpen(true)}
+        onPress={handleOpenSettings}
         compact={isCompactScreen}
         style={{
           position: "absolute",
@@ -339,11 +345,13 @@ export function GameListScreen({ navigation }: GameListScreenProps) {
         onTabChange={handleTabChange}
       />
 
-      <SettingsSheet
-        visible={isSettingsOpen}
-        onClose={() => setIsSettingsOpen(false)}
-        compact={isCompactScreen}
-      />
+      {hasOpenedSettings && (
+        <SettingsSheet
+          visible={isSettingsOpen}
+          onClose={() => setIsSettingsOpen(false)}
+          compact={isCompactScreen}
+        />
+      )}
     </LinearGradient>
   );
 }

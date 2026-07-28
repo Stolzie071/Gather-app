@@ -3,6 +3,7 @@ import type { RootStackParamList } from "@/navigation/types";
 
 import { StatusBar } from "expo-status-bar";
 import {
+  InteractionManager,
   StyleSheet,
   View,
   Text,
@@ -41,7 +42,7 @@ import {
 } from "@assets/Decorate/MainScreen";
 
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 const WAVE_WIDTH = 499;
 const WAVE_SIDE_OVERFLOW = 48;
@@ -67,6 +68,20 @@ export function HomeScreen({ navigation }: HomeScreenProps) {
   const arrowHeight = isCompactScreen ? 20 : 23;
 
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [hasOpenedSettings, setHasOpenedSettings] = useState(false);
+
+  useEffect(() => {
+    const preloadTask = InteractionManager.runAfterInteractions(() => {
+      navigation.preload("GameList");
+    });
+
+    return () => preloadTask.cancel();
+  }, [navigation]);
+
+  const handleOpenSettings = () => {
+    setHasOpenedSettings(true);
+    setIsSettingsOpen(true);
+  };
 
   return (
     <View style={[styles.container, { paddingTop: 370 * verticalScale }]}>
@@ -163,7 +178,7 @@ export function HomeScreen({ navigation }: HomeScreenProps) {
 
       <Text style={[styles.version, { bottom: insets.bottom + 2 }]}>v.0.1</Text>
       <SettingsButton
-        onPress={() => setIsSettingsOpen(true)}
+        onPress={handleOpenSettings}
         compact={isCompactScreen}
         style={{
           position: "absolute",
@@ -172,11 +187,13 @@ export function HomeScreen({ navigation }: HomeScreenProps) {
         }}
       />
 
-      <SettingsSheet
-        visible={isSettingsOpen}
-        onClose={() => setIsSettingsOpen(false)}
-        compact={isCompactScreen}
-      />
+      {hasOpenedSettings && (
+        <SettingsSheet
+          visible={isSettingsOpen}
+          onClose={() => setIsSettingsOpen(false)}
+          compact={isCompactScreen}
+        />
+      )}
       <StatusBar style="auto" />
     </View>
   );
