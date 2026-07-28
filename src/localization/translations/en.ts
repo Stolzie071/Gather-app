@@ -34,6 +34,19 @@ export const en = {
     },
   },
 
+  spyGame: {
+    description: "Find the spy before\nthey discover the truth",
+    start: "Start game",
+  },
+
+  gameScreen: {
+    rules: {
+      title: "Forgot the rules?",
+      description: "Refresh them in a couple of minutes.",
+      read: "Read rules",
+    },
+  },
+
   settings: {
     title: "Settings",
     darkTheme: "Dark theme",
@@ -50,7 +63,7 @@ export const en = {
       hapticFeedback: "Haptic feedback",
       language: "Language",
       keepAwake: "Keep screen awake",
-      about: "About Gather",
+      about: "About «Gather»",
       feedback: "Feedback",
       privacyPolicy: "Privacy policy",
       rateApp: "Rate the app",

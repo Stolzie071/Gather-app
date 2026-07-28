@@ -33,6 +33,7 @@ import {
   GameCard,
 } from "@/components";
 import type { RootStackParamList } from "@/navigation/types";
+import { useFavorites } from "@/favorites/FavoritesProvider";
 
 import { useMemo, useState } from "react";
 import Animated, {
@@ -49,8 +50,6 @@ const DESIGN_WIDTH = 402;
 const DESIGN_HEIGHT = 874;
 const SURFACE_TOP = 169;
 const CARD_SHADOW_SPACE = 6;
-const favoriteGames: Game[] = [];
-
 function normalizeSearchValue(value: string) {
   return value.trim().toLocaleLowerCase().replaceAll("ё", "е");
 }
@@ -76,6 +75,7 @@ type GameListScreenProps = BlankStackScreenProps<
 
 export function GameListScreen({ navigation }: GameListScreenProps) {
   const { t } = useLocalization();
+  const { favoriteGameIds } = useFavorites();
   const insets = useSafeAreaInsets();
   const { width: screenWidth, height: screenHeight } = useWindowDimensions();
 
@@ -93,8 +93,12 @@ export function GameListScreen({ navigation }: GameListScreenProps) {
     [searchQuery],
   );
   const filteredFavoriteGames = useMemo(
-    () => filterGames(favoriteGames, searchQuery),
-    [searchQuery],
+    () =>
+      filterGames(
+        games.filter((game) => favoriteGameIds.has(game.id)),
+        searchQuery,
+      ),
+    [favoriteGameIds, searchQuery],
   );
 
   const listsAnimatedStyle = useAnimatedStyle(() => ({

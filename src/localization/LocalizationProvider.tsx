@@ -1,6 +1,7 @@
-import { createContext, useContext, useState, type ReactNode } from "react";
+import { createContext, useContext, type ReactNode } from "react";
 
 import { i18n, type Language } from "./i18n";
+import { useSettings } from "@/settings/SettingsProvider";
 
 type LocalizationContextValue = {
   language: Language;
@@ -17,13 +18,13 @@ type LocalizationProviderProps = {
 };
 
 export function LocalizationProvider({ children }: LocalizationProviderProps) {
-  const [language, setLanguageState] = useState<Language>(
-    i18n.locale as Language,
-  );
+  const { settings, updateSetting } = useSettings();
+  const language = settings.language;
+  i18n.locale = language;
 
   const setLanguage = (nextLanguage: Language) => {
     i18n.locale = nextLanguage;
-    setLanguageState(nextLanguage);
+    updateSetting("language", nextLanguage);
   };
 
   const t = (key: string) => {

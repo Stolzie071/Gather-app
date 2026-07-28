@@ -15,6 +15,8 @@ import { SpyGameScreen } from "./src/screens/games/SpyGameScreen";
 import { AliasGameScreen } from "./src/screens/games/AliasGameScreen";
 import { MafiaGameScreen } from "./src/screens/games/MafiaGameScreen";
 import { iosPageTransition } from "@/navigation/transitions";
+import { FavoritesProvider } from "@/favorites/FavoritesProvider";
+import { SettingsProvider } from "@/settings/SettingsProvider";
 
 const Stack = createBlankStackNavigator<RootStackParamList>();
 
@@ -33,33 +35,37 @@ export default function App() {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <SafeAreaProvider>
-        <LocalizationProvider>
-          <NavigationContainer>
-            <Stack.Navigator initialRouteName="Home" nativeScreens={false}>
-              <Stack.Screen name="Home" component={HomeScreen} />
-              <Stack.Screen
-                name="GameList"
-                component={GameListScreen}
-                options={iosPageTransition}
-              />
-              <Stack.Screen
-                name="SpyGame"
-                component={SpyGameScreen}
-                options={iosPageTransition}
-              />
-              <Stack.Screen
-                name="AliasGame"
-                component={AliasGameScreen}
-                options={iosPageTransition}
-              />
-              <Stack.Screen
-                name="MafiaGame"
-                component={MafiaGameScreen}
-                options={iosPageTransition}
-              />
-            </Stack.Navigator>
-          </NavigationContainer>
-        </LocalizationProvider>
+        <SettingsProvider>
+          <LocalizationProvider>
+            <FavoritesProvider>
+              <NavigationContainer>
+                <Stack.Navigator initialRouteName="Home" nativeScreens={false}>
+                  <Stack.Screen name="Home" component={HomeScreen} />
+                  <Stack.Screen
+                    name="GameList"
+                    component={GameListScreen}
+                    options={iosPageTransition}
+                  />
+                  <Stack.Screen
+                    name="SpyGame"
+                    component={SpyGameScreen}
+                    options={iosPageTransition}
+                  />
+                  <Stack.Screen
+                    name="AliasGame"
+                    component={AliasGameScreen}
+                    options={iosPageTransition}
+                  />
+                  <Stack.Screen
+                    name="MafiaGame"
+                    component={MafiaGameScreen}
+                    options={iosPageTransition}
+                  />
+                </Stack.Navigator>
+              </NavigationContainer>
+            </FavoritesProvider>
+          </LocalizationProvider>
+        </SettingsProvider>
       </SafeAreaProvider>
     </GestureHandlerRootView>
   );

@@ -34,6 +34,19 @@ export const ru = {
     },
   },
 
+  spyGame: {
+    description: "Найдите шпиона раньше,\nчем он узнает правду",
+    start: "Начать игру",
+  },
+
+  gameScreen: {
+    rules: {
+      title: "Не помнишь правила?",
+      description: "Быстро освежим за пару минут.",
+      read: "Читать правила",
+    },
+  },
+
   settings: {
     title: "Настройки",
     darkTheme: "Тёмная тема",
@@ -50,7 +63,7 @@ export const ru = {
       hapticFeedback: "Тактильная отдача",
       language: "Язык",
       keepAwake: "Не выключать экран",
-      about: "О Gather",
+      about: "О «Gather»",
       feedback: "Обратная связь",
       privacyPolicy: "Политика конфиденциальности",
       rateApp: "Оценить приложение",

@@ -7,7 +7,7 @@ import {
   Dimensions,
 } from "react-native";
 import { colors } from "../theme/colors";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import { SettingsSection } from "@/components/settings/SettingsSection";
 import { SettingsRow } from "@/components/settings/SettingsRow";
@@ -31,6 +31,7 @@ import { AppSlider } from "@/components/AppSlider";
 
 import { LanguageSelector } from "@/components/settings/LanguageSelector";
 import { useLocalization } from "@/localization/LocalizationProvider";
+import { useSettings } from "@/settings/SettingsProvider";
 
 import Animated, {
   useSharedValue,
@@ -54,11 +55,7 @@ export function SettingsSheet({
   compact,
 }: SettingsSheetProps) {
   const { language, setLanguage, t } = useLocalization();
-  const [darkThemeEnabled, setDarkThemeEnabled] = useState(false);
-  const [hapticsEnabled, setHapticsEnabled] = useState(true);
-  const [keepAwakeEnabled, setKeepAwakeEnabled] = useState(false);
-  const [soundVolume, setSoundVolume] = useState(0.8);
-  const [musicVolume, setMusicVolume] = useState(0.8);
+  const { settings, updateSetting } = useSettings();
 
   const translateY = useSharedValue(HIDDEN_POSITION);
 
@@ -128,8 +125,10 @@ export function SettingsSheet({
               title={t("settings.darkTheme")}
               rightContent={
                 <AnimatedSwitch
-                  value={darkThemeEnabled}
-                  onValueChange={setDarkThemeEnabled}
+                  value={settings.darkThemeEnabled}
+                  onValueChange={(value) =>
+                    updateSetting("darkThemeEnabled", value)
+                  }
                   compact={compact}
                 />
               }
@@ -143,8 +142,10 @@ export function SettingsSheet({
               showDivider
               rightContent={
                 <AppSlider
-                  value={soundVolume}
-                  onValueChange={setSoundVolume}
+                  value={settings.soundVolume}
+                  onValueChange={(value) =>
+                    updateSetting("soundVolume", value)
+                  }
                   compact={compact}
                 />
               }
@@ -155,8 +156,10 @@ export function SettingsSheet({
               showDivider
               rightContent={
                 <AppSlider
-                  value={musicVolume}
-                  onValueChange={setMusicVolume}
+                  value={settings.musicVolume}
+                  onValueChange={(value) =>
+                    updateSetting("musicVolume", value)
+                  }
                   compact={compact}
                 />
               }
@@ -166,8 +169,10 @@ export function SettingsSheet({
               title={t("settings.items.hapticFeedback")}
               rightContent={
                 <AnimatedSwitch
-                  value={hapticsEnabled}
-                  onValueChange={setHapticsEnabled}
+                  value={settings.hapticsEnabled}
+                  onValueChange={(value) =>
+                    updateSetting("hapticsEnabled", value)
+                  }
                   compact={compact}
                 />
               }
@@ -191,8 +196,10 @@ export function SettingsSheet({
               title={t("settings.items.keepAwake")}
               rightContent={
                 <AnimatedSwitch
-                  value={keepAwakeEnabled}
-                  onValueChange={setKeepAwakeEnabled}
+                  value={settings.keepAwakeEnabled}
+                  onValueChange={(value) =>
+                    updateSetting("keepAwakeEnabled", value)
+                  }
                   compact={compact}
                 />
               }
