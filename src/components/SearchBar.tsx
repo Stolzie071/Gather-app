@@ -11,6 +11,8 @@ type SearchBarProps = {
   placeholder: string;
   onChangeText: (text: string) => void;
   style?: StyleProp<ViewStyle>;
+  cornerRadius?: number;
+  strokeWidth?: number;
 };
 
 export function SearchBar({
@@ -18,14 +20,16 @@ export function SearchBar({
   placeholder,
   onChangeText,
   style,
+  cornerRadius = 18,
+  strokeWidth = 2,
 }: SearchBarProps) {
   return (
     <Squircle
       style={[styles.container, style]}
-      cornerRadius={18}
+      cornerRadius={cornerRadius}
       fillColor={colors.surface}
       strokeColor={colors.secondary3}
-      strokeWidth={2}
+      strokeWidth={strokeWidth}
     >
       <SearchIcon width={19} height={19} />
 

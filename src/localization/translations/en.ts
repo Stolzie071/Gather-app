@@ -19,7 +19,7 @@ export const en = {
       spy: {
         title: "Spy",
         players: "3-10 players",
-        duration: "15-30 min",
+        duration: "15+ min",
       },
       alias: {
         title: "Alias",
@@ -39,6 +39,133 @@ export const en = {
     start: "Start game",
   },
 
+  spySetup: {
+    title: "Game setup",
+    step: "Step %{current} of %{total}",
+    navigation: {
+      back: "Back",
+      next: "Next",
+    },
+    category: {
+      title: "Choose a category",
+      subtitle: "Choose the type of words for the game",
+      locations: {
+        title: "Locations",
+        description: "Real and imaginary places",
+      },
+      characters: {
+        title: "Characters",
+        description: "Heroes from games, movies, books, and more",
+      },
+      items: {
+        title: "Items",
+        description: "Food, technology, clothing, and other things",
+      },
+      animals: {
+        title: "Animals",
+        description: "Domestic, wild, and fantasy creatures",
+      },
+      professions: {
+        title: "Professions",
+        description: "From ordinary to the most unusual",
+      },
+      other: {
+        title: "Other",
+        description: "Unusual and mixed sets",
+      },
+      mySets: {
+        title: "My sets",
+        description: "Categories created by you",
+      },
+    },
+    packs: {
+      title: "Choose packs",
+      subtitle: "Which packs should the locations come from?",
+      locationCount: "%{count} locations",
+      items: {
+        nature: "Nature",
+        workplaces: "Workplaces",
+        transport: "Transport",
+        cities: "Cities",
+      },
+    },
+    options: {
+      title: "Set up the game",
+      subtitle: "Choose the remaining game settings",
+      players: "Players",
+      playerCount: {
+        one: "%{count} player",
+        few: "%{count} players",
+        many: "%{count} players",
+      },
+      spies: "Spies",
+      spiesHint: "Minimum 1, maximum %{max}",
+      selectPlayersHint: "First select at least 3 players",
+      timer: "Timer",
+      minutesShort: "min",
+      timerHint: "Minimum 1 minute",
+      noTimer: "No timer",
+    },
+    summary: {
+      title: "All ready! 🎉",
+      subtitle: "Check the settings and let's start the game.",
+      category: "Category",
+      pack: "Pack",
+      options: "Game settings",
+      start: "Start game",
+      information:
+        "After starting, each player will receive their card in turn.",
+      noPacks: "No pack selected",
+      noTimer: "no timer",
+      minutes: "%{count} min",
+      units: {
+        players: {
+          one: "%{count} player",
+          few: "%{count} players",
+          many: "%{count} players",
+        },
+        spies: {
+          one: "%{count} spy",
+          few: "%{count} spies",
+          many: "%{count} spies",
+        },
+      },
+    },
+  },
+
+  playerSelection: {
+    title: "Choose players",
+    searchPlaceholder: "Search players...",
+    selectedCount: {
+      one: "Selected: %{count} player",
+      few: "Selected: %{count} players",
+      many: "Selected: %{count} players",
+    },
+    loading: "Loading players...",
+    emptyPlayers: "No saved players yet",
+    emptySearch: "No players found",
+    addPlayer: "Add player",
+    close: "Close",
+    done: "Done",
+    addDialog: {
+      title: "Add player",
+      chooseAvatar: "Choose an avatar",
+      defaultAvatar: "Default avatar",
+      choosePhoto: "Choose a photo",
+      playerName: "Player name",
+      namePlaceholder: "Enter player name...",
+      cancel: "Cancel",
+      add: "Add",
+    },
+    duplicateAlert: {
+      title: "This player name already exists",
+      existingPlayer: "A player named “%{name}” already exists.",
+      chooseAction: "Choose what you want to do.",
+      cancel: "Cancel",
+      createNew: "Create another",
+    },
+  },
+
   gameScreen: {
     rules: {
       title: "Forgot the rules?",
@@ -55,6 +182,7 @@ export const en = {
       sound: "Sound",
       application: "Application",
       information: "Information",
+      developer: "For developer",
     },
 
     items: {
@@ -68,6 +196,8 @@ export const en = {
       privacyPolicy: "Privacy policy",
       rateApp: "Rate the app",
       supportDeveloper: "Support the developer",
+      clearPlayers: "Clear all friends",
+      clearPhotos: "Clear all photos",
     },
   },
 };

@@ -22,3 +22,6 @@ export { default as PrivacyIcon } from "./Private_Icon.svg";
 export { default as DonationIcon } from "./Donation_Icon.svg";
 export { default as RateIcon } from "./Rate_Icon.svg";
 export { default as RuleIcon } from "./Rule_icon.svg";
+export { default as AvatarIcon } from "./Avatar.svg";
+export { default as CameraIcon } from "./camera.svg";
+export { default as AlertIcon } from "./alert.svg";

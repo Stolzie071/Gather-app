@@ -1,4 +1,11 @@
-import { createContext, useContext, type ReactNode } from "react";
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useMemo,
+  type ReactNode,
+} from "react";
+import type { TranslateOptions } from "i18n-js";
 
 import { i18n, type Language } from "./i18n";
 import { useSettings } from "@/settings/SettingsProvider";
@@ -6,7 +13,7 @@ import { useSettings } from "@/settings/SettingsProvider";
 type LocalizationContextValue = {
   language: Language;
   setLanguage: (language: Language) => void;
-  t: (key: string) => string;
+  t: (key: string, options?: TranslateOptions) => string;
 };
 
 const LocalizationContext = createContext<LocalizationContextValue | null>(
@@ -22,23 +29,29 @@ export function LocalizationProvider({ children }: LocalizationProviderProps) {
   const language = settings.language;
   i18n.locale = language;
 
-  const setLanguage = (nextLanguage: Language) => {
-    i18n.locale = nextLanguage;
-    updateSetting("language", nextLanguage);
-  };
+  const setLanguage = useCallback(
+    (nextLanguage: Language) => {
+      i18n.locale = nextLanguage;
+      updateSetting("language", nextLanguage);
+    },
+    [updateSetting],
+  );
 
-  const t = (key: string) => {
-    return i18n.t(key);
-  };
+  const t = useCallback((key: string, options?: TranslateOptions) => {
+    return i18n.t(key, options);
+  }, []);
+
+  const value = useMemo(
+    () => ({
+      language,
+      setLanguage,
+      t,
+    }),
+    [language, setLanguage, t],
+  );
 
   return (
-    <LocalizationContext.Provider
-      value={{
-        language,
-        setLanguage,
-        t,
-      }}
-    >
+    <LocalizationContext.Provider value={value}>
       {children}
     </LocalizationContext.Provider>
   );

@@ -142,9 +142,7 @@ export function GameListScreen({ navigation }: GameListScreenProps) {
             easing: Easing.out(Easing.cubic),
           });
 
-          runOnJS(setActiveTab)(
-            targetProgress === 0 ? "all" : "favorites",
-          );
+          runOnJS(setActiveTab)(targetProgress === 0 ? "all" : "favorites");
         }),
     [screenWidth, swipeProgress, swipeStartProgress],
   );
@@ -157,7 +155,7 @@ export function GameListScreen({ navigation }: GameListScreenProps) {
         title={t(item.titleKey)}
         players={t(item.playersKey)}
         duration={t(item.durationKey)}
-        illustration={<Illustration width={96} height={87} opacity={0.5} />}
+        illustration={<Illustration width={96} height={86} opacity={0.5} />}
         onPress={() => navigation.navigate(item.route)}
       />
     );
@@ -353,6 +351,7 @@ export function GameListScreen({ navigation }: GameListScreenProps) {
         <SettingsSheet
           visible={isSettingsOpen}
           onClose={() => setIsSettingsOpen(false)}
+          onHidden={() => setHasOpenedSettings(false)}
           compact={isCompactScreen}
         />
       )}

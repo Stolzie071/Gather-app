@@ -1,0 +1,194 @@
+import { memo, useState } from "react";
+import {
+  FlatList,
+  type LayoutChangeEvent,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
+import { LinearGradient } from "expo-linear-gradient";
+
+import { CategoryCard } from "@/components";
+import {
+  SPY_CATEGORIES,
+  type SpyCategoryId,
+} from "@/games/spy/data/categories";
+import { useLocalization } from "@/localization/LocalizationProvider";
+import { colors } from "@/theme/colors";
+
+const DESIGN_WIDTH = 402;
+const PAGE_HEADING_HEIGHT = 53;
+const CATEGORY_HEADING_GAP = 16;
+const CARD_SHADOW_SPACE = 6;
+const TOP_LIST_FADE_HEIGHT = 8;
+const BOTTOM_LIST_FADE_HEIGHT = 16;
+const LIST_BOTTOM_SPACE = 16;
+
+type CategoryStepProps = {
+  top: number;
+  sceneScale: number;
+  bottomInset: number;
+  onCategoryPress: (categoryId: SpyCategoryId) => void;
+};
+
+export const CategoryStep = memo(function CategoryStep({
+  top,
+  sceneScale,
+  bottomInset,
+  onCategoryPress,
+}: CategoryStepProps) {
+  const { t } = useLocalization();
+  const [headingHeight, setHeadingHeight] = useState(PAGE_HEADING_HEIGHT);
+  const listTop =
+    (top +
+      headingHeight +
+      CATEGORY_HEADING_GAP -
+      CARD_SHADOW_SPACE) *
+    sceneScale;
+  const listBottom = bottomInset + LIST_BOTTOM_SPACE;
+
+  const handleHeadingLayout = (event: LayoutChangeEvent) => {
+    setHeadingHeight(event.nativeEvent.layout.height);
+  };
+
+  return (
+    <View pointerEvents="box-none" style={styles.container}>
+      <View
+        pointerEvents="none"
+        style={[
+          styles.headingScene,
+          {
+            transform: [{ scale: sceneScale }],
+          },
+        ]}
+      >
+        <View
+          style={[styles.pageHeading, { top }]}
+          onLayout={handleHeadingLayout}
+        >
+          <Text style={styles.pageTitle}>{t("spySetup.category.title")}</Text>
+          <Text style={styles.pageSubtitle}>
+            {t("spySetup.category.subtitle")}
+          </Text>
+        </View>
+      </View>
+
+      <FlatList
+        data={SPY_CATEGORIES}
+        keyExtractor={(item) => item.id}
+        renderItem={({ item: { id, Icon, width, height } }) => (
+          <CategoryCard
+            icon={<Icon width={width} height={height} />}
+            title={t(`spySetup.category.${id}.title`)}
+            description={t(`spySetup.category.${id}.description`)}
+            onPress={() => onCategoryPress(id)}
+          />
+        )}
+        style={[
+          styles.categoryList,
+          {
+            top: listTop,
+            right: (16 - CARD_SHADOW_SPACE) * sceneScale,
+            bottom: listBottom,
+            left: (16 - CARD_SHADOW_SPACE) * sceneScale,
+          },
+        ]}
+        contentContainerStyle={[
+          styles.categoryListContent,
+          {
+            paddingTop: CARD_SHADOW_SPACE * sceneScale,
+            paddingHorizontal: CARD_SHADOW_SPACE * sceneScale,
+          },
+        ]}
+        showsVerticalScrollIndicator={false}
+        keyboardShouldPersistTaps="handled"
+      />
+
+      <LinearGradient
+        pointerEvents="none"
+        colors={[colors.background, "rgba(248, 244, 253, 0)"]}
+        style={[
+          styles.topListFade,
+          {
+            top: listTop,
+            height: TOP_LIST_FADE_HEIGHT * sceneScale,
+          },
+        ]}
+      />
+
+      <LinearGradient
+        pointerEvents="none"
+        colors={["rgba(248, 244, 253, 0)", colors.background]}
+        style={[
+          styles.bottomListFade,
+          {
+            bottom: listBottom,
+            height: BOTTOM_LIST_FADE_HEIGHT * sceneScale,
+          },
+        ]}
+      />
+    </View>
+  );
+});
+
+const styles = StyleSheet.create({
+  container: {
+    ...StyleSheet.absoluteFillObject,
+  },
+
+  headingScene: {
+    position: "absolute",
+    top: 0,
+    alignSelf: "center",
+
+    width: DESIGN_WIDTH,
+    height: "100%",
+
+    transformOrigin: "center top",
+  },
+
+  pageHeading: {
+    position: "absolute",
+    left: 16,
+    width: 370,
+
+    paddingHorizontal: 22,
+  },
+
+  pageTitle: {
+    color: colors.textPrimary,
+    fontFamily: "Nunito_800ExtraBold",
+    fontSize: 24,
+    lineHeight: 33,
+  },
+
+  pageSubtitle: {
+    marginTop: 1,
+
+    color: colors.textSecondary,
+    fontFamily: "Nunito_600SemiBold",
+    fontSize: 14,
+    lineHeight: 19,
+  },
+
+  categoryList: {
+    position: "absolute",
+  },
+
+  categoryListContent: {
+    gap: 16,
+    paddingBottom: 16,
+  },
+
+  topListFade: {
+    position: "absolute",
+    right: 0,
+    left: 0,
+  },
+
+  bottomListFade: {
+    position: "absolute",
+    right: 0,
+    left: 0,
+  },
+});

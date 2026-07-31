@@ -7,8 +7,17 @@ export { BackButton } from "./BackButton";
 export { FavoriteButton } from "./FavoriteButton";
 export { SearchBar } from "./SearchBar";
 export { GameCard } from "./games/GameCard";
+export { CategoryCard } from "./games/CategoryCard";
+export { PackCard } from "./games/PackCard";
+export { SetupStepNavigation } from "./games/SetupStepNavigation";
+export { NumberStepper } from "./games/NumberStepper";
+export { SelectionIndicator } from "./SelectionIndicator";
+export { AnimatedSwitch } from "./AnimatedSwitch";
 export { GameStartButton } from "./games/GameStartButton";
 export { GameRulesButton } from "./games/GameRulesButton";
+export { PlayerSelectionSheet } from "./players/PlayerSelectionSheet";
+export { AddPlayerDialog } from "./players/AddPlayerDialog";
+export { DuplicatePlayerAlert } from "./players/DuplicatePlayerAlert";
 export {
   GameListTabs,
   type GameListTab,

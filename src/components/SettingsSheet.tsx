@@ -8,7 +8,7 @@ import {
   BackHandler,
 } from "react-native";
 import { colors } from "../theme/colors";
-import { useEffect } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import { SettingsSection } from "@/components/settings/SettingsSection";
 import { SettingsRow } from "@/components/settings/SettingsRow";
@@ -32,6 +32,7 @@ import { AppSlider } from "@/components/AppSlider";
 
 import { LanguageSelector } from "@/components/settings/LanguageSelector";
 import { useLocalization } from "@/localization/LocalizationProvider";
+import { usePlayers } from "@/players/PlayersProvider";
 import { useSettings } from "@/settings/SettingsProvider";
 
 import Animated, {
@@ -44,21 +45,41 @@ import Animated, {
 type SettingsSheetProps = {
   visible: boolean;
   onClose: () => void;
+  onHidden?: () => void;
   compact: boolean;
 };
 
 const SCREEN_HEIGHT = Dimensions.get("window").height;
 const HIDDEN_POSITION = SCREEN_HEIGHT + 10;
 
+function DeveloperSlashIcon() {
+  return (
+    <View style={styles.developerIcon}>
+      <Text style={styles.developerIconText}>/</Text>
+    </View>
+  );
+}
+
 export function SettingsSheet({
   visible,
   onClose,
+  onHidden,
   compact,
 }: SettingsSheetProps) {
   const { language, setLanguage, t } = useLocalization();
   const { settings, updateSetting } = useSettings();
+  const { clearPlayers } = usePlayers();
+  const handleClearPhotos = useCallback(() => {}, []);
 
   const translateY = useSharedValue(HIDDEN_POSITION);
+  const onHiddenRef = useRef(onHidden);
+  const notifyHidden = useCallback(() => {
+    onHiddenRef.current?.();
+  }, []);
+
+  useEffect(() => {
+    onHiddenRef.current = onHidden;
+  }, [onHidden]);
 
   const animatedStyle = useAnimatedStyle(() => {
     return {
@@ -96,9 +117,17 @@ export function SettingsSheet({
     if (visible) {
       translateY.value = withTiming(0);
     } else {
-      translateY.value = withTiming(HIDDEN_POSITION);
+      translateY.value = withTiming(
+        HIDDEN_POSITION,
+        undefined,
+        (finished) => {
+          if (finished) {
+            runOnJS(notifyHidden)();
+          }
+        },
+      );
     }
-  }, [visible, translateY]);
+  }, [notifyHidden, translateY, visible]);
 
   useEffect(() => {
     if (!visible) {
@@ -293,6 +322,21 @@ export function SettingsSheet({
               }
             />
           </SettingsSection>
+          {__DEV__ && (
+            <SettingsSection title={t("settings.sections.developer")}>
+              <SettingsRow
+                icon={<DeveloperSlashIcon />}
+                title={t("settings.items.clearPlayers")}
+                showDivider
+                onPress={clearPlayers}
+              />
+              <SettingsRow
+                icon={<DeveloperSlashIcon />}
+                title={t("settings.items.clearPhotos")}
+                onPress={handleClearPhotos}
+              />
+            </SettingsSection>
+          )}
         </ScrollView>
       </Animated.View>
     </View>
@@ -363,5 +407,19 @@ const styles = StyleSheet.create({
   },
   infoArrow: {
     marginRight: 4,
+  },
+  developerIcon: {
+    width: 36,
+    height: 36,
+    borderRadius: 10,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: colors.secondary3,
+  },
+  developerIconText: {
+    color: colors.primary,
+    fontFamily: "Nunito_800ExtraBold",
+    fontSize: 24,
+    lineHeight: 29,
   },
 });

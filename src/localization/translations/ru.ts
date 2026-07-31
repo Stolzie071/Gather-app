@@ -18,8 +18,8 @@ export const ru = {
     games: {
       spy: {
         title: "Шпион",
-        players: "3-10 игроков",
-        duration: "15-30 мин",
+        players: "3-12 игроков",
+        duration: "15+ мин",
       },
       alias: {
         title: "Alias",
@@ -39,6 +39,133 @@ export const ru = {
     start: "Начать игру",
   },
 
+  spySetup: {
+    title: "Настройка игры",
+    step: "Шаг %{current} из %{total}",
+    navigation: {
+      back: "Назад",
+      next: "Далее",
+    },
+    category: {
+      title: "Выбери категорию",
+      subtitle: "Выбери тип слов для игры",
+      locations: {
+        title: "Локации",
+        description: "Реальные и вымышленные места",
+      },
+      characters: {
+        title: "Персонажи",
+        description: "Герои игр, фильмов, книг и тд",
+      },
+      items: {
+        title: "Предметы",
+        description: "Еда, техника, одежда и другие вещи",
+      },
+      animals: {
+        title: "Животные",
+        description: "Домашние, дикие и фантастические существа",
+      },
+      professions: {
+        title: "Профессии",
+        description: "От обычных до самых необычных",
+      },
+      other: {
+        title: "Разное",
+        description: "Необычные и смешанные наборы",
+      },
+      mySets: {
+        title: "Мои наборы",
+        description: "Созданные тобой категории",
+      },
+    },
+    packs: {
+      title: "Выбери наборы",
+      subtitle: "Из каких наборов будут выбраны локации?",
+      locationCount: "%{count} локации",
+      items: {
+        nature: "Природа",
+        workplaces: "Рабочие места",
+        transport: "Транспорт",
+        cities: "Города",
+      },
+    },
+    options: {
+      title: "Настрой игру",
+      subtitle: "Осталось выбрать параметры партии",
+      players: "Игроки",
+      playerCount: {
+        one: "%{count} игрок",
+        few: "%{count} игрока",
+        many: "%{count} игроков",
+      },
+      spies: "Шпионов",
+      spiesHint: "Минимум 1, максимум %{max}",
+      selectPlayersHint: "Сначала выбери минимум 3 игроков",
+      timer: "Таймер",
+      minutesShort: "мин",
+      timerHint: "Минимум 1 минута",
+      noTimer: "Без таймера",
+    },
+    summary: {
+      title: "Всё готово! 🎉",
+      subtitle: "Проверь настройки и начнём игру.",
+      category: "Категория",
+      pack: "Наборы",
+      options: "Настройки игры",
+      start: "Начать игру",
+      information:
+        "После начала каждый игрок по очереди получит свою карточку.",
+      noPacks: "Набор не выбран",
+      noTimer: "без таймера",
+      minutes: "%{count} мин",
+      units: {
+        players: {
+          one: "%{count} игрок",
+          few: "%{count} игрока",
+          many: "%{count} игроков",
+        },
+        spies: {
+          one: "%{count} шпион",
+          few: "%{count} шпиона",
+          many: "%{count} шпионов",
+        },
+      },
+    },
+  },
+
+  playerSelection: {
+    title: "Выбери игроков",
+    searchPlaceholder: "Поиск игроков...",
+    selectedCount: {
+      one: "Выбрано: %{count} игрок",
+      few: "Выбрано: %{count} игрока",
+      many: "Выбрано: %{count} игроков",
+    },
+    loading: "Загружаем игроков...",
+    emptyPlayers: "Сохранённых игроков пока нет",
+    emptySearch: "Игроки не найдены",
+    addPlayer: "Добавить игрока",
+    close: "Закрыть",
+    done: "Готово",
+    addDialog: {
+      title: "Добавить игрока",
+      chooseAvatar: "Выберите аватар",
+      defaultAvatar: "Стандартный аватар",
+      choosePhoto: "Выбрать фотографию",
+      playerName: "Имя игрока",
+      namePlaceholder: "Введите имя игрока...",
+      cancel: "Отмена",
+      add: "Добавить",
+    },
+    duplicateAlert: {
+      title: "Игрок с таким именем уже есть",
+      existingPlayer: "Игрок «%{name}» уже существует.",
+      chooseAction: "Выберите, что хотите сделать.",
+      cancel: "Отмена",
+      createNew: "Создать нового",
+    },
+  },
+
   gameScreen: {
     rules: {
       title: "Не помнишь правила?",
@@ -55,6 +182,7 @@ export const ru = {
       sound: "Звук",
       application: "Приложение",
       information: "Информация",
+      developer: "Для разработчика",
     },
 
     items: {
@@ -68,6 +196,8 @@ export const ru = {
       privacyPolicy: "Политика конфиденциальности",
       rateApp: "Оценить приложение",
       supportDeveloper: "Поддержать разработчика",
+      clearPlayers: "Очистить всех друзей",
+      clearPhotos: "Очистить все фотографии",
     },
   },
 };

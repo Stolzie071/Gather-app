@@ -191,6 +191,7 @@ export function HomeScreen({ navigation }: HomeScreenProps) {
         <SettingsSheet
           visible={isSettingsOpen}
           onClose={() => setIsSettingsOpen(false)}
+          onHidden={() => setHasOpenedSettings(false)}
           compact={isCompactScreen}
         />
       )}

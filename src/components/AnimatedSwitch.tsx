@@ -1,16 +1,17 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { Pressable, StyleSheet } from "react-native";
 import Animated, {
   interpolateColor,
+  runOnJS,
   useAnimatedStyle,
   useSharedValue,
-  withSpring,
   withTiming,
 } from "react-native-reanimated";
 
 import { colors } from "@/theme/colors";
 
 const THUMB_INSET = 2;
+const ANIMATION_DURATION = 160;
 
 const SWITCH_SIZES = {
   regular: {
@@ -44,15 +45,43 @@ export function AnimatedSwitch({
 
   const thumbTranslateX = useSharedValue(value ? thumbTravelDistance : 0);
   const trackProgress = useSharedValue(value ? 1 : 0);
+  const internallyRequestedValue = useRef<boolean | null>(null);
+  const visualValue = useRef(value);
 
   useEffect(() => {
-    thumbTranslateX.value = withSpring(value ? thumbTravelDistance : 0, {
-      damping: 30,
-      stiffness: 230,
-      mass: 0.8,
+    visualValue.current = value;
+
+    if (internallyRequestedValue.current === value) {
+      internallyRequestedValue.current = null;
+      return;
+    }
+
+    thumbTranslateX.value = withTiming(value ? thumbTravelDistance : 0, {
+      duration: ANIMATION_DURATION,
     });
-    trackProgress.value = withTiming(value ? 1 : 0, { duration: 180 });
+    trackProgress.value = withTiming(value ? 1 : 0, {
+      duration: ANIMATION_DURATION,
+    });
   }, [value, thumbTravelDistance, thumbTranslateX, trackProgress]);
+
+  const handlePress = () => {
+    const nextValue = !visualValue.current;
+    visualValue.current = nextValue;
+    internallyRequestedValue.current = nextValue;
+
+    thumbTranslateX.value = withTiming(
+      nextValue ? thumbTravelDistance : 0,
+      { duration: ANIMATION_DURATION },
+      (finished) => {
+        if (finished) {
+          runOnJS(onValueChange)(nextValue);
+        }
+      },
+    );
+    trackProgress.value = withTiming(nextValue ? 1 : 0, {
+      duration: ANIMATION_DURATION,
+    });
+  };
 
   const animatedThumbStyle = useAnimatedStyle(() => {
     return {
@@ -76,7 +105,7 @@ export function AnimatedSwitch({
 
   return (
     <Pressable
-      onPress={() => onValueChange(!value)}
+      onPress={handlePress}
       style={[
         styles.track,
         {

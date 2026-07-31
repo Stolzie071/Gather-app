@@ -32,7 +32,8 @@ import {
   WaveLeftTop,
   WaveRightDown,
 } from "@assets/Decorate/MainScreen";
-import { SpyDice } from "@assets/GamesSections";
+import { SpyMainDice } from "@assets/Spy_game";
+import { Squircle } from "@/components/Squircle";
 import type { RootStackParamList } from "@/navigation/types";
 import { useFavorites } from "@/favorites/FavoritesProvider";
 import { useLocalization } from "@/localization/LocalizationProvider";
@@ -113,7 +114,7 @@ export function SpyGameScreen({ navigation }: SpyGameScreenProps) {
           ]}
         >
           <View pointerEvents="none" style={styles.gameVisuals}>
-            <SpyDice width={174} height={158} style={styles.spyDice} />
+            <SpyMainDice width={188} height={176} style={styles.spyDice} />
 
             <Image
               source={GameFrontWaveShadow}
@@ -165,21 +166,27 @@ export function SpyGameScreen({ navigation }: SpyGameScreenProps) {
               </Text>
 
               <View style={styles.gameDetails}>
-                <View style={[styles.detailItem, styles.playersDetail]}>
-                  <PlayersIcon width={24} height={24} />
+                <Squircle
+                  style={styles.detailItem}
+                  cornerRadius={10}
+                  fillColor={colors.secondary3}
+                >
+                  <PlayersIcon width={27} height={27} />
                   <Text style={styles.detailText}>
                     {t("gameList.games.spy.players")}
                   </Text>
-                </View>
+                </Squircle>
 
-                <View style={styles.detailsDivider} />
-
-                <View style={[styles.detailItem, styles.durationDetail]}>
-                  <TimeIcon width={24} height={24} />
+                <Squircle
+                  style={styles.detailItem}
+                  cornerRadius={10}
+                  fillColor={colors.secondary3}
+                >
+                  <TimeIcon width={27} height={27} />
                   <Text style={styles.detailText}>
                     {t("gameList.games.spy.duration")}
                   </Text>
-                </View>
+                </Squircle>
               </View>
 
               <Text style={styles.gameDescription}>{gameDescription}</Text>
@@ -193,7 +200,7 @@ export function SpyGameScreen({ navigation }: SpyGameScreenProps) {
             >
               <GameStartButton
                 text={t("spyGame.start")}
-                onPress={() => {}}
+                onPress={() => navigation.navigate("SpySetup")}
                 style={[
                   styles.startButton,
                   isCompactScreen && styles.startButtonCompact,
@@ -232,6 +239,7 @@ export function SpyGameScreen({ navigation }: SpyGameScreenProps) {
         <SettingsSheet
           visible={isSettingsOpen}
           onClose={() => setIsSettingsOpen(false)}
+          onHidden={() => setHasOpenedSettings(false)}
           compact={isCompactScreen}
         />
       )}
@@ -291,7 +299,7 @@ const styles = StyleSheet.create({
 
   gameInfo: {
     alignSelf: "center",
-    width: 303,
+    width: 360,
 
     alignItems: "center",
     gap: 16,
@@ -318,27 +326,23 @@ const styles = StyleSheet.create({
 
   gameDetails: {
     width: "100%",
-    height: 24,
+    height: 44,
 
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    gap: 16,
+    gap: 8,
   },
 
   detailItem: {
     flex: 1,
+    minWidth: 0,
+    height: "100%",
+    padding: 8,
     flexDirection: "row",
     alignItems: "center",
-    gap: 16,
-  },
-
-  playersDetail: {
-    justifyContent: "flex-end",
-  },
-
-  durationDetail: {
-    justifyContent: "flex-start",
+    justifyContent: "center",
+    gap: 10,
   },
 
   detailText: {
@@ -346,12 +350,6 @@ const styles = StyleSheet.create({
     fontFamily: "Nunito_600SemiBold",
     fontSize: 16,
     lineHeight: 22,
-  },
-
-  detailsDivider: {
-    width: 1,
-    height: 22,
-    backgroundColor: colors.secondary3,
   },
 
   gameDescription: {
@@ -418,9 +416,8 @@ const styles = StyleSheet.create({
 
   spyDice: {
     position: "absolute",
-    top: 157,
-    left: 114,
-    transform: [{ rotate: "-10deg" }],
+    top: 142,
+    left: 116,
   },
 
   frontWave: {

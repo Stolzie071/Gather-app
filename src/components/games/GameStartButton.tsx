@@ -1,5 +1,6 @@
-import type { StyleProp, ViewStyle } from "react-native";
+import type { StyleProp, TextStyle, ViewStyle } from "react-native";
 import { Pressable, StyleSheet, Text } from "react-native";
+import type { ReactNode } from "react";
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
@@ -14,14 +15,23 @@ type GameStartButtonProps = {
   text: string;
   onPress: () => void;
   style?: StyleProp<ViewStyle>;
+  textStyle?: StyleProp<TextStyle>;
+  cornerRadius?: number;
+  leftDecoration?: ReactNode;
+  rightDecoration?: ReactNode;
 };
 
 export function GameStartButton({
   text,
   onPress,
   style,
+  textStyle,
+  cornerRadius = 20,
+  leftDecoration,
+  rightDecoration,
 }: GameStartButtonProps) {
   const scale = useSharedValue(1);
+  const hasDecorations = Boolean(leftDecoration || rightDecoration);
 
   const animatedStyle = useAnimatedStyle(() => ({
     transform: [{ scale: scale.value }],
@@ -43,15 +53,30 @@ export function GameStartButton({
       accessibilityRole="button"
       style={style}
     >
-      <Animated.View style={[styles.shadow, animatedStyle]}>
+      <Animated.View
+        style={[styles.shadow, { borderRadius: cornerRadius }, animatedStyle]}
+      >
         <Squircle
-          style={styles.button}
-          cornerRadius={20}
+          style={[
+            styles.button,
+            hasDecorations && styles.buttonWithDecorations,
+          ]}
+          cornerRadius={cornerRadius}
           fillColor={colors.primary}
         >
-          <Text style={styles.text} numberOfLines={1} adjustsFontSizeToFit>
+          {leftDecoration}
+          <Text
+            style={[
+              styles.text,
+              hasDecorations && styles.decoratedText,
+              textStyle,
+            ]}
+            numberOfLines={1}
+            adjustsFontSizeToFit={!hasDecorations}
+          >
             {text}
           </Text>
+          {rightDecoration}
         </Squircle>
       </Animated.View>
     </Pressable>
@@ -62,7 +87,6 @@ const styles = StyleSheet.create({
   shadow: {
     width: "100%",
     height: "100%",
-    borderRadius: 20,
 
     boxShadow: [
       {
@@ -83,11 +107,23 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
 
+  buttonWithDecorations: {
+    paddingVertical: 7,
+    paddingHorizontal: 30,
+    flexDirection: "row",
+    gap: 16,
+  },
+
   text: {
     width: "100%",
     color: colors.surface,
     fontFamily: "Nunito_700Bold",
     fontSize: 32,
     textAlign: "center",
+  },
+
+  decoratedText: {
+    flex: 1,
+    width: "auto",
   },
 });
