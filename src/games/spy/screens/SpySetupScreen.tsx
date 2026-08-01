@@ -8,7 +8,7 @@ import {
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { StatusBar } from "expo-status-bar";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { BlankStackScreenProps } from "react-native-screen-transitions/blank-stack";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Animated, {
@@ -40,6 +40,7 @@ import type { RootStackParamList } from "@/navigation/types";
 import { createPlayerProfile } from "@/players/playerUtils";
 import { usePlayers } from "@/players/PlayersProvider";
 import type { CreatePlayerInput, Player } from "@/players/types";
+import { deleteStoredPlayerPhoto } from "@/storage/playerPhotoStorage";
 import { colors } from "@/theme/colors";
 import { CategoryStep } from "@/games/spy/components/CategoryStep";
 import { PacksStep } from "@/games/spy/components/PacksStep";
@@ -113,15 +114,18 @@ export function SpySetupScreen({ navigation }: SpySetupScreenProps) {
   const [renderedSteps, setRenderedSteps] = useState<ReadonlySet<SetupStep>>(
     () => new Set([1]),
   );
+  const [selectedCategoryId, setSelectedCategoryId] =
+    useState<SpyCategoryId | null>(null);
   const [selectedPackIds, setSelectedPackIds] = useState<
     Set<SpyLocationPackId>
   >(() => new Set());
-  const [selectedPlayerIds, setSelectedPlayerIds] = useState<
-    readonly string[]
-  >([]);
+  const [selectedPlayerIds, setSelectedPlayerIds] = useState<readonly string[]>(
+    [],
+  );
   const [temporaryPlayers, setTemporaryPlayers] = useState<readonly Player[]>(
     [],
   );
+  const temporaryPlayersRef = useRef<readonly Player[]>([]);
   const [spyCount, setSpyCount] = useState(1);
   const [timerMinutes, setTimerMinutes] = useState(10);
   const [timerDisabled, setTimerDisabled] = useState(false);
@@ -144,6 +148,9 @@ export function SpySetupScreen({ navigation }: SpySetupScreenProps) {
       ),
     [selectedPackIds, t],
   );
+  const selectedCategoryTitle = selectedCategoryId
+    ? t(`spySetup.category.${selectedCategoryId}.title`)
+    : "";
   const stepsTrackStyle = useAnimatedStyle(() => ({
     transform: [{ translateX: -(stepProgress.value - 1) * screenWidth }],
   }));
@@ -219,6 +226,8 @@ export function SpySetupScreen({ navigation }: SpySetupScreenProps) {
 
   const handleCategoryPress = useCallback(
     (categoryId: SpyCategoryId) => {
+      setSelectedCategoryId(categoryId);
+
       if (categoryId === "locations") {
         moveToStep(2);
       }
@@ -262,10 +271,30 @@ export function SpySetupScreen({ navigation }: SpySetupScreenProps) {
   const handleEditCategory = useCallback(() => moveToStep(1), [moveToStep]);
   const handleEditPacks = useCallback(() => moveToStep(2), [moveToStep]);
   const handleEditOptions = useCallback(() => moveToStep(3), [moveToStep]);
-  const handleStart = useCallback(() => {}, []);
+  const handleStart = useCallback(() => {
+    navigation.navigate("SpyReveal");
+  }, [navigation]);
   const handleScreenBack = useCallback(() => {
     navigation.goBack();
   }, [navigation]);
+
+  useEffect(() => {
+    temporaryPlayersRef.current = temporaryPlayers;
+  }, [temporaryPlayers]);
+
+  useEffect(() => {
+    return () => {
+      temporaryPlayersRef.current.forEach((player) => {
+        if (player.avatar.type === "photo") {
+          try {
+            deleteStoredPlayerPhoto(player.avatar.fileName);
+          } catch (error: unknown) {
+            console.warn("Failed to remove temporary player photo", error);
+          }
+        }
+      });
+    };
+  }, []);
 
   useEffect(() => {
     const maximumSpyCount = Math.max(1, playerCount - 1);
@@ -425,7 +454,7 @@ export function SpySetupScreen({ navigation }: SpySetupScreenProps) {
           {renderedSteps.has(4) && (
             <SetupSummaryStep
               sceneScale={sceneScale}
-              categoryTitle={t("spySetup.category.locations.title")}
+              categoryTitle={selectedCategoryTitle}
               selectedPackTitles={selectedPackTitles}
               playerCount={playerCount}
               spyCount={spyCount}

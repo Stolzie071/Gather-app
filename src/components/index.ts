@@ -18,7 +18,7 @@ export { GameRulesButton } from "./games/GameRulesButton";
 export { PlayerSelectionSheet } from "./players/PlayerSelectionSheet";
 export { AddPlayerDialog } from "./players/AddPlayerDialog";
 export { DuplicatePlayerAlert } from "./players/DuplicatePlayerAlert";
-export {
-  GameListTabs,
-  type GameListTab,
-} from "./games/GameListTabs";
+export { PlayerAvatarView } from "./players/PlayerAvatarView";
+export { PlayerPhotoCropper } from "./players/PlayerPhotoCropper";
+export { PlayerPhotoSourceDialog } from "./players/PlayerPhotoSourceDialog";
+export { GameListTabs, type GameListTab } from "./games/GameListTabs";

@@ -39,7 +39,7 @@ function SummaryRow({ icon, title, value, onEdit }: SummaryRowProps) {
       <Squircle
         style={styles.summaryIcon}
         cornerRadius={10}
-        fillColor="#DECEF5"
+        fillColor={colors.secondary4}
       >
         {icon}
       </Squircle>

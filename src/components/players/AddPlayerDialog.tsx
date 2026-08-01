@@ -1,5 +1,7 @@
 import {
+  Alert,
   BackHandler,
+  Image,
   Keyboard,
   type KeyboardEvent,
   Platform,
@@ -11,6 +13,7 @@ import {
   useWindowDimensions,
   View,
 } from "react-native";
+import * as ImagePicker from "expo-image-picker";
 import {
   useCallback,
   useEffect,
@@ -31,9 +34,16 @@ import Animated, {
 
 import { AvatarIcon, CameraIcon } from "@assets/icons";
 import { DuplicatePlayerAlert } from "@/components/players/DuplicatePlayerAlert";
+import { PlayerPhotoCropper } from "@/components/players/PlayerPhotoCropper";
+import { PlayerPhotoSourceDialog } from "@/components/players/PlayerPhotoSourceDialog";
 import { Squircle } from "@/components/Squircle";
 import { useLocalization } from "@/localization/LocalizationProvider";
 import { normalizePlayerName } from "@/players/playerUtils";
+import type { CreatePlayerInput } from "@/players/types";
+import {
+  createStoredPlayerPhoto,
+  type PlayerPhotoSource,
+} from "@/storage/playerPhotoStorage";
 import { colors } from "@/theme/colors";
 
 const DESIGN_DIALOG_WIDTH = 370;
@@ -140,8 +150,7 @@ type AddPlayerDialogProps = {
   visible: boolean;
   onClose: () => void;
   onHidden?: () => void;
-  onAdd: (name: string) => void;
-  onPhotoPress?: () => void;
+  onAdd: (input: CreatePlayerInput) => void;
   isNameTaken?: (name: string) => boolean;
 };
 
@@ -150,7 +159,6 @@ export function AddPlayerDialog({
   onClose,
   onHidden,
   onAdd,
-  onPhotoPress,
   isNameTaken,
 }: AddPlayerDialogProps) {
   const { t } = useLocalization();
@@ -158,6 +166,12 @@ export function AddPlayerDialog({
   const { width: screenWidth, height: screenHeight } = useWindowDimensions();
   const [name, setName] = useState("");
   const [selectedAvatarIndex, setSelectedAvatarIndex] = useState(0);
+  const [selectedPhoto, setSelectedPhoto] = useState<PlayerPhotoSource | null>(
+    null,
+  );
+  const [cropSource, setCropSource] = useState<PlayerPhotoSource | null>(null);
+  const [isPhotoSourceOpen, setIsPhotoSourceOpen] = useState(false);
+  const [isPhotoBusy, setIsPhotoBusy] = useState(false);
   const [duplicateName, setDuplicateName] = useState<string | null>(null);
   const [isDuplicateAlertOpen, setIsDuplicateAlertOpen] = useState(false);
   const wasVisible = useRef(false);
@@ -167,7 +181,7 @@ export function AddPlayerDialog({
   const keyboardOffset = useSharedValue(0);
 
   const normalizedName = normalizePlayerName(name);
-  const addDisabled = normalizedName.length === 0;
+  const addDisabled = normalizedName.length === 0 || isPhotoBusy;
   const dialogWidth = Math.min(DESIGN_DIALOG_WIDTH, screenWidth - 32);
   const dialogHeight = Math.min(
     DESIGN_DIALOG_HEIGHT,
@@ -195,9 +209,132 @@ export function AddPlayerDialog({
 
   const handleClose = useCallback(() => {
     Keyboard.dismiss();
+    setIsPhotoSourceOpen(false);
     setDuplicateName(null);
     onClose();
   }, [onClose]);
+
+  const showPhotoError = useCallback(() => {
+    Alert.alert(
+      t("playerSelection.photo.errorTitle"),
+      t("playerSelection.photo.errorMessage"),
+    );
+  }, [t]);
+
+  const handlePickerResult = useCallback(
+    (result: ImagePicker.ImagePickerResult) => {
+      if (result.canceled || !result.assets[0]) {
+        return;
+      }
+
+      const asset = result.assets[0];
+
+      setCropSource({
+        uri: asset.uri,
+        width: asset.width,
+        height: asset.height,
+      });
+    },
+    [],
+  );
+
+  const handleTakePhoto = useCallback(async () => {
+    try {
+      setIsPhotoBusy(true);
+
+      const permission = await ImagePicker.requestCameraPermissionsAsync();
+
+      if (!permission.granted) {
+        Alert.alert(
+          t("playerSelection.photo.permissionTitle"),
+          t("playerSelection.photo.cameraPermissionMessage"),
+        );
+        return;
+      }
+
+      const result = await ImagePicker.launchCameraAsync({
+        mediaTypes: ["images"],
+        allowsEditing: false,
+        quality: 1,
+      });
+
+      handlePickerResult(result);
+    } catch (error: unknown) {
+      console.warn("Failed to take player photo", error);
+      showPhotoError();
+    } finally {
+      setIsPhotoBusy(false);
+    }
+  }, [handlePickerResult, showPhotoError, t]);
+
+  const handleChoosePhoto = useCallback(async () => {
+    try {
+      setIsPhotoBusy(true);
+
+      const permission =
+        await ImagePicker.requestMediaLibraryPermissionsAsync();
+
+      if (!permission.granted) {
+        Alert.alert(
+          t("playerSelection.photo.permissionTitle"),
+          t("playerSelection.photo.libraryPermissionMessage"),
+        );
+        return;
+      }
+
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ["images"],
+        allowsEditing: false,
+        quality: 1,
+      });
+
+      handlePickerResult(result);
+    } catch (error: unknown) {
+      console.warn("Failed to choose player photo", error);
+      showPhotoError();
+    } finally {
+      setIsPhotoBusy(false);
+    }
+  }, [handlePickerResult, showPhotoError, t]);
+
+  const handlePhotoPress = useCallback(() => {
+    if (isPhotoBusy) {
+      return;
+    }
+
+    Keyboard.dismiss();
+    setIsPhotoSourceOpen(true);
+  }, [isPhotoBusy]);
+
+  const handleCameraSource = useCallback(() => {
+    setIsPhotoSourceOpen(false);
+    void handleTakePhoto();
+  }, [handleTakePhoto]);
+
+  const handleGallerySource = useCallback(() => {
+    setIsPhotoSourceOpen(false);
+    void handleChoosePhoto();
+  }, [handleChoosePhoto]);
+
+  const submitPlayer = useCallback(
+    async (playerName: string) => {
+      try {
+        setIsPhotoBusy(true);
+
+        const avatar = selectedPhoto
+          ? await createStoredPlayerPhoto(selectedPhoto)
+          : { type: "default" as const };
+
+        onAdd({ name: playerName, avatar });
+      } catch (error: unknown) {
+        console.warn("Failed to save player photo", error);
+        showPhotoError();
+      } finally {
+        setIsPhotoBusy(false);
+      }
+    },
+    [onAdd, selectedPhoto, showPhotoError],
+  );
 
   const handleAdd = useCallback(() => {
     if (addDisabled) {
@@ -212,21 +349,21 @@ export function AddPlayerDialog({
       return;
     }
 
-    onAdd(normalizedName);
-  }, [addDisabled, isNameTaken, normalizedName, onAdd]);
+    void submitPlayer(normalizedName);
+  }, [addDisabled, isNameTaken, normalizedName, submitPlayer]);
 
   const handleDuplicateCancel = useCallback(() => {
     setIsDuplicateAlertOpen(false);
   }, []);
 
   const handleCreateDuplicate = useCallback(() => {
-    if (!duplicateName) {
+    if (!duplicateName || isPhotoBusy) {
       return;
     }
 
     setIsDuplicateAlertOpen(false);
-    onAdd(duplicateName);
-  }, [duplicateName, onAdd]);
+    void submitPlayer(duplicateName);
+  }, [duplicateName, isPhotoBusy, submitPlayer]);
 
   const handleDuplicateHidden = useCallback(() => {
     setDuplicateName(null);
@@ -237,13 +374,10 @@ export function AddPlayerDialog({
   }, [onHidden]);
 
   useEffect(() => {
-    addDialogOpacity.value = withTiming(
-      isDuplicateAlertOpen ? 0 : 1,
-      {
-        duration: isDuplicateAlertOpen ? 100 : 120,
-        easing: Easing.out(Easing.cubic),
-      },
-    );
+    addDialogOpacity.value = withTiming(isDuplicateAlertOpen ? 0 : 1, {
+      duration: isDuplicateAlertOpen ? 100 : 120,
+      easing: Easing.out(Easing.cubic),
+    });
   }, [addDialogOpacity, isDuplicateAlertOpen]);
 
   useEffect(() => {
@@ -253,6 +387,10 @@ export function AddPlayerDialog({
     if (justOpened) {
       setName("");
       setSelectedAvatarIndex(0);
+      setSelectedPhoto(null);
+      setCropSource(null);
+      setIsPhotoSourceOpen(false);
+      setIsPhotoBusy(false);
       setDuplicateName(null);
       setIsDuplicateAlertOpen(false);
     }
@@ -346,10 +484,7 @@ export function AddPlayerDialog({
       <View pointerEvents="box-none" style={styles.dialogPositioner}>
         <Animated.View
           pointerEvents={duplicateName ? "none" : "auto"}
-          style={[
-            { width: dialogWidth, height: dialogHeight },
-            dialogStyle,
-          ]}
+          style={[{ width: dialogWidth, height: dialogHeight }, dialogStyle]}
         >
           <Squircle
             style={styles.dialog}
@@ -373,15 +508,23 @@ export function AddPlayerDialog({
                 keyboardShouldPersistTaps="handled"
               >
                 <AvatarOption
-                  selected={false}
+                  selected={selectedPhoto !== null}
                   accessibilityLabel={t(
                     "playerSelection.addDialog.choosePhoto",
                   )}
-                  onPress={onPhotoPress}
+                  onPress={handlePhotoPress}
                 >
-                  <View style={styles.cameraOption}>
-                    <CameraIcon width={19} height={16} />
-                  </View>
+                  {selectedPhoto ? (
+                    <Image
+                      source={{ uri: selectedPhoto.uri }}
+                      resizeMode="cover"
+                      style={styles.selectedPhoto}
+                    />
+                  ) : (
+                    <View style={styles.cameraOption}>
+                      <CameraIcon width={19} height={16} />
+                    </View>
+                  )}
                 </AvatarOption>
 
                 {Array.from(
@@ -389,11 +532,16 @@ export function AddPlayerDialog({
                   (_, index) => (
                     <AvatarOption
                       key={index}
-                      selected={selectedAvatarIndex === index}
+                      selected={
+                        selectedPhoto === null && selectedAvatarIndex === index
+                      }
                       accessibilityLabel={t(
                         "playerSelection.addDialog.defaultAvatar",
                       )}
-                      onPress={() => setSelectedAvatarIndex(index)}
+                      onPress={() => {
+                        setSelectedPhoto(null);
+                        setSelectedAvatarIndex(index);
+                      }}
                     >
                       <AvatarIcon width={42} height={42} />
                     </AvatarOption>
@@ -427,7 +575,7 @@ export function AddPlayerDialog({
               </Squircle>
 
               <View style={styles.footer}>
-                <DialogButton onPress={handleClose}>
+                <DialogButton disabled={isPhotoBusy} onPress={handleClose}>
                   <Squircle
                     style={styles.footerButton}
                     cornerRadius={10}
@@ -464,7 +612,27 @@ export function AddPlayerDialog({
           onCancel={handleDuplicateCancel}
           onCreateNew={handleCreateDuplicate}
           onHidden={handleDuplicateHidden}
+          busy={isPhotoBusy}
         />
+
+        <PlayerPhotoSourceDialog
+          visible={visible && isPhotoSourceOpen}
+          width={dialogWidth}
+          onCamera={handleCameraSource}
+          onGallery={handleGallerySource}
+          onCancel={() => setIsPhotoSourceOpen(false)}
+        />
+
+        {cropSource && (
+          <PlayerPhotoCropper
+            source={cropSource}
+            onCancel={() => setCropSource(null)}
+            onConfirm={(croppedPhoto) => {
+              setSelectedPhoto(croppedPhoto);
+              setCropSource(null);
+            }}
+          />
+        )}
       </View>
     </View>
   );
@@ -544,6 +712,12 @@ const styles = StyleSheet.create({
     backgroundColor: colors.secondary3,
     alignItems: "center",
     justifyContent: "center",
+  },
+
+  selectedPhoto: {
+    width: 42,
+    height: 42,
+    borderRadius: 21,
   },
 
   nameLabel: {

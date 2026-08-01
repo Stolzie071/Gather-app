@@ -39,6 +39,26 @@ export const en = {
     start: "Start game",
   },
 
+  spyReveal: {
+    instruction: "%{name}, tap the card to discover your location or role",
+    revealCard: "Reveal %{name}'s card",
+    locationLabel: "LOCATION",
+    roleLabel: "ROLE",
+    spyRoleName: "Spy",
+    locationWarning:
+      "Answer carefully.\nDon't let the spy figure out\nwhere you are.",
+    spyWarning:
+      "Listen carefully.\nTry to figure out which location\nthe others received.",
+    passPhone: "Pass the phone",
+    startGame: "Start game",
+    allRolesReceived: "All roles\nreceived",
+    readyInstruction: "Tap the button\nto start the game",
+  },
+
+  spyTimer: {
+    finish: "Finish",
+  },
+
   spySetup: {
     title: "Game setup",
     step: "Step %{current} of %{total}",
@@ -163,6 +183,26 @@ export const en = {
       chooseAction: "Choose what you want to do.",
       cancel: "Cancel",
       createNew: "Create another",
+    },
+    photo: {
+      sourceTitle: "Add a photo",
+      sourceMessage: "Choose where to get the photo from.",
+      camera: "Take a photo",
+      gallery: "Choose from gallery",
+      cancel: "Cancel",
+      permissionTitle: "Permission required",
+      cameraPermissionMessage:
+        "Allow Gather to use the camera to take a player avatar photo.",
+      libraryPermissionMessage:
+        "Allow Gather to choose player avatar photos from your library.",
+      errorTitle: "Could not add the photo",
+      errorMessage: "Try choosing the photo again.",
+    },
+    crop: {
+      title: "Adjust the photo",
+      subtitle: "Move and zoom the image",
+      cancel: "Cancel",
+      confirm: "Done",
     },
   },
 

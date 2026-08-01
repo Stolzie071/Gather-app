@@ -25,10 +25,15 @@ const ALERT_HEIGHT = 244;
 
 type AlertButtonProps = {
   children: ReactNode;
+  disabled?: boolean;
   onPress: () => void;
 };
 
-function AlertButton({ children, onPress }: AlertButtonProps) {
+function AlertButton({
+  children,
+  disabled = false,
+  onPress,
+}: AlertButtonProps) {
   const scale = useSharedValue(1);
   const animatedStyle = useAnimatedStyle(() => ({
     transform: [{ scale: scale.value }],
@@ -37,6 +42,8 @@ function AlertButton({ children, onPress }: AlertButtonProps) {
   return (
     <Pressable
       accessibilityRole="button"
+      accessibilityState={{ disabled }}
+      disabled={disabled}
       onPress={onPress}
       onPressIn={() => {
         scale.value = withTiming(0.97, { duration: 70 });
@@ -50,7 +57,13 @@ function AlertButton({ children, onPress }: AlertButtonProps) {
       }}
       style={styles.buttonPressable}
     >
-      <Animated.View style={[styles.buttonAnimated, animatedStyle]}>
+      <Animated.View
+        style={[
+          styles.buttonAnimated,
+          disabled && styles.buttonDisabled,
+          animatedStyle,
+        ]}
+      >
         {children}
       </Animated.View>
     </Pressable>
@@ -64,6 +77,7 @@ type DuplicatePlayerAlertProps = {
   onCancel: () => void;
   onCreateNew: () => void;
   onHidden?: () => void;
+  busy?: boolean;
 };
 
 export function DuplicatePlayerAlert({
@@ -73,6 +87,7 @@ export function DuplicatePlayerAlert({
   onCancel,
   onCreateNew,
   onHidden,
+  busy = false,
 }: DuplicatePlayerAlertProps) {
   const { t } = useLocalization();
   const [rendered, setRendered] = useState(visible);
@@ -174,7 +189,7 @@ export function DuplicatePlayerAlert({
             </View>
 
             <View style={styles.buttons}>
-              <AlertButton onPress={onCancel}>
+              <AlertButton disabled={busy} onPress={onCancel}>
                 <Squircle
                   style={styles.button}
                   cornerRadius={8}
@@ -188,7 +203,7 @@ export function DuplicatePlayerAlert({
                 </Squircle>
               </AlertButton>
 
-              <AlertButton onPress={onCreateNew}>
+              <AlertButton disabled={busy} onPress={onCreateNew}>
                 <Squircle
                   style={styles.button}
                   cornerRadius={8}
@@ -282,6 +297,10 @@ const styles = StyleSheet.create({
   buttonAnimated: {
     width: "100%",
     height: "100%",
+  },
+
+  buttonDisabled: {
+    opacity: 0.55,
   },
 
   button: {

@@ -10,6 +10,7 @@ import {
 
 import { createPlayerProfile } from "@/players/playerUtils";
 import type { CreatePlayerInput, Player } from "@/players/types";
+import { clearStoredPlayerPhotos } from "@/storage/playerPhotoStorage";
 import { loadPlayers, savePlayers } from "@/storage/playersStorage";
 
 type PlayersContextValue = {
@@ -18,6 +19,7 @@ type PlayersContextValue = {
   addPlayer: (input: CreatePlayerInput) => Player;
   commitPlayers: (players: readonly Player[]) => void;
   clearPlayers: () => void;
+  clearPlayerPhotos: () => void;
 };
 
 const PlayersContext = createContext<PlayersContextValue | null>(null);
@@ -86,6 +88,22 @@ export function PlayersProvider({ children }: PropsWithChildren) {
     setPlayers([]);
   }, []);
 
+  const clearPlayerPhotos = useCallback(() => {
+    try {
+      clearStoredPlayerPhotos();
+    } catch (error: unknown) {
+      console.warn("Failed to clear player photos", error);
+    }
+
+    setPlayers((currentPlayers) =>
+      currentPlayers.map((player) =>
+        player.avatar.type === "photo"
+          ? { ...player, avatar: { type: "default" } }
+          : player,
+      ),
+    );
+  }, []);
+
   const value = useMemo(
     () => ({
       players,
@@ -93,8 +111,16 @@ export function PlayersProvider({ children }: PropsWithChildren) {
       addPlayer,
       commitPlayers,
       clearPlayers,
+      clearPlayerPhotos,
     }),
-    [addPlayer, clearPlayers, commitPlayers, isPlayersLoaded, players],
+    [
+      addPlayer,
+      clearPlayerPhotos,
+      clearPlayers,
+      commitPlayers,
+      isPlayersLoaded,
+      players,
+    ],
   );
 
   return (

@@ -5,6 +5,8 @@ export type RootStackParamList = {
   GameList: undefined;
   SpyGame: undefined;
   SpySetup: undefined;
+  SpyReveal: undefined;
+  SpyTimer: undefined;
   AliasGame: undefined;
   MafiaGame: undefined;
 };

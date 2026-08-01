@@ -39,6 +39,26 @@ export const ru = {
     start: "Начать игру",
   },
 
+  spyReveal: {
+    instruction: "%{name}, нажми на карточку, чтобы узнать локацию или роль",
+    revealCard: "Показать карточку игрока %{name}",
+    locationLabel: "ЛОКАЦИЯ",
+    roleLabel: "РОЛЬ",
+    spyRoleName: "Шпион",
+    locationWarning:
+      "Отвечай осторожно.\nНе дай шпиону догадаться,\nгде вы находитесь.",
+    spyWarning:
+      "Слушай внимательно.\nПопробуй понять, какую\nлокацию получили остальные.",
+    passPhone: "Передать телефон",
+    startGame: "Начать игру",
+    allRolesReceived: "Все роли\nполучены",
+    readyInstruction: "Нажмите на кнопку,\nчтобы начать игру",
+  },
+
+  spyTimer: {
+    finish: "Завершить",
+  },
+
   spySetup: {
     title: "Настройка игры",
     step: "Шаг %{current} из %{total}",
@@ -163,6 +183,26 @@ export const ru = {
       chooseAction: "Выберите, что хотите сделать.",
       cancel: "Отмена",
       createNew: "Создать нового",
+    },
+    photo: {
+      sourceTitle: "Добавить фотографию",
+      sourceMessage: "Выберите, откуда взять фотографию.",
+      camera: "Сделать фото",
+      gallery: "Выбрать из галереи",
+      cancel: "Отмена",
+      permissionTitle: "Нужно разрешение",
+      cameraPermissionMessage:
+        "Разрешите Gather использовать камеру, чтобы сделать фотографию для аватара.",
+      libraryPermissionMessage:
+        "Разрешите Gather выбирать фотографии из галереи для аватара.",
+      errorTitle: "Не удалось добавить фотографию",
+      errorMessage: "Попробуйте выбрать фотографию ещё раз.",
+    },
+    crop: {
+      title: "Настройте фотографию",
+      subtitle: "Перемещайте и масштабируйте изображение",
+      cancel: "Отмена",
+      confirm: "Готово",
     },
   },
 

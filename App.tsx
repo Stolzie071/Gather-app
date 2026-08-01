@@ -11,7 +11,12 @@ import { NavigationContainer } from "@react-navigation/native";
 import { createBlankStackNavigator } from "react-native-screen-transitions/blank-stack";
 import { GameListScreen } from "./src/screens/GameListScreen";
 import type { RootStackParamList } from "@/navigation/types";
-import { SpyGameScreen, SpySetupScreen } from "@/games/spy";
+import {
+  SpyGameScreen,
+  SpyRevealScreen,
+  SpySetupScreen,
+  SpyTimerScreen,
+} from "@/games/spy";
 import { AliasGameScreen } from "./src/screens/games/AliasGameScreen";
 import { MafiaGameScreen } from "./src/screens/games/MafiaGameScreen";
 import { iosPageTransition } from "@/navigation/transitions";
@@ -59,6 +64,16 @@ export default function App() {
                     <Stack.Screen
                       name="SpySetup"
                       component={SpySetupScreen}
+                      options={iosPageTransition}
+                    />
+                    <Stack.Screen
+                      name="SpyReveal"
+                      component={SpyRevealScreen}
+                      options={iosPageTransition}
+                    />
+                    <Stack.Screen
+                      name="SpyTimer"
+                      component={SpyTimerScreen}
                       options={iosPageTransition}
                     />
                     <Stack.Screen

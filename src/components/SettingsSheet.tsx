@@ -68,8 +68,7 @@ export function SettingsSheet({
 }: SettingsSheetProps) {
   const { language, setLanguage, t } = useLocalization();
   const { settings, updateSetting } = useSettings();
-  const { clearPlayers } = usePlayers();
-  const handleClearPhotos = useCallback(() => {}, []);
+  const { clearPlayers, clearPlayerPhotos } = usePlayers();
 
   const translateY = useSharedValue(HIDDEN_POSITION);
   const onHiddenRef = useRef(onHidden);
@@ -333,7 +332,7 @@ export function SettingsSheet({
               <SettingsRow
                 icon={<DeveloperSlashIcon />}
                 title={t("settings.items.clearPhotos")}
-                onPress={handleClearPhotos}
+                onPress={clearPlayerPhotos}
               />
             </SettingsSection>
           )}

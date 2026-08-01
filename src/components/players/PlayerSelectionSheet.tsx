@@ -28,8 +28,8 @@ import Animated, {
   withTiming,
 } from "react-native-reanimated";
 
-import { AvatarIcon } from "@assets/icons";
 import { AddPlayerDialog } from "@/components/players/AddPlayerDialog";
+import { PlayerAvatarView } from "@/components/players/PlayerAvatarView";
 import { SearchBar } from "@/components/SearchBar";
 import { SelectionIndicator } from "@/components/SelectionIndicator";
 import { Squircle } from "@/components/Squircle";
@@ -95,7 +95,7 @@ function PlayerCard({
           strokeWidth={selected ? 1 : undefined}
         >
           <View style={styles.playerInformation}>
-            <AvatarIcon width={42} height={42} />
+            <PlayerAvatarView avatar={player.avatar} size={42} />
             <Text style={styles.playerName} numberOfLines={1}>
               {player.name}
             </Text>
@@ -256,11 +256,8 @@ export function PlayerSelectionSheet({
     });
   };
 
-  const handleAddPlayer = (name: string) => {
-    const player = onCreatePlayer({
-      name,
-      avatar: { type: "default" },
-    });
+  const handleAddPlayer = (input: CreatePlayerInput) => {
+    const player = onCreatePlayer(input);
 
     setDraftPlayerIds((currentIds) =>
       currentIds.length < maximumPlayers

@@ -1,8 +1,14 @@
 export { default as SpySetupBackgroundDecor } from "./setup_background_decor.svg";
-export { default as SpyMainBackgroundDecor } from "./main_background_decor.svg";
+export { default as SpyMainBackgroundDecor } from "./main_background_decor.png";
 export { default as SpySetupDice } from "./dice_think.svg";
 export { default as SpySetupDiceHand } from "./dice_hand_new.svg";
 export { default as SpyMainDice } from "./Spy_dice_main.svg";
 export { default as SpyGameCardDice } from "./Spy_game_card_dice.svg";
+export { default as SpyCardStar } from "./star_for_card.svg";
+export { default as SpyCardRoleIllustration } from "./spy_for_card.svg";
+export { default as SpyCinemaLocation } from "./locations/Cinema.png";
+export { default as SpyTimerDice } from "./dice_timer.svg";
+export { default as SpyTimerWave } from "./wave_timer.svg";
+export { default as SpyTimerWaveShadow } from "./wave_timer_shadow.png";
 export { default as SpySetupWave } from "./wave.svg";
 export { default as SpySetupWaveShadow } from "./wave_shadow.png";
