@@ -1,8 +1,10 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   BackHandler,
   Image,
+  Pressable,
   StyleSheet,
+  Text,
   useWindowDimensions,
   View,
 } from "react-native";
@@ -11,40 +13,89 @@ import type { BlankStackScreenProps } from "react-native-screen-transitions/blan
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { SpyMainBackgroundDecor } from "@assets/Spy_game";
-import { BackButton, SettingsButton, SettingsSheet } from "@/components";
+import {
+  BackButton,
+  ExitGameDialog,
+  SettingsButton,
+  SettingsSheet,
+} from "@/components";
 import { SpyPlayerCardStack } from "@/games/spy/components/SpyPlayerCardStack";
-import { SPY_LOCATIONS } from "@/games/spy/data/locations";
+import { getSpyLocationById, SPY_LOCATIONS } from "@/games/spy/data/locations";
+import { useSpySession } from "@/games/spy/SpySessionProvider";
 import type { RootStackParamList } from "@/navigation/types";
+import { usePlayers } from "@/players/PlayersProvider";
 
 const DESIGN_WIDTH = 402;
 const DESIGN_HEIGHT = 874;
-const DEMO_LOCATION = SPY_LOCATIONS[0];
-const DEMO_PLAYERS = [
-  { name: "Катя", revealType: "location" },
-  { name: "Артём", revealType: "spy" },
-] as const;
-
 type SpyRevealScreenProps = BlankStackScreenProps<
   RootStackParamList,
   "SpyReveal"
 >;
 
 export function SpyRevealScreen({ navigation }: SpyRevealScreenProps) {
+  const { players } = usePlayers();
+  const { activeSession, clearSession, updateSession } = useSpySession();
   const insets = useSafeAreaInsets();
   const { width: screenWidth, height: screenHeight } = useWindowDimensions();
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [hasOpenedSettings, setHasOpenedSettings] = useState(false);
-  const [isCardRevealed, setIsCardRevealed] = useState(false);
-  const [showReadyCard, setShowReadyCard] = useState(false);
-  const [currentPlayerIndex, setCurrentPlayerIndex] = useState(0);
+  const [isExitDialogOpen, setIsExitDialogOpen] = useState(false);
+  const [debugCardKey, setDebugCardKey] = useState(0);
   const sceneScale = screenWidth / DESIGN_WIDTH;
   const isCompactScreen = screenHeight < 700 || screenWidth < 350;
-  const currentPlayer = DEMO_PLAYERS[currentPlayerIndex];
-  const isLastPlayer = currentPlayerIndex === DEMO_PLAYERS.length - 1;
+  const currentPlayerId =
+    activeSession?.revealOrder[activeSession.revealIndex] ?? "";
+  const currentPlayer = useMemo(
+    () => players.find(({ id }) => id === currentPlayerId),
+    [currentPlayerId, players],
+  );
+  const currentLocation = activeSession
+    ? getSpyLocationById(activeSession.secretWordId)
+    : undefined;
+  const fallbackLocation = SPY_LOCATIONS[0];
+  const isCurrentPlayerSpy =
+    activeSession?.spyIds.includes(currentPlayerId) ?? false;
+  const spyKnowledge = useMemo(() => {
+    if (
+      !activeSession?.draft.spiesKnowEachOther ||
+      !isCurrentPlayerSpy
+    ) {
+      return undefined;
+    }
+
+    const playerNamesById = new Map(
+      players.map((player) => [player.id, player.name]),
+    );
+    const showNonSpies = activeSession.spyIds.length >= 7;
+    const shownPlayerIds = showNonSpies
+      ? activeSession.draft.playerIds.filter(
+          (playerId) => !activeSession.spyIds.includes(playerId),
+        )
+      : activeSession.spyIds.filter((spyId) => spyId !== currentPlayerId);
+
+    const names = shownPlayerIds
+      .map((spyId) => playerNamesById.get(spyId))
+      .filter((name): name is string => Boolean(name));
+
+    return {
+      mode: showNonSpies ? ("nonSpies" as const) : ("otherSpies" as const),
+      names,
+    };
+  }, [activeSession, currentPlayerId, isCurrentPlayerSpy, players]);
+  const isLastPlayer = activeSession
+    ? activeSession.revealIndex === activeSession.revealOrder.length - 1
+    : false;
+  const isCardRevealed = activeSession?.currentCardRevealed ?? false;
+  const showReadyCard = activeSession?.allRolesRevealed ?? false;
 
   const handleExitGame = useCallback(() => {
+    clearSession();
     navigation.popTo("SpyGame");
-  }, [navigation]);
+  }, [clearSession, navigation]);
+
+  const handleRequestExit = useCallback(() => {
+    setIsExitDialogOpen(true);
+  }, []);
 
   const handleOpenSettings = useCallback(() => {
     setHasOpenedSettings(true);
@@ -52,35 +103,73 @@ export function SpyRevealScreen({ navigation }: SpyRevealScreenProps) {
   }, []);
 
   const handlePassPhone = useCallback(() => {
-    if (currentPlayerIndex === DEMO_PLAYERS.length - 1) {
-      setIsCardRevealed(false);
+    if (!activeSession || isLastPlayer) {
       return false;
     }
 
-    setIsCardRevealed(false);
-    setCurrentPlayerIndex((currentIndex) => currentIndex + 1);
+    updateSession((session) => ({
+      ...session,
+      revealIndex: session.revealIndex + 1,
+      currentCardRevealed: false,
+    }));
     return true;
-  }, [currentPlayerIndex]);
+  }, [activeSession, isLastPlayer, updateSession]);
 
   const handleStartGame = useCallback(() => {
-    navigation.navigate("SpyTimer");
-  }, [navigation]);
+    const startedAt = new Date();
+
+    updateSession((session) => ({
+      ...session,
+      phase: "playing",
+      startedAt: startedAt.toISOString(),
+      endsAt: session.draft.timerEnabled
+        ? new Date(
+            startedAt.getTime() + session.draft.timerMinutes * 60_000,
+          ).toISOString()
+        : null,
+    }));
+    navigation.replace("SpyTimer");
+  }, [navigation, updateSession]);
+
+  const handlePreviousCard = useCallback(() => {
+    if (!activeSession || activeSession.revealIndex === 0) {
+      return;
+    }
+
+    setDebugCardKey((currentKey) => currentKey + 1);
+    updateSession((session) => ({
+      ...session,
+      revealIndex: Math.max(0, session.revealIndex - 1),
+      currentCardRevealed: false,
+      allRolesRevealed: false,
+    }));
+  }, [activeSession, updateSession]);
 
   const handleRevealCard = useCallback(() => {
-    setIsCardRevealed(true);
-
-    if (isLastPlayer) {
-      setShowReadyCard(true);
-    }
-  }, [isLastPlayer]);
+    updateSession((session) => ({
+      ...session,
+      currentCardRevealed: true,
+      allRolesRevealed: isLastPlayer,
+    }));
+  }, [isLastPlayer, updateSession]);
 
   useEffect(() => {
+    if (!activeSession && navigation.isFocused()) {
+      navigation.popTo("SpyGame");
+    }
+  }, [activeSession, navigation]);
+
+  useEffect(() => {
+    if (!showReadyCard) {
+      return;
+    }
+
     const preloadTimer = setTimeout(() => {
       navigation.preload("SpyTimer");
-    }, 500);
+    }, 100);
 
     return () => clearTimeout(preloadTimer);
-  }, [navigation]);
+  }, [navigation, showReadyCard]);
 
   useEffect(() => {
     const subscription = BackHandler.addEventListener(
@@ -90,13 +179,18 @@ export function SpyRevealScreen({ navigation }: SpyRevealScreenProps) {
           return false;
         }
 
-        handleExitGame();
+        if (isExitDialogOpen) {
+          setIsExitDialogOpen(false);
+          return true;
+        }
+
+        handleRequestExit();
         return true;
       },
     );
 
     return () => subscription.remove();
-  }, [handleExitGame, isSettingsOpen]);
+  }, [handleRequestExit, isExitDialogOpen, isSettingsOpen]);
 
   return (
     <View style={styles.container}>
@@ -116,24 +210,31 @@ export function SpyRevealScreen({ navigation }: SpyRevealScreenProps) {
         />
 
         <View
-          style={[styles.cardPosition, { height: screenHeight / sceneScale }]}
+          style={[
+            styles.cardPosition,
+            { height: screenHeight / sceneScale },
+            isCompactScreen && styles.cardPositionCompact,
+          ]}
         >
           <SpyPlayerCardStack
-            playerName={currentPlayer.name}
-            locationName={DEMO_LOCATION.name}
-            locationImage={DEMO_LOCATION.image}
-            revealType={currentPlayer.revealType}
+            key={`${activeSession?.id ?? "empty"}-${debugCardKey}`}
+            playerName={currentPlayer?.name ?? ""}
+            locationName={(currentLocation ?? fallbackLocation).name}
+            locationImage={(currentLocation ?? fallbackLocation).image}
+            revealType={isCurrentPlayerSpy ? "spy" : "location"}
+            spyKnowledge={spyKnowledge}
             revealed={isCardRevealed}
             showReadyCard={showReadyCard}
             onReveal={handleRevealCard}
             onPassPhone={handlePassPhone}
             onStartGame={handleStartGame}
+            compact={isCompactScreen}
           />
         </View>
       </View>
 
       <BackButton
-        onPress={handleExitGame}
+        onPress={handleRequestExit}
         compact={isCompactScreen}
         style={{
           position: "absolute",
@@ -152,6 +253,23 @@ export function SpyRevealScreen({ navigation }: SpyRevealScreenProps) {
         }}
       />
 
+      {__DEV__ && (activeSession?.revealIndex ?? 0) > 0 && (
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel="Предыдущая карточка"
+          onPress={handlePreviousCard}
+          style={({ pressed }) => [
+            styles.debugPreviousButton,
+            { bottom: insets.bottom + 6 },
+            pressed && styles.debugPreviousButtonPressed,
+          ]}
+        >
+          <Text style={styles.debugPreviousButtonText}>
+            Предыдущая карточка
+          </Text>
+        </Pressable>
+      )}
+
       {hasOpenedSettings && (
         <SettingsSheet
           visible={isSettingsOpen}
@@ -160,6 +278,13 @@ export function SpyRevealScreen({ navigation }: SpyRevealScreenProps) {
           compact={isCompactScreen}
         />
       )}
+
+      <ExitGameDialog
+        visible={isExitDialogOpen}
+        onStay={() => setIsExitDialogOpen(false)}
+        onExit={handleExitGame}
+        compact={isCompactScreen}
+      />
 
       <StatusBar style="dark" />
     </View>
@@ -198,5 +323,31 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     transform: [{ translateY: 20 }],
+  },
+  cardPositionCompact: {
+    transform: [{ translateY: 35 }],
+  },
+
+  debugPreviousButton: {
+    position: "absolute",
+    alignSelf: "center",
+    zIndex: 20,
+    height: 34,
+    paddingHorizontal: 16,
+    borderRadius: 12,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "rgba(42, 24, 73, 0.78)",
+  },
+
+  debugPreviousButtonPressed: {
+    backgroundColor: "rgba(158, 124, 228, 0.9)",
+  },
+
+  debugPreviousButtonText: {
+    color: "#FFFFFF",
+    fontFamily: "Nunito_700Bold",
+    fontSize: 12,
+    lineHeight: 16,
   },
 });

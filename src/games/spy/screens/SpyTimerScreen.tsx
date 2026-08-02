@@ -19,21 +19,19 @@ import {
 } from "@assets/Spy_game";
 import {
   BackButton,
+  ExitGameDialog,
   GameStartButton,
   SettingsButton,
   SettingsSheet,
 } from "@/components";
-import { SpyTimerDial } from "@/games/spy/components/SpyTimerDial";
+import { SpyTimerDisplay } from "@/games/spy/components/SpyTimerDisplay";
+import { useSpySession } from "@/games/spy/SpySessionProvider";
 import { useLocalization } from "@/localization/LocalizationProvider";
 import type { RootStackParamList } from "@/navigation/types";
 import { colors } from "@/theme/colors";
 
 const DESIGN_WIDTH = 402;
 const DESIGN_HEIGHT = 874;
-const TIMER_TOTAL_SECONDS = 10 * 60;
-const TIMER_REMAINING_SECONDS = 9 * 60 + 26;
-const TIMER_PROGRESS = TIMER_REMAINING_SECONDS / TIMER_TOTAL_SECONDS;
-
 type SpyTimerScreenProps = BlankStackScreenProps<
   RootStackParamList,
   "SpyTimer"
@@ -41,11 +39,13 @@ type SpyTimerScreenProps = BlankStackScreenProps<
 
 export function SpyTimerScreen({ navigation }: SpyTimerScreenProps) {
   const { t } = useLocalization();
+  const { activeSession, clearSession, updateSession } = useSpySession();
   const isFocused = useIsFocused();
   const insets = useSafeAreaInsets();
   const { width: screenWidth, height: screenHeight } = useWindowDimensions();
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [hasOpenedSettings, setHasOpenedSettings] = useState(false);
+  const [isExitDialogOpen, setIsExitDialogOpen] = useState(false);
   const sceneScale = screenWidth / DESIGN_WIDTH;
   const sceneHeight = screenHeight / sceneScale;
   const isCompactScreen = screenHeight < 700 || screenWidth < 350;
@@ -57,15 +57,32 @@ export function SpyTimerScreen({ navigation }: SpyTimerScreenProps) {
   const buttonBottom = insets.bottom / sceneScale + 16;
 
   const handleExitGame = useCallback(() => {
+    clearSession();
     navigation.popTo("SpyGame");
-  }, [navigation]);
+  }, [clearSession, navigation]);
+
+  const handleRequestExit = useCallback(() => {
+    setIsExitDialogOpen(true);
+  }, []);
 
   const handleOpenSettings = useCallback(() => {
     setHasOpenedSettings(true);
     setIsSettingsOpen(true);
   }, []);
 
-  const handleFinish = useCallback(() => undefined, []);
+  const handleFinish = useCallback(() => {
+    updateSession((session) => ({
+      ...session,
+      phase: "results",
+    }));
+    navigation.replace("SpyResults");
+  }, [navigation, updateSession]);
+
+  useEffect(() => {
+    if (!activeSession && isFocused) {
+      navigation.popTo("SpyGame");
+    }
+  }, [activeSession, isFocused, navigation]);
 
   useEffect(() => {
     if (!isFocused) {
@@ -79,13 +96,18 @@ export function SpyTimerScreen({ navigation }: SpyTimerScreenProps) {
           return false;
         }
 
-        handleExitGame();
+        if (isExitDialogOpen) {
+          setIsExitDialogOpen(false);
+          return true;
+        }
+
+        handleRequestExit();
         return true;
       },
     );
 
     return () => subscription.remove();
-  }, [handleExitGame, isFocused, isSettingsOpen]);
+  }, [handleRequestExit, isExitDialogOpen, isFocused, isSettingsOpen]);
 
   const finishLabel = t("spyTimer.finish");
   const timerScene = useMemo(
@@ -107,9 +129,9 @@ export function SpyTimerScreen({ navigation }: SpyTimerScreenProps) {
         />
 
         <View style={[styles.timerComposition, { top: timerTop }]}>
-          <SpyTimerDial
-            label="09:26"
-            progress={TIMER_PROGRESS}
+          <SpyTimerDisplay
+            session={activeSession}
+            focused={isFocused}
             size={dialSize}
           />
 
@@ -159,12 +181,14 @@ export function SpyTimerScreen({ navigation }: SpyTimerScreenProps) {
     ),
     [
       buttonBottom,
+      activeSession,
       dialSize,
       diceHeight,
       diceWidth,
       finishLabel,
       handleFinish,
       isCompactScreen,
+      isFocused,
       sceneHeight,
       sceneScale,
       timerTop,
@@ -177,7 +201,7 @@ export function SpyTimerScreen({ navigation }: SpyTimerScreenProps) {
       {timerScene}
 
       <BackButton
-        onPress={handleExitGame}
+        onPress={handleRequestExit}
         compact={isCompactScreen}
         style={{
           position: "absolute",
@@ -204,6 +228,13 @@ export function SpyTimerScreen({ navigation }: SpyTimerScreenProps) {
           compact={isCompactScreen}
         />
       )}
+
+      <ExitGameDialog
+        visible={isExitDialogOpen}
+        onStay={() => setIsExitDialogOpen(false)}
+        onExit={handleExitGame}
+        compact={isCompactScreen}
+      />
 
       <StatusBar style="dark" />
     </View>

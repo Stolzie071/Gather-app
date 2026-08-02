@@ -55,11 +55,30 @@ type SpyPlayerCardStackProps = {
   locationName: string;
   locationImage: ImageSourcePropType;
   revealType: "location" | "spy";
+  spyKnowledge?: {
+    mode: "otherSpies" | "nonSpies";
+    names: readonly string[];
+  };
   revealed: boolean;
   showReadyCard: boolean;
   onReveal: () => void;
   onPassPhone: () => boolean;
   onStartGame: () => void;
+  compact?: boolean;
+};
+
+type CardPhase =
+  | "closed"
+  | "revealing"
+  | "revealed"
+  | "passing"
+  | "waitingForNext"
+  | "entering"
+  | "ready";
+
+type RenderedPlayer = {
+  name: string;
+  revealType: "location" | "spy";
 };
 
 export const SpyPlayerCardStack = memo(function SpyPlayerCardStack({
@@ -67,21 +86,34 @@ export const SpyPlayerCardStack = memo(function SpyPlayerCardStack({
   locationName,
   locationImage,
   revealType,
+  spyKnowledge,
   revealed,
   showReadyCard,
   onReveal,
   onPassPhone,
   onStartGame,
+  compact = false,
 }: SpyPlayerCardStackProps) {
   const { t } = useLocalization();
-  const [isRevealing, setIsRevealing] = useState(false);
-  const [isPassing, setIsPassing] = useState(false);
-  const [showClosedCard, setShowClosedCard] = useState(!revealed);
-  const [isRevealedCardPrepared, setIsRevealedCardPrepared] = useState(true);
+  const [phase, setPhase] = useState<CardPhase>(
+    revealed ? "revealed" : "closed",
+  );
+  const [renderedPlayer, setRenderedPlayer] = useState<RenderedPlayer>(() => ({
+    name: playerName,
+    revealType,
+  }));
   const revealProgress = useSharedValue(revealed ? 1 : 0);
   const passProgress = useSharedValue(0);
   const nextCardEntryProgress = useSharedValue(1);
   const animationFrameRef = useRef<number | null>(null);
+  const isClosedLayerVisible =
+    phase === "closed" || phase === "revealing" || phase === "entering";
+  const isRevealedLayerVisible =
+    phase === "closed" ||
+    phase === "revealing" ||
+    phase === "revealed" ||
+    phase === "passing";
+  const isSpy = renderedPlayer.revealType === "spy";
 
   const closedCardAnimatedStyle = useAnimatedStyle(() => ({
     transform: [
@@ -104,15 +136,14 @@ export const SpyPlayerCardStack = memo(function SpyPlayerCardStack({
           ),
       },
       {
-        rotate: `${interpolate(
-          revealProgress.value,
-          [0, 1],
-          [0, CARD_EXIT_ROTATION],
-        ) + interpolate(
-          nextCardEntryProgress.value,
-          [0, 1],
-          [NEXT_CARD_ENTRY_ROTATION, 0],
-        )}deg`,
+        rotate: `${
+          interpolate(revealProgress.value, [0, 1], [0, CARD_EXIT_ROTATION]) +
+          interpolate(
+            nextCardEntryProgress.value,
+            [0, 1],
+            [NEXT_CARD_ENTRY_ROTATION, 0],
+          )
+        }deg`,
       },
     ],
   }));
@@ -121,18 +152,10 @@ export const SpyPlayerCardStack = memo(function SpyPlayerCardStack({
     opacity: interpolate(passProgress.value, [0, 0.98, 1], [1, 1, 0]),
     transform: [
       {
-        translateX: interpolate(
-          passProgress.value,
-          [0, 1],
-          [0, CARD_EXIT_X],
-        ),
+        translateX: interpolate(passProgress.value, [0, 1], [0, CARD_EXIT_X]),
       },
       {
-        translateY: interpolate(
-          passProgress.value,
-          [0, 1],
-          [0, CARD_EXIT_Y],
-        ),
+        translateY: interpolate(passProgress.value, [0, 1], [0, CARD_EXIT_Y]),
       },
       {
         rotate: `${interpolate(
@@ -146,17 +169,16 @@ export const SpyPlayerCardStack = memo(function SpyPlayerCardStack({
 
   const finishReveal = useCallback(() => {
     onReveal();
-    setShowClosedCard(false);
-    setIsRevealing(false);
+    setPhase("revealed");
   }, [onReveal]);
 
   const handleReveal = useCallback(() => {
-    if (revealed || isRevealing || isPassing) {
+    if (phase !== "closed") {
       return;
     }
 
     passProgress.value = 0;
-    setIsRevealing(true);
+    setPhase("revealing");
     animationFrameRef.current = requestAnimationFrame(() => {
       animationFrameRef.current = null;
       revealProgress.value = withTiming(
@@ -172,61 +194,20 @@ export const SpyPlayerCardStack = memo(function SpyPlayerCardStack({
         },
       );
     });
-  }, [
-    finishReveal,
-    isPassing,
-    isRevealing,
-    passProgress,
-    revealProgress,
-    revealed,
-  ]);
+  }, [finishReveal, passProgress, phase, revealProgress]);
 
   const finishNextCardEntry = useCallback(() => {
-    passProgress.value = 0;
-    setIsRevealedCardPrepared(true);
-    setIsPassing(false);
-  }, [passProgress]);
+    setPhase("closed");
+  }, []);
 
   const finishPassExit = useCallback(() => {
-    setIsRevealedCardPrepared(false);
     const hasNextPlayer = onPassPhone();
 
-    revealProgress.value = 0;
-    setShowClosedCard(false);
-    setIsRevealing(false);
-
-    if (!hasNextPlayer) {
-      setIsPassing(false);
-      return;
-    }
-
-    nextCardEntryProgress.value = 0;
-    setShowClosedCard(true);
-
-    animationFrameRef.current = requestAnimationFrame(() => {
-      animationFrameRef.current = null;
-      nextCardEntryProgress.value = withTiming(
-        1,
-        {
-          duration: NEXT_CARD_ENTRY_DURATION,
-          easing: Easing.out(Easing.cubic),
-        },
-        (finished) => {
-          if (finished) {
-            runOnJS(finishNextCardEntry)();
-          }
-        },
-      );
-    });
-  }, [
-    finishNextCardEntry,
-    nextCardEntryProgress,
-    onPassPhone,
-    revealProgress,
-  ]);
+    setPhase(hasNextPlayer ? "waitingForNext" : "ready");
+  }, [onPassPhone]);
 
   const handlePassPhone = useCallback(() => {
-    if (isPassing) {
+    if (phase !== "revealed") {
       return;
     }
 
@@ -235,7 +216,7 @@ export const SpyPlayerCardStack = memo(function SpyPlayerCardStack({
       animationFrameRef.current = null;
     }
 
-    setIsPassing(true);
+    setPhase("passing");
     passProgress.value = 0;
 
     animationFrameRef.current = requestAnimationFrame(() => {
@@ -253,7 +234,47 @@ export const SpyPlayerCardStack = memo(function SpyPlayerCardStack({
         },
       );
     });
-  }, [finishPassExit, isPassing, passProgress]);
+  }, [finishPassExit, passProgress, phase]);
+
+  useEffect(() => {
+    if (phase !== "waitingForNext") {
+      return;
+    }
+
+    revealProgress.value = 0;
+    passProgress.value = 0;
+    nextCardEntryProgress.value = 0;
+    setRenderedPlayer({ name: playerName, revealType });
+
+    animationFrameRef.current = requestAnimationFrame(() => {
+      animationFrameRef.current = null;
+      setPhase("entering");
+
+      animationFrameRef.current = requestAnimationFrame(() => {
+        animationFrameRef.current = null;
+        nextCardEntryProgress.value = withTiming(
+          1,
+          {
+            duration: NEXT_CARD_ENTRY_DURATION,
+            easing: Easing.out(Easing.cubic),
+          },
+          (finished) => {
+            if (finished) {
+              runOnJS(finishNextCardEntry)();
+            }
+          },
+        );
+      });
+    });
+  }, [
+    finishNextCardEntry,
+    nextCardEntryProgress,
+    passProgress,
+    phase,
+    playerName,
+    revealProgress,
+    revealType,
+  ]);
 
   useEffect(() => {
     return () => {
@@ -268,13 +289,14 @@ export const SpyPlayerCardStack = memo(function SpyPlayerCardStack({
   }, [nextCardEntryProgress, passProgress, revealProgress]);
 
   return (
-    <View style={styles.stack}>
+    <View style={[styles.stack, compact && styles.stackCompact]}>
+      <View pointerEvents="none" style={styles.stackShadow} />
       <View style={[styles.backCard, styles.thirdCard]} />
       <View style={[styles.backCard, styles.secondCard]} />
 
       {showReadyCard && (
         <View style={[styles.frontCardLayer, styles.readyCardLayer]}>
-          <View style={styles.frontCardShadow}>
+          <View style={styles.frontCardSurface}>
             <Squircle
               style={styles.frontCard}
               cornerRadius={28}
@@ -304,181 +326,172 @@ export const SpyPlayerCardStack = memo(function SpyPlayerCardStack({
         </View>
       )}
 
-      {(isRevealedCardPrepared || revealed || isRevealing) && (
-        <Animated.View
-          style={[
-            styles.frontCardLayer,
-            styles.revealedCardLayer,
-            revealedCardAnimatedStyle,
-          ]}
-        >
-          <View style={styles.frontCardShadow}>
-            <Squircle
-              style={styles.frontCard}
-              cornerRadius={28}
-              fillColor={colors.background}
-            >
-              {revealType === "spy" ? (
-                <View style={styles.revealedContent}>
-                  <View style={styles.roleMainContent}>
-                    <CardOrnament />
-
-                    <Squircle
-                      style={[styles.locationLabel, styles.roleLabel]}
-                      cornerRadius={10}
-                      fillColor={colors.secondary4}
-                    >
-                      <Text style={styles.locationLabelText}>
-                        {t("spyReveal.roleLabel")}
-                      </Text>
-                    </Squircle>
-
-                    <Text
-                      style={[styles.locationTitle, styles.roleTitle]}
-                      numberOfLines={1}
-                      adjustsFontSizeToFit
-                      minimumFontScale={0.55}
-                    >
-                      {t("spyReveal.spyRoleName")}
-                    </Text>
-
-                    <SpyCardRoleIllustration
-                      pointerEvents="none"
-                      width={247}
-                      height={179}
-                      style={styles.roleIllustration}
-                    />
-
-                    <CardOrnament style={styles.roleBottomOrnament} />
-                  </View>
-
-                  <View
-                    style={[
-                      styles.revealedBottomContent,
-                      styles.roleBottomContent,
-                    ]}
-                  >
-                    <Text style={styles.locationWarning}>
-                      {t("spyReveal.spyWarning")}
-                    </Text>
-
-                    <GameStartButton
-                      text={t("spyReveal.passPhone")}
-                      onPress={handlePassPhone}
-                      style={styles.passButton}
-                      textStyle={styles.passButtonText}
-                      cornerRadius={10}
-                    />
-                  </View>
-                </View>
-              ) : (
-                <View style={styles.revealedContent}>
-                  <View style={styles.revealedMainContent}>
-                    <CardOrnament />
-
-                    <Squircle
-                      style={styles.locationLabel}
-                      cornerRadius={10}
-                      fillColor={colors.secondary4}
-                    >
-                      <Text style={styles.locationLabelText}>
-                        {t("spyReveal.locationLabel")}
-                      </Text>
-                    </Squircle>
-
-                    <Text
-                      style={styles.locationTitle}
-                      numberOfLines={1}
-                      adjustsFontSizeToFit
-                      minimumFontScale={0.55}
-                    >
-                      {locationName}
-                    </Text>
-
-                    <Image
-                      source={locationImage}
-                      resizeMode="cover"
-                      style={styles.locationImage}
-                    />
-
-                    <CardOrnament />
-                  </View>
-
-                  <View style={styles.revealedBottomContent}>
-                    <Text style={styles.locationWarning}>
-                      {t("spyReveal.locationWarning")}
-                    </Text>
-
-                    <GameStartButton
-                      text={t("spyReveal.passPhone")}
-                      onPress={handlePassPhone}
-                      style={styles.passButton}
-                      textStyle={styles.passButtonText}
-                      cornerRadius={10}
-                    />
-                  </View>
-                </View>
-              )}
-            </Squircle>
-          </View>
-        </Animated.View>
-      )}
-
-      {showClosedCard && (
-        <Animated.View
-          style={[
-            styles.frontCardLayer,
-            styles.closedCardLayer,
-            closedCardAnimatedStyle,
-          ]}
-        >
-          <View style={styles.frontCardShadow}>
-            <Squircle
-              style={styles.frontCard}
-              cornerRadius={28}
-              fillColor={colors.background}
-            >
-              <CardOrnament
-                style={[styles.hiddenOrnament, styles.topOrnament]}
-              />
-
-              <Text
-                style={styles.playerName}
-                numberOfLines={1}
-                adjustsFontSizeToFit
-                minimumFontScale={0.55}
+      <Animated.View
+        style={[
+          styles.frontCardLayer,
+          styles.revealedCardLayer,
+          !isRevealedLayerVisible && styles.hiddenCardLayer,
+          revealedCardAnimatedStyle,
+        ]}
+      >
+        <View style={styles.frontCardSurface}>
+          <Squircle
+            style={styles.frontCard}
+            cornerRadius={28}
+            fillColor={colors.background}
+          >
+            <View style={styles.revealedContent}>
+              <View
+                style={
+                  isSpy ? styles.roleMainContent : styles.revealedMainContent
+                }
               >
-                {playerName}
-              </Text>
+                <CardOrnament />
 
-              <CardOrnament
-                style={[styles.hiddenOrnament, styles.bottomOrnament]}
-              />
+                <Squircle
+                  style={[styles.locationLabel, isSpy && styles.roleLabel]}
+                  cornerRadius={10}
+                  fillColor={colors.secondary4}
+                >
+                  <Text style={styles.locationLabelText}>
+                    {t(
+                      isSpy ? "spyReveal.roleLabel" : "spyReveal.locationLabel",
+                    )}
+                  </Text>
+                </Squircle>
 
-              <Text style={styles.instruction}>
-                {t("spyReveal.instruction", { name: playerName })}
-              </Text>
+                <Text
+                  style={[styles.locationTitle, isSpy && styles.roleTitle]}
+                  numberOfLines={1}
+                  adjustsFontSizeToFit
+                  minimumFontScale={0.55}
+                >
+                  {isSpy ? t("spyReveal.spyRoleName") : locationName}
+                </Text>
 
-              <ClickIcon
-                pointerEvents="none"
-                width={57}
-                height={81}
-                style={styles.clickIcon}
-              />
-            </Squircle>
-          </View>
+                {isSpy ? (
+                  <Image
+                    source={SpyCardRoleIllustration}
+                    resizeMode="contain"
+                    style={styles.roleIllustration}
+                  />
+                ) : (
+                  <Image
+                    source={locationImage}
+                    resizeMode="cover"
+                    style={styles.locationImage}
+                  />
+                )}
 
-          <Pressable
-            accessibilityRole="button"
-            accessibilityLabel={t("spyReveal.revealCard", {
-              name: playerName,
-            })}
-            disabled={isRevealing || isPassing}
-            onPress={handleReveal}
-            style={StyleSheet.absoluteFillObject}
-          />
-        </Animated.View>
-      )}
+                {isSpy && spyKnowledge && spyKnowledge.names.length > 0 && (
+                  <View style={styles.otherSpiesBlock}>
+                    <Text style={styles.otherSpiesLabel}>
+                      {t(
+                        spyKnowledge.mode === "nonSpies"
+                          ? "spyReveal.allPlayersAreSpiesExcept"
+                          : "spyReveal.otherSpies",
+                      )}
+                    </Text>
+                    <View style={styles.otherSpiesPill}>
+                      <Text
+                        style={styles.otherSpiesNames}
+                        numberOfLines={3}
+                        adjustsFontSizeToFit
+                        minimumFontScale={0.75}
+                      >
+                        {spyKnowledge.names.join(", ")}
+                      </Text>
+                    </View>
+                  </View>
+                )}
+
+                <CardOrnament
+                  style={[
+                    isSpy && styles.roleBottomOrnament,
+                    isSpy &&
+                      (!spyKnowledge || spyKnowledge.names.length === 0) &&
+                      styles.roleBottomOrnamentWithoutKnowledge,
+                  ]}
+                />
+              </View>
+
+              <View style={styles.revealedBottomContent}>
+                <View style={styles.warningArea}>
+                  <Text style={styles.locationWarning}>
+                    {t(
+                      isSpy
+                        ? "spyReveal.spyWarning"
+                        : "spyReveal.locationWarning",
+                    )}
+                  </Text>
+                </View>
+
+                <GameStartButton
+                  text={t("spyReveal.passPhone")}
+                  onPress={handlePassPhone}
+                  style={styles.passButton}
+                  textStyle={styles.passButtonText}
+                  cornerRadius={10}
+                />
+              </View>
+            </View>
+          </Squircle>
+        </View>
+      </Animated.View>
+
+      <Animated.View
+        pointerEvents={phase === "closed" ? "auto" : "none"}
+        style={[
+          styles.frontCardLayer,
+          styles.closedCardLayer,
+          !isClosedLayerVisible && styles.hiddenCardLayer,
+          closedCardAnimatedStyle,
+        ]}
+      >
+        <View style={styles.frontCardSurface}>
+          <Squircle
+            style={styles.frontCard}
+            cornerRadius={28}
+            fillColor={colors.background}
+          >
+            <CardOrnament style={[styles.hiddenOrnament, styles.topOrnament]} />
+
+            <Text
+              style={styles.playerName}
+              numberOfLines={1}
+              adjustsFontSizeToFit
+              minimumFontScale={0.55}
+            >
+              {renderedPlayer.name}
+            </Text>
+
+            <CardOrnament
+              style={[styles.hiddenOrnament, styles.bottomOrnament]}
+            />
+
+            <Text style={styles.instruction}>
+              {t("spyReveal.instruction", { name: renderedPlayer.name })}
+            </Text>
+
+            <ClickIcon
+              pointerEvents="none"
+              width={57}
+              height={81}
+              style={styles.clickIcon}
+            />
+          </Squircle>
+        </View>
+
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel={t("spyReveal.revealCard", {
+            name: renderedPlayer.name,
+          })}
+          disabled={phase !== "closed"}
+          onPress={handleReveal}
+          style={StyleSheet.absoluteFillObject}
+        />
+      </Animated.View>
     </View>
   );
 });
@@ -487,6 +500,25 @@ const styles = StyleSheet.create({
   stack: {
     width: 340,
     height: 590,
+  },
+
+  stackCompact: {
+    transform: [{ scale: 0.9 }],
+  },
+
+  stackShadow: {
+    ...StyleSheet.absoluteFillObject,
+    borderRadius: 28,
+    backgroundColor: "rgba(248, 244, 253, 0.01)",
+    boxShadow: [
+      {
+        offsetX: 0,
+        offsetY: 2,
+        blurRadius: 12,
+        spreadDistance: 0,
+        color: "rgba(47, 37, 86, 0.32)",
+      },
+    ],
   },
 
   backCard: {
@@ -526,20 +558,15 @@ const styles = StyleSheet.create({
     zIndex: 1,
   },
 
-  frontCardShadow: {
+  hiddenCardLayer: {
+    display: "none",
+  },
+
+  frontCardSurface: {
     width: "100%",
     height: "100%",
     borderRadius: 28,
     backgroundColor: colors.background,
-    boxShadow: [
-      {
-        offsetX: 0,
-        offsetY: 2,
-        blurRadius: 12,
-        spreadDistance: 0,
-        color: "rgba(47, 37, 86, 0.32)",
-      },
-    ],
   },
 
   frontCard: {
@@ -617,7 +644,7 @@ const styles = StyleSheet.create({
 
   roleMainContent: {
     alignItems: "center",
-    marginTop: 27,
+    marginTop: -4,
   },
 
   locationLabel: {
@@ -651,7 +678,7 @@ const styles = StyleSheet.create({
   },
 
   roleTitle: {
-    marginTop: 18,
+    marginTop: 8,
   },
 
   locationImage: {
@@ -662,6 +689,8 @@ const styles = StyleSheet.create({
   },
 
   roleIllustration: {
+    width: 247,
+    height: 149,
     marginTop: 12,
   },
 
@@ -669,17 +698,56 @@ const styles = StyleSheet.create({
     marginTop: 12,
   },
 
-  revealedBottomContent: {
-    position: "absolute",
-    right: 20,
-    bottom: 20,
-    left: 20,
-    alignItems: "center",
-    gap: 16,
+  roleBottomOrnamentWithoutKnowledge: {
+    marginTop: 32,
   },
 
-  roleBottomContent: {
-    gap: 26,
+  revealedBottomContent: {
+    flex: 1,
+    width: "100%",
+    paddingHorizontal: 20,
+    paddingBottom: 20,
+    alignItems: "center",
+  },
+
+  warningArea: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+
+  otherSpiesBlock: {
+    width: 290,
+    marginTop: 10,
+    alignItems: "center",
+    gap: 4,
+  },
+
+  otherSpiesLabel: {
+    color: "#FB8585",
+    fontFamily: "Nunito_600SemiBold",
+    fontSize: 14,
+    lineHeight: 19,
+    textAlign: "center",
+  },
+
+  otherSpiesPill: {
+    minHeight: 28,
+    maxWidth: 290,
+    paddingHorizontal: 12,
+    paddingVertical: 5,
+    borderRadius: 10,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "#FDC7C7",
+  },
+
+  otherSpiesNames: {
+    color: "#ED1818",
+    fontFamily: "Nunito_700Bold",
+    fontSize: 12,
+    lineHeight: 16,
+    textAlign: "center",
   },
 
   locationWarning: {

@@ -2,13 +2,17 @@ import {
   BackHandler,
   FlatList,
   Keyboard,
+  type ListRenderItem,
   Pressable,
+  type StyleProp,
   StyleSheet,
   Text,
   useWindowDimensions,
   View,
+  type ViewStyle,
 } from "react-native";
 import {
+  memo,
   useCallback,
   useEffect,
   useMemo,
@@ -16,7 +20,6 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import type { StyleProp, ViewStyle } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Animated, {
   Easing,
@@ -46,10 +49,10 @@ type PlayerCardProps = {
   player: Player;
   selected: boolean;
   disabled: boolean;
-  onPress: () => void;
+  onPress: (playerId: string) => void;
 };
 
-function PlayerCard({
+const PlayerCard = memo(function PlayerCard({
   player,
   selected,
   disabled,
@@ -66,7 +69,7 @@ function PlayerCard({
       accessibilityLabel={player.name}
       accessibilityState={{ checked: selected, disabled }}
       disabled={disabled}
-      onPress={onPress}
+      onPress={() => onPress(player.id)}
       onPressIn={() => {
         scale.value = withTiming(0.98, { duration: 70 });
       }}
@@ -106,7 +109,7 @@ function PlayerCard({
       </Animated.View>
     </Pressable>
   );
-}
+});
 
 type AnimatedButtonProps = {
   children: ReactNode;
@@ -222,7 +225,6 @@ export function PlayerSelectionSheet({
     opacity: visibilityProgress.value,
     transform: [
       { translateY: interpolate(visibilityProgress.value, [0, 1], [14, 0]) },
-      { scale: interpolate(visibilityProgress.value, [0, 1], [0.97, 1]) },
     ],
   }));
 
@@ -242,7 +244,7 @@ export function PlayerSelectionSheet({
     onClose();
   };
 
-  const handlePlayerPress = (playerId: string) => {
+  const handlePlayerPress = useCallback((playerId: string) => {
     setDraftPlayerIds((currentIds) => {
       if (currentIds.includes(playerId)) {
         return currentIds.filter((id) => id !== playerId);
@@ -254,7 +256,23 @@ export function PlayerSelectionSheet({
 
       return [...currentIds, playerId];
     });
-  };
+  }, [maximumPlayers]);
+
+  const renderPlayer = useCallback<ListRenderItem<Player>>(
+    ({ item }) => {
+      const selected = selectedIdSet.has(item.id);
+
+      return (
+        <PlayerCard
+          player={item}
+          selected={selected}
+          disabled={!selected && selectionLimitReached}
+          onPress={handlePlayerPress}
+        />
+      );
+    },
+    [handlePlayerPress, selectedIdSet, selectionLimitReached],
+  );
 
   const handleAddPlayer = (input: CreatePlayerInput) => {
     const player = onCreatePlayer(input);
@@ -282,32 +300,54 @@ export function PlayerSelectionSheet({
   useEffect(() => {
     const justOpened = visible && !wasVisible.current;
     const visibilityChanged = visible !== wasVisible.current;
+    let openingAnimationFrame: number | null = null;
 
     if (justOpened) {
       const availablePlayerIds = new Set(players.map(({ id }) => id));
-
-      setDraftPlayerIds(
-        selectedPlayerIds.filter((id) => availablePlayerIds.has(id)),
+      const nextSelectedPlayerIds = selectedPlayerIds.filter((id) =>
+        availablePlayerIds.has(id),
       );
-      setSearchQuery("");
+
+      setDraftPlayerIds((currentIds) =>
+        currentIds.length === nextSelectedPlayerIds.length &&
+        currentIds.every((id, index) => id === nextSelectedPlayerIds[index])
+          ? currentIds
+          : nextSelectedPlayerIds,
+      );
+      setSearchQuery((currentQuery) => (currentQuery ? "" : currentQuery));
     }
 
     if (visibilityChanged) {
-      visibilityProgress.value = withTiming(
-        visible ? 1 : 0,
-        {
-          duration: visible ? 220 : 170,
-          easing: Easing.out(Easing.cubic),
-        },
-        (finished) => {
-          if (finished && !visible && onHidden) {
-            runOnJS(onHidden)();
-          }
-        },
-      );
+      const animateVisibility = () => {
+        visibilityProgress.value = withTiming(
+          visible ? 1 : 0,
+          {
+            duration: visible ? 220 : 170,
+            easing: Easing.out(Easing.cubic),
+          },
+          (finished) => {
+            if (finished && !visible && onHidden) {
+              runOnJS(onHidden)();
+            }
+          },
+        );
+      };
+
+      if (visible) {
+        visibilityProgress.value = 0;
+        openingAnimationFrame = requestAnimationFrame(animateVisibility);
+      } else {
+        animateVisibility();
+      }
     }
 
     wasVisible.current = visible;
+
+    return () => {
+      if (openingAnimationFrame !== null) {
+        cancelAnimationFrame(openingAnimationFrame);
+      }
+    };
   }, [
     onHidden,
     players,
@@ -373,24 +413,16 @@ export function PlayerSelectionSheet({
             <Text style={styles.selectedCount}>
               {t(`playerSelection.selectedCount.${countForm}`, {
                 count: draftPlayerIds.length,
+              })}{" "}
+              {t("playerSelection.maximumCount", {
+                count: maximumPlayers,
               })}
             </Text>
 
             <FlatList
               data={filteredPlayers}
               keyExtractor={(player) => player.id}
-              renderItem={({ item }) => {
-                const selected = selectedIdSet.has(item.id);
-
-                return (
-                  <PlayerCard
-                    player={item}
-                    selected={selected}
-                    disabled={!selected && selectionLimitReached}
-                    onPress={() => handlePlayerPress(item.id)}
-                  />
-                );
-              }}
+              renderItem={renderPlayer}
               ListEmptyComponent={
                 <View style={styles.emptyList}>
                   <Text style={styles.emptyText}>

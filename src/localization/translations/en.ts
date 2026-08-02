@@ -45,6 +45,8 @@ export const en = {
     locationLabel: "LOCATION",
     roleLabel: "ROLE",
     spyRoleName: "Spy",
+    otherSpies: "Other spies:",
+    allPlayersAreSpiesExcept: "All players are spies except:",
     locationWarning:
       "Answer carefully.\nDon't let the spy figure out\nwhere you are.",
     spyWarning:
@@ -57,6 +59,32 @@ export const en = {
 
   spyTimer: {
     finish: "Finish",
+    expiredTitle: "Time is up",
+    expiredMessage: "Discuss and vote for the player you think is the spy",
+    disabledTitle: "Timer is off",
+    disabledMessage:
+      "When the round ends, tap the button below to choose the winner",
+  },
+
+  spyResults: {
+    title: "Game over!",
+    subtitle: "Who won this round?\nYou can select multiple players.",
+    spy: "Spy",
+    done: "Done",
+  },
+
+  exitGameDialog: {
+    title: "Leave the current round?",
+    message: "The current round will end,\nand its progress won't be saved.",
+    stay: "Stay",
+    exit: "Exit",
+  },
+
+  resumeGameDialog: {
+    title: "Continue the round?",
+    message: "You have an unfinished game of Spy.",
+    leave: "Leave",
+    resume: "Continue",
   },
 
   spySetup: {
@@ -119,9 +147,19 @@ export const en = {
         many: "%{count} players",
       },
       spies: "Spies",
+      spiesRecommendation: {
+        one: "%{count} spy is recommended for this group",
+        few: "%{count} spies are recommended for this group",
+        many: "%{count} spies are recommended for this group",
+      },
       spiesHint: "Minimum 1, maximum %{max}",
       selectPlayersHint: "First select at least 3 players",
+      spiesKnowEachOther: "Do the spies know each other?",
+      yes: "Yes",
+      no: "No",
       timer: "Timer",
+      timerRecommendation:
+        "%{count} minutes are recommended for this group",
       minutesShort: "min",
       timerHint: "Minimum 1 minute",
       noTimer: "No timer",
@@ -161,6 +199,7 @@ export const en = {
       few: "Selected: %{count} players",
       many: "Selected: %{count} players",
     },
+    maximumCount: "(Maximum %{count})",
     loading: "Loading players...",
     emptyPlayers: "No saved players yet",
     emptySearch: "No players found",

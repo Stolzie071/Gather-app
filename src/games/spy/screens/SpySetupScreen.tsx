@@ -45,12 +45,15 @@ import { colors } from "@/theme/colors";
 import { CategoryStep } from "@/games/spy/components/CategoryStep";
 import { PacksStep } from "@/games/spy/components/PacksStep";
 import { GameOptionsStep } from "@/games/spy/components/GameOptionsStep";
+import { getSpySetupRecommendation } from "@/games/spy/logic/getSpySetupRecommendation";
 import { SetupSummaryStep } from "@/games/spy/components/SetupSummaryStep";
 import type { SpyCategoryId } from "@/games/spy/data/categories";
 import {
+  getSpyLocationWordIds,
   SPY_LOCATION_PACKS,
   type SpyLocationPackId,
 } from "@/games/spy/data/packs";
+import { useSpySession } from "@/games/spy/SpySessionProvider";
 
 const DESIGN_WIDTH = 402;
 const DESIGN_HEIGHT = 874;
@@ -103,6 +106,7 @@ export function SpySetupScreen({ navigation }: SpySetupScreenProps) {
     isPlayersLoaded,
     commitPlayers,
   } = usePlayers();
+  const { startSession } = useSpySession();
   const insets = useSafeAreaInsets();
   const { width: screenWidth, height: screenHeight } = useWindowDimensions();
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
@@ -127,8 +131,13 @@ export function SpySetupScreen({ navigation }: SpySetupScreenProps) {
   );
   const temporaryPlayersRef = useRef<readonly Player[]>([]);
   const [spyCount, setSpyCount] = useState(1);
+  const [spiesKnowEachOther, setSpiesKnowEachOther] = useState(false);
   const [timerMinutes, setTimerMinutes] = useState(10);
   const [timerDisabled, setTimerDisabled] = useState(false);
+  const [recommendationsWereShown, setRecommendationsWereShown] =
+    useState(false);
+  const recommendationsWereShownRef = useRef(false);
+  const selectedPlayerIdsRef = useRef<readonly string[]>([]);
   const stepProgress = useSharedValue(1);
 
   const sceneScale = screenWidth / DESIGN_WIDTH;
@@ -153,6 +162,30 @@ export function SpySetupScreen({ navigation }: SpySetupScreenProps) {
     : "";
   const stepsTrackStyle = useAnimatedStyle(() => ({
     transform: [{ translateX: -(stepProgress.value - 1) * screenWidth }],
+  }));
+  const gameAreaStyle = useAnimatedStyle(() => ({
+    transform: [
+      {
+        translateX: interpolate(
+          stepProgress.value,
+          [3, 4],
+          [0, -DESIGN_WIDTH],
+          Extrapolation.CLAMP,
+        ),
+      },
+    ],
+  }));
+  const waveGradientStyle = useAnimatedStyle(() => ({
+    transform: [
+      {
+        translateY: interpolate(
+          stepProgress.value,
+          [3, 3.55],
+          [0, 210],
+          Extrapolation.CLAMP,
+        ),
+      },
+    ],
   }));
 
   const finishStepTransition = useCallback((step: SetupStep) => {
@@ -213,7 +246,10 @@ export function SpySetupScreen({ navigation }: SpySetupScreenProps) {
 
   const handleOpenPlayerSelection = useCallback(() => {
     setHasOpenedPlayerSelection(true);
-    setIsPlayerSelectionOpen(true);
+
+    requestAnimationFrame(() => {
+      setIsPlayerSelectionOpen(true);
+    });
   }, []);
 
   const handleClosePlayerSelection = useCallback(() => {
@@ -221,7 +257,18 @@ export function SpySetupScreen({ navigation }: SpySetupScreenProps) {
   }, []);
 
   const handlePlayerSelectionHidden = useCallback(() => {
-    setHasOpenedPlayerSelection(false);
+    if (
+      selectedPlayerIdsRef.current.length >= 3 &&
+      !recommendationsWereShownRef.current
+    ) {
+      recommendationsWereShownRef.current = true;
+      setRecommendationsWereShown(true);
+    }
+  }, []);
+
+  const handleConfirmPlayers = useCallback((playerIds: readonly string[]) => {
+    selectedPlayerIdsRef.current = playerIds;
+    setSelectedPlayerIds(playerIds);
   }, []);
 
   const handleCategoryPress = useCallback(
@@ -272,8 +319,41 @@ export function SpySetupScreen({ navigation }: SpySetupScreenProps) {
   const handleEditPacks = useCallback(() => moveToStep(2), [moveToStep]);
   const handleEditOptions = useCallback(() => moveToStep(3), [moveToStep]);
   const handleStart = useCallback(() => {
-    navigation.navigate("SpyReveal");
-  }, [navigation]);
+    if (!selectedCategoryId) {
+      return;
+    }
+
+    const packIds = [...selectedPackIds];
+    const availableWordIds = getSpyLocationWordIds(packIds);
+
+    try {
+      startSession({
+        draft: {
+          categoryId: selectedCategoryId,
+          packIds,
+          playerIds: selectedPlayerIds,
+          spyCount,
+          spiesKnowEachOther,
+          timerEnabled: !timerDisabled,
+          timerMinutes,
+        },
+        availableWordIds,
+      });
+      navigation.replace("SpyReveal");
+    } catch (error: unknown) {
+      console.warn("Failed to create Spy session", error);
+    }
+  }, [
+    navigation,
+    selectedCategoryId,
+    selectedPackIds,
+    selectedPlayerIds,
+    spyCount,
+    spiesKnowEachOther,
+    startSession,
+    timerDisabled,
+    timerMinutes,
+  ]);
   const handleScreenBack = useCallback(() => {
     navigation.goBack();
   }, [navigation]);
@@ -281,6 +361,18 @@ export function SpySetupScreen({ navigation }: SpySetupScreenProps) {
   useEffect(() => {
     temporaryPlayersRef.current = temporaryPlayers;
   }, [temporaryPlayers]);
+
+  useEffect(() => {
+    if (currentStep < 2 || hasOpenedPlayerSelection) {
+      return;
+    }
+
+    const preloadTimeout = setTimeout(() => {
+      setHasOpenedPlayerSelection(true);
+    }, 400);
+
+    return () => clearTimeout(preloadTimeout);
+  }, [currentStep, hasOpenedPlayerSelection]);
 
   useEffect(() => {
     return () => {
@@ -297,6 +389,14 @@ export function SpySetupScreen({ navigation }: SpySetupScreenProps) {
   }, []);
 
   useEffect(() => {
+    const recommendation = getSpySetupRecommendation(playerCount);
+
+    if (recommendation) {
+      setSpyCount(recommendation.spyCount);
+      setTimerMinutes(recommendation.timerMinutes);
+      return;
+    }
+
     const maximumSpyCount = Math.max(1, playerCount - 1);
 
     setSpyCount((currentSpyCount) =>
@@ -343,20 +443,24 @@ export function SpySetupScreen({ navigation }: SpySetupScreenProps) {
           style={styles.topReadabilityGradient}
         />
 
-        <View
+        <Animated.View
           style={[
             styles.gameArea,
+            gameAreaStyle,
             {
               top: gameAreaOffset,
-              opacity: currentStep === 4 ? 0 : 1,
             },
           ]}
         >
-          <LinearGradient
-            colors={["rgba(47, 37, 86, 0)", "rgba(47, 37, 86, 0.34)"]}
-            locations={[0, 1]}
-            style={styles.waveReadabilityGradient}
-          />
+          <Animated.View
+            style={[styles.waveReadabilityGradient, waveGradientStyle]}
+          >
+            <LinearGradient
+              colors={["rgba(47, 37, 86, 0)", "rgba(47, 37, 86, 0.34)"]}
+              locations={[0, 1]}
+              style={StyleSheet.absoluteFillObject}
+            />
+          </Animated.View>
 
           <SpySetupDice width={190} height={132} style={styles.dice} />
 
@@ -383,7 +487,7 @@ export function SpySetupScreen({ navigation }: SpySetupScreenProps) {
 
           <SpySetupWave width={460} height={713} style={styles.wave} />
           <SpySetupDiceHand width={17} height={12} style={styles.diceHand} />
-        </View>
+        </Animated.View>
       </View>
 
       <Animated.View
@@ -435,10 +539,13 @@ export function SpySetupScreen({ navigation }: SpySetupScreenProps) {
               bottomInset={insets.bottom}
               playerCount={playerCount}
               spyCount={spyCount}
+              spiesKnowEachOther={spiesKnowEachOther}
               timerMinutes={timerMinutes}
               timerDisabled={timerDisabled}
+              recommendationsWereShown={recommendationsWereShown}
               onPlayersPress={handleOpenPlayerSelection}
               onSpyCountChange={setSpyCount}
+              onSpiesKnowEachOtherChange={setSpiesKnowEachOther}
               onTimerMinutesChange={setTimerMinutes}
               onTimerDisabledChange={setTimerDisabled}
               onBack={handleOptionsBack}
@@ -454,6 +561,7 @@ export function SpySetupScreen({ navigation }: SpySetupScreenProps) {
           {renderedSteps.has(4) && (
             <SetupSummaryStep
               sceneScale={sceneScale}
+              compact={isCompactScreen}
               categoryTitle={selectedCategoryTitle}
               selectedPackTitles={selectedPackTitles}
               playerCount={playerCount}
@@ -535,7 +643,7 @@ export function SpySetupScreen({ navigation }: SpySetupScreenProps) {
           isLoading={!isPlayersLoaded}
           onClose={handleClosePlayerSelection}
           onHidden={handlePlayerSelectionHidden}
-          onConfirm={setSelectedPlayerIds}
+          onConfirm={handleConfirmPlayers}
           onCreatePlayer={handleCreateTemporaryPlayer}
         />
       )}
@@ -596,6 +704,7 @@ const styles = StyleSheet.create({
     right: 0,
     bottom: 0,
     left: 0,
+    overflow: "hidden",
   },
 
   waveReadabilityGradient: {

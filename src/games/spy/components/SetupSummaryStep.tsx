@@ -60,6 +60,7 @@ function SummaryRow({ icon, title, value, onEdit }: SummaryRowProps) {
 
 type SetupSummaryStepProps = {
   sceneScale: number;
+  compact?: boolean;
   categoryTitle: string;
   selectedPackTitles: readonly string[];
   playerCount: number;
@@ -74,6 +75,7 @@ type SetupSummaryStepProps = {
 
 export const SetupSummaryStep = memo(function SetupSummaryStep({
   sceneScale,
+  compact = false,
   categoryTitle,
   selectedPackTitles,
   playerCount,
@@ -113,21 +115,33 @@ export const SetupSummaryStep = memo(function SetupSummaryStep({
           },
         ]}
       >
-        <View pointerEvents="box-none" style={styles.composition}>
-          <SpySummaryDice
-            pointerEvents="none"
-            width={142}
-            height={137}
-            style={styles.dice}
-          />
+        <View
+          pointerEvents="box-none"
+          style={[styles.composition, compact && styles.compositionCompact]}
+        >
+          {!compact && (
+            <SpySummaryDice
+              pointerEvents="none"
+              width={142}
+              height={137}
+              style={styles.dice}
+            />
+          )}
 
-          <View style={styles.cardShadow}>
+          <View
+            style={[styles.cardShadow, compact && styles.cardShadowCompact]}
+          >
             <Squircle
-              style={styles.card}
+              style={[styles.card, compact && styles.cardCompact]}
               cornerRadius={30}
               fillColor={colors.background}
             >
-              <View style={styles.cardHeading}>
+              <View
+                style={[
+                  styles.cardHeading,
+                  compact && styles.cardHeadingCompact,
+                ]}
+              >
                 <Text style={styles.title}>{t("spySetup.summary.title")}</Text>
                 <Text style={styles.subtitle}>
                   {t("spySetup.summary.subtitle")}
@@ -184,27 +198,33 @@ export const SetupSummaryStep = memo(function SetupSummaryStep({
                 />
               </View>
 
-              <View style={styles.information}>
-                <InfoIcon width={32} height={32} />
-                <Text style={styles.informationText}>
-                  {t("spySetup.summary.information")}
-                </Text>
-              </View>
+              {!compact && (
+                <View style={styles.information}>
+                  <InfoIcon width={32} height={32} />
+                  <Text style={styles.informationText}>
+                    {t("spySetup.summary.information")}
+                  </Text>
+                </View>
+              )}
             </Squircle>
           </View>
 
-          <SpySummaryFingers
-            pointerEvents="none"
-            width={31}
-            height={14}
-            style={styles.fingers}
-          />
-          <SpySummaryLikeHand
-            pointerEvents="none"
-            width={51}
-            height={71}
-            style={styles.likeHand}
-          />
+          {!compact && (
+            <>
+              <SpySummaryFingers
+                pointerEvents="none"
+                width={31}
+                height={14}
+                style={styles.fingers}
+              />
+              <SpySummaryLikeHand
+                pointerEvents="none"
+                width={51}
+                height={71}
+                style={styles.likeHand}
+              />
+            </>
+          )}
         </View>
       </View>
     </View>
@@ -234,6 +254,11 @@ const styles = StyleSheet.create({
     height: 646,
   },
 
+  compositionCompact: {
+    top: 210,
+    height: 430,
+  },
+
   dice: {
     position: "absolute",
     top: 0,
@@ -259,6 +284,11 @@ const styles = StyleSheet.create({
     ],
   },
 
+  cardShadowCompact: {
+    top: 0,
+    height: 430,
+  },
+
   card: {
     width: "100%",
     height: "100%",
@@ -267,9 +297,17 @@ const styles = StyleSheet.create({
     overflow: "hidden",
   },
 
+  cardCompact: {
+    paddingBottom: 16,
+  },
+
   cardHeading: {
     marginTop: 35,
     alignItems: "center",
+  },
+
+  cardHeadingCompact: {
+    marginTop: 24,
   },
 
   title: {

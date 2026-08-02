@@ -19,6 +19,7 @@ type GameStartButtonProps = {
   cornerRadius?: number;
   leftDecoration?: ReactNode;
   rightDecoration?: ReactNode;
+  disabled?: boolean;
 };
 
 export function GameStartButton({
@@ -29,6 +30,7 @@ export function GameStartButton({
   cornerRadius = 20,
   leftDecoration,
   rightDecoration,
+  disabled = false,
 }: GameStartButtonProps) {
   const scale = useSharedValue(1);
   const hasDecorations = Boolean(leftDecoration || rightDecoration);
@@ -39,6 +41,7 @@ export function GameStartButton({
 
   return (
     <Pressable
+      disabled={disabled}
       onPress={onPress}
       onPressIn={() => {
         scale.value = withTiming(0.97, { duration: 70 });
@@ -51,10 +54,16 @@ export function GameStartButton({
         });
       }}
       accessibilityRole="button"
+      accessibilityState={{ disabled }}
       style={style}
     >
       <Animated.View
-        style={[styles.shadow, { borderRadius: cornerRadius }, animatedStyle]}
+        style={[
+          styles.shadow,
+          { borderRadius: cornerRadius },
+          disabled && styles.disabled,
+          animatedStyle,
+        ]}
       >
         <Squircle
           style={[
@@ -97,6 +106,10 @@ const styles = StyleSheet.create({
         color: "rgba(158, 124, 228, 0.4)",
       },
     ],
+  },
+
+  disabled: {
+    opacity: 0.5,
   },
 
   button: {

@@ -83,14 +83,15 @@ export const PacksStep = memo(function PacksStep({
       <FlatList
         data={SPY_LOCATION_PACKS}
         keyExtractor={(item) => item.id}
-        renderItem={({ item: { id, Illustration, wordCount } }) => (
+        renderItem={({ item: { id, Illustration, wordIds, enabled } }) => (
           <PackCard
             illustration={<Illustration width={116} height={84} />}
             title={t(`spySetup.packs.items.${id}`)}
             wordCountLabel={t("spySetup.packs.locationCount", {
-              count: wordCount,
+              count: wordIds.length,
             })}
             selected={selectedPackIds.has(id)}
+            disabled={!enabled}
             onPress={() => onPackPress(id)}
           />
         )}

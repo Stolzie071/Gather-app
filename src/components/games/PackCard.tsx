@@ -16,6 +16,7 @@ type PackCardProps = {
   title: string;
   wordCountLabel: string;
   selected: boolean;
+  disabled?: boolean;
   onPress: () => void;
 };
 
@@ -24,6 +25,7 @@ export function PackCard({
   title,
   wordCountLabel,
   selected,
+  disabled = false,
   onPress,
 }: PackCardProps) {
   const scale = useSharedValue(1);
@@ -36,7 +38,8 @@ export function PackCard({
     <Pressable
       accessibilityRole="checkbox"
       accessibilityLabel={title}
-      accessibilityState={{ checked: selected }}
+      accessibilityState={{ checked: selected, disabled }}
+      disabled={disabled}
       onPress={onPress}
       onPressIn={() => {
         scale.value = withTiming(0.97, { duration: 75 });
@@ -51,7 +54,12 @@ export function PackCard({
       style={styles.pressable}
     >
       <Animated.View
-        style={[styles.shadow, selected && styles.shadowSelected, animatedStyle]}
+        style={[
+          styles.shadow,
+          selected && styles.shadowSelected,
+          disabled && styles.disabled,
+          animatedStyle,
+        ]}
       >
         <Squircle
           style={styles.card}
@@ -105,6 +113,10 @@ const styles = StyleSheet.create({
 
   shadowSelected: {
     backgroundColor: colors.secondary3,
+  },
+
+  disabled: {
+    opacity: 0.45,
   },
 
   card: {

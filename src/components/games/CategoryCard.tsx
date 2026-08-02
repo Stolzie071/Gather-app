@@ -15,6 +15,7 @@ type CategoryCardProps = {
   icon: ReactNode;
   title: string;
   description: string;
+  disabled?: boolean;
   onPress: () => void;
 };
 
@@ -22,6 +23,7 @@ export function CategoryCard({
   icon,
   title,
   description,
+  disabled = false,
   onPress,
 }: CategoryCardProps) {
   const scale = useSharedValue(1);
@@ -34,6 +36,8 @@ export function CategoryCard({
     <Pressable
       accessibilityRole="button"
       accessibilityLabel={title}
+      accessibilityState={{ disabled }}
+      disabled={disabled}
       onPress={onPress}
       onPressIn={() => {
         scale.value = withTiming(0.97, { duration: 75 });
@@ -47,7 +51,9 @@ export function CategoryCard({
       }}
       style={styles.pressable}
     >
-      <Animated.View style={[styles.shadow, animatedStyle]}>
+      <Animated.View
+        style={[styles.shadow, disabled && styles.disabled, animatedStyle]}
+      >
         <Squircle
           style={styles.card}
           cornerRadius={20}
@@ -101,6 +107,10 @@ const styles = StyleSheet.create({
         color: "rgba(118, 92, 172, 0.25)",
       },
     ],
+  },
+
+  disabled: {
+    opacity: 0.45,
   },
 
   card: {

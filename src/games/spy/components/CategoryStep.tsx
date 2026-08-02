@@ -76,11 +76,12 @@ export const CategoryStep = memo(function CategoryStep({
       <FlatList
         data={SPY_CATEGORIES}
         keyExtractor={(item) => item.id}
-        renderItem={({ item: { id, Icon, width, height } }) => (
+        renderItem={({ item: { id, Icon, width, height, enabled } }) => (
           <CategoryCard
             icon={<Icon width={width} height={height} />}
             title={t(`spySetup.category.${id}.title`)}
             description={t(`spySetup.category.${id}.description`)}
+            disabled={!enabled}
             onPress={() => onCategoryPress(id)}
           />
         )}

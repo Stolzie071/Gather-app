@@ -45,6 +45,8 @@ export const ru = {
     locationLabel: "ЛОКАЦИЯ",
     roleLabel: "РОЛЬ",
     spyRoleName: "Шпион",
+    otherSpies: "Другие шпионы:",
+    allPlayersAreSpiesExcept: "Все игроки шпионы кроме:",
     locationWarning:
       "Отвечай осторожно.\nНе дай шпиону догадаться,\nгде вы находитесь.",
     spyWarning:
@@ -57,6 +59,33 @@ export const ru = {
 
   spyTimer: {
     finish: "Завершить",
+    expiredTitle: "Время вышло",
+    expiredMessage:
+      "Обсудите и проголосуйте за того, кого считаете шпионом",
+    disabledTitle: "Таймер отключён",
+    disabledMessage:
+      "По завершении партии нажмите кнопку ниже, чтобы указать победителя",
+  },
+
+  spyResults: {
+    title: "Игра окончена!",
+    subtitle: "Кто выиграл эту партию?\nМожно выбрать несколько игроков.",
+    spy: "Шпион",
+    done: "Готово",
+  },
+
+  exitGameDialog: {
+    title: "Покинуть текущую партию?",
+    message: "Текущая партия завершится,\nа её прогресс не сохранится.",
+    stay: "Остаться",
+    exit: "Выйти",
+  },
+
+  resumeGameDialog: {
+    title: "Продолжить партию?",
+    message: "У вас осталась незавершённая партия в «Шпиона».",
+    leave: "Покинуть",
+    resume: "Продолжить",
   },
 
   spySetup: {
@@ -119,9 +148,19 @@ export const ru = {
         many: "%{count} игроков",
       },
       spies: "Шпионов",
+      spiesRecommendation: {
+        one: "Для данного состава рекомендуется %{count} шпион",
+        few: "Для данного состава рекомендуется %{count} шпиона",
+        many: "Для данного состава рекомендуется %{count} шпионов",
+      },
       spiesHint: "Минимум 1, максимум %{max}",
       selectPlayersHint: "Сначала выбери минимум 3 игроков",
+      spiesKnowEachOther: "Шпионы знают друг друга?",
+      yes: "Да",
+      no: "Нет",
       timer: "Таймер",
+      timerRecommendation:
+        "Для данного состава рекомендуется %{count} минут",
       minutesShort: "мин",
       timerHint: "Минимум 1 минута",
       noTimer: "Без таймера",
@@ -161,6 +200,7 @@ export const ru = {
       few: "Выбрано: %{count} игрока",
       many: "Выбрано: %{count} игроков",
     },
+    maximumCount: "(Максимум %{count})",
     loading: "Загружаем игроков...",
     emptyPlayers: "Сохранённых игроков пока нет",
     emptySearch: "Игроки не найдены",
