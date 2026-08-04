@@ -5,6 +5,7 @@ import {
 import { SPY_CONTENT_CATEGORIES } from "./categories";
 import { createSpyContentRegistry } from "./registry";
 import type { SpyContentPackSource } from "./types";
+import dota2HeroesSource from "./ru/characters/dota-2-heroes.json";
 import workplacesSource from "./ru/locations/workplaces.json";
 
 const PLACEHOLDER_LOCATION_PACKS = [
@@ -34,6 +35,7 @@ const PLACEHOLDER_LOCATION_PACKS = [
 const BUILT_IN_PACK_SOURCES = [
   workplacesSource,
   ...PLACEHOLDER_LOCATION_PACKS,
+  dota2HeroesSource,
 ] as readonly SpyContentPackSource[];
 
 function validateBuiltInAssets(
