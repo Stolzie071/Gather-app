@@ -125,12 +125,20 @@ export const SpyPlayerCardStack = memo(function SpyPlayerCardStack({
       {
         translateX:
           interpolate(revealProgress.value, [0, 1], [0, CARD_EXIT_X]) +
-          interpolate(nextCardEntryProgress.value, [0, 1], [NEXT_CARD_ENTRY_X, 0]),
+          interpolate(
+            nextCardEntryProgress.value,
+            [0, 1],
+            [NEXT_CARD_ENTRY_X, 0],
+          ),
       },
       {
         translateY:
           interpolate(revealProgress.value, [0, 1], [0, CARD_EXIT_Y]) +
-          interpolate(nextCardEntryProgress.value, [0, 1], [NEXT_CARD_ENTRY_Y, 0]),
+          interpolate(
+            nextCardEntryProgress.value,
+            [0, 1],
+            [NEXT_CARD_ENTRY_Y, 0],
+          ),
       },
       {
         rotate: `${
@@ -337,7 +345,14 @@ export const SpyPlayerCardStack = memo(function SpyPlayerCardStack({
             fillColor={colors.background}
           >
             <View style={styles.revealedContent}>
-              <View style={isSpy ? styles.roleMainContent : styles.wordMainContent}>
+              <View
+                style={[
+                  isSpy ? styles.roleMainContent : styles.wordMainContent,
+                  presentation === "text" &&
+                    !isSpy &&
+                    styles.textWordMainContent,
+                ]}
+              >
                 <CardOrnament />
 
                 <Squircle
@@ -423,7 +438,9 @@ export const SpyPlayerCardStack = memo(function SpyPlayerCardStack({
               <View style={styles.revealedBottomContent}>
                 <View style={styles.warningArea}>
                   <Text style={styles.wordWarning}>
-                    {t(isSpy ? "spyReveal.spyWarning" : "spyReveal.wordWarning")}
+                    {t(
+                      isSpy ? "spyReveal.spyWarning" : "spyReveal.wordWarning",
+                    )}
                   </Text>
                 </View>
                 <GameStartButton
@@ -599,7 +616,7 @@ const styles = StyleSheet.create({
   wordImage: { width: 270, height: 214, borderRadius: 20, overflow: "hidden" },
   textWordArea: {
     width: 286,
-    height: 250,
+    height: 170,
     paddingHorizontal: 8,
     alignItems: "center",
     justifyContent: "center",
@@ -689,5 +706,8 @@ const styles = StyleSheet.create({
     bottom: 20,
     left: 20,
     height: 50,
+  },
+  textWordMainContent: {
+    paddingTop: 20,
   },
 });
