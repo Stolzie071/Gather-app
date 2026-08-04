@@ -1,0 +1,58 @@
+{
+  "id": "workplaces",
+  "categoryId": "locations",
+  "enabled": true,
+  "illustrationKey": "workplaces",
+  "words": [
+    {
+      "id": "cinema",
+      "name": "Кинотеатр",
+      "imageKey": "cinema"
+    },
+    {
+      "id": "airport",
+      "name": "Аэропорт",
+      "imageKey": "airport"
+    },
+    {
+      "id": "bank",
+      "name": "Банк",
+      "imageKey": "bank"
+    },
+    {
+      "id": "hospital",
+      "name": "Больница",
+      "imageKey": "hospital"
+    },
+    {
+      "id": "hotel",
+      "name": "Отель",
+      "imageKey": "hotel"
+    },
+    {
+      "id": "museum",
+      "name": "Музей",
+      "imageKey": "museum"
+    },
+    {
+      "id": "restaurant",
+      "name": "Ресторан",
+      "imageKey": "restaurant"
+    },
+    {
+      "id": "school",
+      "name": "Школа",
+      "imageKey": "school"
+    },
+    {
+      "id": "supermarket",
+      "name": "Супермаркет",
+      "imageKey": "supermarket"
+    },
+    {
+      "id": "train-station",
+      "name": "Вокзал",
+      "imageKey": "train-station"
+    }
+  ]
+}
