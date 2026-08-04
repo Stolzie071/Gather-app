@@ -23,9 +23,10 @@ import { SpyCardRoleIllustration, SpyCardStar } from "@assets/Spy_game";
 import { ClickIcon } from "@assets/icons";
 import { GameStartButton } from "@/components";
 import { Squircle } from "@/components/Squircle";
+import type { SpyWordPresentation } from "@/games/spy/content/types";
+import { useAppHaptics } from "@/haptics/useAppHaptics";
 import { useLocalization } from "@/localization/LocalizationProvider";
 import { colors } from "@/theme/colors";
-import { useAppHaptics } from "@/haptics/useAppHaptics";
 
 const REVEAL_DURATION = 320;
 const PASS_EXIT_DURATION = 260;
@@ -53,9 +54,10 @@ function CardOrnament({ style }: CardOrnamentProps) {
 
 type SpyPlayerCardStackProps = {
   playerName: string;
-  locationName: string;
-  locationImage: ImageSourcePropType;
-  revealType: "location" | "spy";
+  wordName: string;
+  wordImage?: ImageSourcePropType;
+  presentation: SpyWordPresentation;
+  revealType: "word" | "spy";
   spyKnowledge?: {
     mode: "otherSpies" | "nonSpies";
     names: readonly string[];
@@ -79,13 +81,14 @@ type CardPhase =
 
 type RenderedPlayer = {
   name: string;
-  revealType: "location" | "spy";
+  revealType: "word" | "spy";
 };
 
 export const SpyPlayerCardStack = memo(function SpyPlayerCardStack({
   playerName,
-  locationName,
-  locationImage,
+  wordName,
+  wordImage,
+  presentation,
   revealType,
   spyKnowledge,
   revealed,
@@ -122,20 +125,12 @@ export const SpyPlayerCardStack = memo(function SpyPlayerCardStack({
       {
         translateX:
           interpolate(revealProgress.value, [0, 1], [0, CARD_EXIT_X]) +
-          interpolate(
-            nextCardEntryProgress.value,
-            [0, 1],
-            [NEXT_CARD_ENTRY_X, 0],
-          ),
+          interpolate(nextCardEntryProgress.value, [0, 1], [NEXT_CARD_ENTRY_X, 0]),
       },
       {
         translateY:
           interpolate(revealProgress.value, [0, 1], [0, CARD_EXIT_Y]) +
-          interpolate(
-            nextCardEntryProgress.value,
-            [0, 1],
-            [NEXT_CARD_ENTRY_Y, 0],
-          ),
+          interpolate(nextCardEntryProgress.value, [0, 1], [NEXT_CARD_ENTRY_Y, 0]),
       },
       {
         rotate: `${
@@ -205,7 +200,6 @@ export const SpyPlayerCardStack = memo(function SpyPlayerCardStack({
 
   const finishPassExit = useCallback(() => {
     const hasNextPlayer = onPassPhone();
-
     setPhase(hasNextPlayer ? "waitingForNext" : "ready");
   }, [onPassPhone]);
 
@@ -222,7 +216,6 @@ export const SpyPlayerCardStack = memo(function SpyPlayerCardStack({
 
     setPhase("passing");
     passProgress.value = 0;
-
     animationFrameRef.current = requestAnimationFrame(() => {
       animationFrameRef.current = null;
       passProgress.value = withTiming(
@@ -258,7 +251,6 @@ export const SpyPlayerCardStack = memo(function SpyPlayerCardStack({
     animationFrameRef.current = requestAnimationFrame(() => {
       animationFrameRef.current = null;
       setPhase("entering");
-
       animationFrameRef.current = requestAnimationFrame(() => {
         animationFrameRef.current = null;
         nextCardEntryProgress.value = withTiming(
@@ -290,7 +282,6 @@ export const SpyPlayerCardStack = memo(function SpyPlayerCardStack({
       if (animationFrameRef.current !== null) {
         cancelAnimationFrame(animationFrameRef.current);
       }
-
       cancelAnimation(revealProgress);
       cancelAnimation(passProgress);
       cancelAnimation(nextCardEntryProgress);
@@ -312,20 +303,16 @@ export const SpyPlayerCardStack = memo(function SpyPlayerCardStack({
               fillColor={colors.background}
             >
               <CardOrnament style={styles.readyTopOrnament} />
-
               <Text style={styles.readyTitle}>
                 {t("spyReveal.allRolesReceived")}
               </Text>
-
               <CardOrnament style={styles.readyBottomOrnament} />
-
               <Text style={styles.readyInstruction}>
                 {t("spyReveal.readyInstruction")}
               </Text>
-
-                <GameStartButton
-                  text={t("spyReveal.startGame")}
-                  onPress={handleStartGame}
+              <GameStartButton
+                text={t("spyReveal.startGame")}
+                onPress={handleStartGame}
                 style={styles.readyStartButton}
                 textStyle={styles.passButtonText}
                 cornerRadius={10}
@@ -350,32 +337,30 @@ export const SpyPlayerCardStack = memo(function SpyPlayerCardStack({
             fillColor={colors.background}
           >
             <View style={styles.revealedContent}>
-              <View
-                style={
-                  isSpy ? styles.roleMainContent : styles.revealedMainContent
-                }
-              >
+              <View style={isSpy ? styles.roleMainContent : styles.wordMainContent}>
                 <CardOrnament />
 
                 <Squircle
-                  style={[styles.locationLabel, isSpy && styles.roleLabel]}
+                  style={[styles.wordLabel, isSpy && styles.roleLabel]}
                   cornerRadius={10}
                   fillColor={colors.secondary4}
                 >
-                  <Text style={styles.locationLabelText}>
-                    {t(
-                      isSpy ? "spyReveal.roleLabel" : "spyReveal.locationLabel",
-                    )}
+                  <Text style={styles.wordLabelText}>
+                    {t(isSpy ? "spyReveal.roleLabel" : "spyReveal.wordLabel")}
                   </Text>
                 </Squircle>
 
                 <Text
-                  style={[styles.locationTitle, isSpy && styles.roleTitle]}
-                  numberOfLines={1}
+                  style={[
+                    styles.wordTitle,
+                    presentation === "text" && !isSpy && styles.textWordTitle,
+                    isSpy && styles.roleTitle,
+                  ]}
+                  numberOfLines={presentation === "text" && !isSpy ? 3 : 1}
                   adjustsFontSizeToFit
-                  minimumFontScale={0.55}
+                  minimumFontScale={0.5}
                 >
-                  {isSpy ? t("spyReveal.spyRoleName") : locationName}
+                  {isSpy ? t("spyReveal.spyRoleName") : wordName}
                 </Text>
 
                 {isSpy ? (
@@ -384,12 +369,23 @@ export const SpyPlayerCardStack = memo(function SpyPlayerCardStack({
                     resizeMode="contain"
                     style={styles.roleIllustration}
                   />
-                ) : (
+                ) : presentation === "image" && wordImage ? (
                   <Image
-                    source={locationImage}
+                    source={wordImage}
                     resizeMode="cover"
-                    style={styles.locationImage}
+                    style={styles.wordImage}
                   />
+                ) : (
+                  <View style={styles.textWordArea}>
+                    <Text
+                      style={styles.textWordName}
+                      numberOfLines={4}
+                      adjustsFontSizeToFit
+                      minimumFontScale={0.45}
+                    >
+                      {wordName}
+                    </Text>
+                  </View>
                 )}
 
                 {isSpy && spyKnowledge && spyKnowledge.names.length > 0 && (
@@ -426,15 +422,10 @@ export const SpyPlayerCardStack = memo(function SpyPlayerCardStack({
 
               <View style={styles.revealedBottomContent}>
                 <View style={styles.warningArea}>
-                  <Text style={styles.locationWarning}>
-                    {t(
-                      isSpy
-                        ? "spyReveal.spyWarning"
-                        : "spyReveal.locationWarning",
-                    )}
+                  <Text style={styles.wordWarning}>
+                    {t(isSpy ? "spyReveal.spyWarning" : "spyReveal.wordWarning")}
                   </Text>
                 </View>
-
                 <GameStartButton
                   text={t("spyReveal.passPhone")}
                   onPress={handlePassPhone}
@@ -464,7 +455,6 @@ export const SpyPlayerCardStack = memo(function SpyPlayerCardStack({
             fillColor={colors.background}
           >
             <CardOrnament style={[styles.hiddenOrnament, styles.topOrnament]} />
-
             <Text
               style={styles.playerName}
               numberOfLines={1}
@@ -473,15 +463,12 @@ export const SpyPlayerCardStack = memo(function SpyPlayerCardStack({
             >
               {renderedPlayer.name}
             </Text>
-
             <CardOrnament
               style={[styles.hiddenOrnament, styles.bottomOrnament]}
             />
-
             <Text style={styles.instruction}>
               {t("spyReveal.instruction", { name: renderedPlayer.name })}
             </Text>
-
             <ClickIcon
               pointerEvents="none"
               width={57}
@@ -490,7 +477,6 @@ export const SpyPlayerCardStack = memo(function SpyPlayerCardStack({
             />
           </Squircle>
         </View>
-
         <Pressable
           accessibilityRole="button"
           accessibilityLabel={t("spyReveal.revealCard", {
@@ -506,15 +492,8 @@ export const SpyPlayerCardStack = memo(function SpyPlayerCardStack({
 });
 
 const styles = StyleSheet.create({
-  stack: {
-    width: 340,
-    height: 590,
-  },
-
-  stackCompact: {
-    transform: [{ scale: 0.9 }],
-  },
-
+  stack: { width: 340, height: 590 },
+  stackCompact: { transform: [{ scale: 0.9 }] },
   stackShadow: {
     ...StyleSheet.absoluteFillObject,
     borderRadius: 28,
@@ -529,24 +508,14 @@ const styles = StyleSheet.create({
       },
     ],
   },
-
   backCard: {
     position: "absolute",
     width: "100%",
     height: "100%",
     borderRadius: 28,
   },
-
-  secondCard: {
-    backgroundColor: "#DECFF7",
-    transform: [{ rotate: "-4deg" }],
-  },
-
-  thirdCard: {
-    backgroundColor: "#CEBCED",
-    transform: [{ rotate: "5deg" }],
-  },
-
+  secondCard: { backgroundColor: "#DECFF7", transform: [{ rotate: "-4deg" }] },
+  thirdCard: { backgroundColor: "#CEBCED", transform: [{ rotate: "5deg" }] },
   frontCardLayer: {
     position: "absolute",
     top: 0,
@@ -554,62 +523,27 @@ const styles = StyleSheet.create({
     width: "100%",
     height: "100%",
   },
-
-  revealedCardLayer: {
-    zIndex: 2,
-  },
-
-  closedCardLayer: {
-    zIndex: 3,
-  },
-
-  readyCardLayer: {
-    zIndex: 1,
-  },
-
-  hiddenCardLayer: {
-    display: "none",
-  },
-
+  revealedCardLayer: { zIndex: 2 },
+  closedCardLayer: { zIndex: 3 },
+  readyCardLayer: { zIndex: 1 },
+  hiddenCardLayer: { display: "none" },
   frontCardSurface: {
     width: "100%",
     height: "100%",
     borderRadius: 28,
     backgroundColor: colors.background,
   },
-
-  frontCard: {
-    width: "100%",
-    height: "100%",
-    overflow: "hidden",
-  },
-
-  ornament: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 10,
-  },
-
-  hiddenOrnament: {
-    position: "absolute",
-    left: 64.5,
-  },
-
-  topOrnament: {
-    top: 94,
-  },
-
-  bottomOrnament: {
-    top: 215,
-  },
-
+  frontCard: { width: "100%", height: "100%", overflow: "hidden" },
+  ornament: { flexDirection: "row", alignItems: "center", gap: 10 },
+  hiddenOrnament: { position: "absolute", left: 64.5 },
+  topOrnament: { top: 94 },
+  bottomOrnament: { top: 215 },
   ornamentLine: {
     width: 88,
     height: 3,
     borderRadius: 1.5,
     backgroundColor: colors.secondary4,
   },
-
   playerName: {
     position: "absolute",
     top: 129,
@@ -621,7 +555,6 @@ const styles = StyleSheet.create({
     lineHeight: 65,
     textAlign: "center",
   },
-
   instruction: {
     position: "absolute",
     top: 292,
@@ -633,49 +566,25 @@ const styles = StyleSheet.create({
     lineHeight: 25,
     textAlign: "center",
   },
-
-  clickIcon: {
-    position: "absolute",
-    top: 400,
-    left: 141.5,
-  },
-
-  revealedContent: {
-    flex: 1,
-    paddingTop: 28,
-    alignItems: "center",
-  },
-
-  revealedMainContent: {
-    alignItems: "center",
-    gap: 18,
-  },
-
-  roleMainContent: {
-    alignItems: "center",
-    marginTop: -4,
-  },
-
-  locationLabel: {
+  clickIcon: { position: "absolute", top: 400, left: 141.5 },
+  revealedContent: { flex: 1, paddingTop: 28, alignItems: "center" },
+  wordMainContent: { alignItems: "center", gap: 18 },
+  roleMainContent: { alignItems: "center", marginTop: -4 },
+  wordLabel: {
     height: 32,
     paddingHorizontal: 12,
     alignItems: "center",
     justifyContent: "center",
     overflow: "hidden",
   },
-
-  locationLabelText: {
+  wordLabelText: {
     color: colors.primary,
     fontFamily: "Nunito_700Bold",
     fontSize: 16,
     lineHeight: 22,
   },
-
-  roleLabel: {
-    marginTop: 18,
-  },
-
-  locationTitle: {
+  roleLabel: { marginTop: 18 },
+  wordTitle: {
     width: 300,
     height: 55,
     color: colors.textPrimary,
@@ -685,32 +594,28 @@ const styles = StyleSheet.create({
     textAlign: "center",
     textAlignVertical: "center",
   },
-
-  roleTitle: {
-    marginTop: 8,
+  textWordTitle: { opacity: 0, height: 0 },
+  roleTitle: { marginTop: 8 },
+  wordImage: { width: 270, height: 214, borderRadius: 20, overflow: "hidden" },
+  textWordArea: {
+    width: 286,
+    height: 250,
+    paddingHorizontal: 8,
+    alignItems: "center",
+    justifyContent: "center",
   },
-
-  locationImage: {
-    width: 270,
-    height: 214,
-    borderRadius: 20,
-    overflow: "hidden",
+  textWordName: {
+    width: "100%",
+    color: colors.textPrimary,
+    fontFamily: "Nunito_800ExtraBold",
+    fontSize: 52,
+    lineHeight: 62,
+    textAlign: "center",
+    textAlignVertical: "center",
   },
-
-  roleIllustration: {
-    width: 247,
-    height: 149,
-    marginTop: 12,
-  },
-
-  roleBottomOrnament: {
-    marginTop: 12,
-  },
-
-  roleBottomOrnamentWithoutKnowledge: {
-    marginTop: 32,
-  },
-
+  roleIllustration: { width: 247, height: 149, marginTop: 12 },
+  roleBottomOrnament: { marginTop: 12 },
+  roleBottomOrnamentWithoutKnowledge: { marginTop: 32 },
   revealedBottomContent: {
     flex: 1,
     width: "100%",
@@ -718,20 +623,8 @@ const styles = StyleSheet.create({
     paddingBottom: 20,
     alignItems: "center",
   },
-
-  warningArea: {
-    flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-
-  otherSpiesBlock: {
-    width: 290,
-    marginTop: 10,
-    alignItems: "center",
-    gap: 4,
-  },
-
+  warningArea: { flex: 1, alignItems: "center", justifyContent: "center" },
+  otherSpiesBlock: { width: 290, marginTop: 10, alignItems: "center", gap: 4 },
   otherSpiesLabel: {
     color: "#FB8585",
     fontFamily: "Nunito_600SemiBold",
@@ -739,7 +632,6 @@ const styles = StyleSheet.create({
     lineHeight: 19,
     textAlign: "center",
   },
-
   otherSpiesPill: {
     minHeight: 28,
     maxWidth: 290,
@@ -750,7 +642,6 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     backgroundColor: "#FDC7C7",
   },
-
   otherSpiesNames: {
     color: "#ED1818",
     fontFamily: "Nunito_700Bold",
@@ -758,8 +649,7 @@ const styles = StyleSheet.create({
     lineHeight: 16,
     textAlign: "center",
   },
-
-  locationWarning: {
+  wordWarning: {
     width: 276,
     color: colors.textSecondary,
     fontFamily: "Nunito_600SemiBold",
@@ -767,23 +657,9 @@ const styles = StyleSheet.create({
     lineHeight: 19,
     textAlign: "center",
   },
-
-  passButton: {
-    width: "100%",
-    height: 50,
-  },
-
-  passButtonText: {
-    fontSize: 18,
-    lineHeight: 25,
-  },
-
-  readyTopOrnament: {
-    position: "absolute",
-    top: 122,
-    left: 64.5,
-  },
-
+  passButton: { width: "100%", height: 50 },
+  passButtonText: { fontSize: 18, lineHeight: 25 },
+  readyTopOrnament: { position: "absolute", top: 122, left: 64.5 },
   readyTitle: {
     position: "absolute",
     top: 161,
@@ -795,13 +671,7 @@ const styles = StyleSheet.create({
     lineHeight: 44,
     textAlign: "center",
   },
-
-  readyBottomOrnament: {
-    position: "absolute",
-    top: 274,
-    left: 64.5,
-  },
-
+  readyBottomOrnament: { position: "absolute", top: 274, left: 64.5 },
   readyInstruction: {
     position: "absolute",
     top: 350,
@@ -813,7 +683,6 @@ const styles = StyleSheet.create({
     lineHeight: 25,
     textAlign: "center",
   },
-
   readyStartButton: {
     position: "absolute",
     right: 20,
