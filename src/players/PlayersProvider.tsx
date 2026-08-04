@@ -8,7 +8,10 @@ import {
   useState,
 } from "react";
 
-import { createPlayerProfile } from "@/players/playerUtils";
+import {
+  createPlayerProfile,
+  normalizePlayerName,
+} from "@/players/playerUtils";
 import type { CreatePlayerInput, Player } from "@/players/types";
 import {
   clearStoredPlayerPhotos,
@@ -21,6 +24,7 @@ type PlayersContextValue = {
   isPlayersLoaded: boolean;
   addPlayer: (input: CreatePlayerInput) => Player;
   commitPlayers: (players: readonly Player[]) => void;
+  renamePlayer: (playerId: string, name: string) => void;
   deletePlayer: (playerId: string) => void;
   clearPlayers: () => void;
   clearPlayerPhotos: () => void;
@@ -31,6 +35,20 @@ const PlayersContext = createContext<PlayersContextValue | null>(null);
 export function PlayersProvider({ children }: PropsWithChildren) {
   const [players, setPlayers] = useState<Player[]>([]);
   const [isPlayersLoaded, setIsPlayersLoaded] = useState(false);
+
+  const renamePlayer = useCallback((playerId: string, nextName: string) => {
+    const normalizedName = normalizePlayerName(nextName);
+
+    if (!normalizedName) {
+      return;
+    }
+
+    setPlayers((currentPlayers) =>
+      currentPlayers.map((player) =>
+        player.id === playerId ? { ...player, name: normalizedName } : player,
+      ),
+    );
+  }, []);
 
   useEffect(() => {
     let isMounted = true;
@@ -133,6 +151,7 @@ export function PlayersProvider({ children }: PropsWithChildren) {
       isPlayersLoaded,
       addPlayer,
       commitPlayers,
+      renamePlayer,
       deletePlayer,
       clearPlayers,
       clearPlayerPhotos,
@@ -145,13 +164,12 @@ export function PlayersProvider({ children }: PropsWithChildren) {
       deletePlayer,
       isPlayersLoaded,
       players,
+      renamePlayer,
     ],
   );
 
   return (
-    <PlayersContext.Provider value={value}>
-      {children}
-    </PlayersContext.Provider>
+    <PlayersContext.Provider value={value}>{children}</PlayersContext.Provider>
   );
 }
 

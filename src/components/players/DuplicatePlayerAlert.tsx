@@ -22,7 +22,7 @@ import { useLocalization } from "@/localization/LocalizationProvider";
 import { colors } from "@/theme/colors";
 import { useAppHaptics } from "@/haptics/useAppHaptics";
 
-const ALERT_HEIGHT = 244;
+const ALERT_HEIGHT = 254;
 
 type AlertButtonProps = {
   children: ReactNode;
@@ -75,8 +75,9 @@ type DuplicatePlayerAlertProps = {
   visible: boolean;
   playerName: string;
   width: number;
+  confirmLabel?: string;
   onCancel: () => void;
-  onCreateNew: () => void;
+  onConfirm: () => void;
   onHidden?: () => void;
   busy?: boolean;
 };
@@ -85,8 +86,9 @@ export function DuplicatePlayerAlert({
   visible,
   playerName,
   width,
+  confirmLabel,
   onCancel,
-  onCreateNew,
+  onConfirm,
   onHidden,
   busy = false,
 }: DuplicatePlayerAlertProps) {
@@ -101,18 +103,10 @@ export function DuplicatePlayerAlert({
     opacity: visibilityProgress.value,
     transform: [
       {
-        translateY: interpolate(
-          visibilityProgress.value,
-          [0, 1],
-          [10, 0],
-        ),
+        translateY: interpolate(visibilityProgress.value, [0, 1], [10, 0]),
       },
       {
-        scale: interpolate(
-          visibilityProgress.value,
-          [0, 1],
-          [0.97, 1],
-        ),
+        scale: interpolate(visibilityProgress.value, [0, 1], [0.97, 1]),
       },
     ],
   }));
@@ -168,11 +162,7 @@ export function DuplicatePlayerAlert({
       pointerEvents={visible ? "box-none" : "none"}
     >
       <Animated.View
-        style={[
-          styles.shadow,
-          { width, height: ALERT_HEIGHT },
-          alertStyle,
-        ]}
+        style={[styles.shadow, { width, height: ALERT_HEIGHT }, alertStyle]}
       >
         <Squircle
           style={styles.alert}
@@ -212,14 +202,15 @@ export function DuplicatePlayerAlert({
                 </Squircle>
               </AlertButton>
 
-              <AlertButton disabled={busy} onPress={onCreateNew}>
+              <AlertButton disabled={busy} onPress={onConfirm}>
                 <Squircle
                   style={styles.button}
                   cornerRadius={8}
                   fillColor={colors.primary}
                 >
                   <Text style={styles.createLabel}>
-                    {t("playerSelection.duplicateAlert.createNew")}
+                    {confirmLabel ??
+                      t("playerSelection.duplicateAlert.createNew")}
                   </Text>
                 </Squircle>
               </AlertButton>
@@ -279,6 +270,7 @@ const styles = StyleSheet.create({
     width: "100%",
     height: 32,
     marginTop: 16,
+    marginBottom: 10,
     alignItems: "center",
   },
 
@@ -286,7 +278,7 @@ const styles = StyleSheet.create({
     maxWidth: "100%",
     color: colors.textSecondary,
     fontFamily: "Nunito_700Bold",
-    fontSize: 12,
+    fontSize: 14,
     lineHeight: 16,
     textAlign: "center",
   },

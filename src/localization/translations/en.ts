@@ -36,6 +36,13 @@ export const en = {
       editPlayer: "Edit player",
       closeActions: "Close player menu",
       renamePlayer: "Rename player",
+      renameDialog: {
+        title: "Rename player",
+        playerName: "Player name",
+        namePlaceholder: "Enter a new name...",
+        cancel: "Cancel",
+        confirm: "Rename",
+      },
       deletePlayer: "Delete player",
       deleteDialog: {
         title: "Delete player?",
@@ -238,8 +245,7 @@ export const en = {
       yes: "Yes",
       no: "No",
       timer: "Timer",
-      timerRecommendation:
-        "%{count} minutes are recommended for this group",
+      timerRecommendation: "%{count} minutes are recommended for this group",
       minutesShort: "min",
       timerHint: "Minimum 1 minute",
       noTimer: "No timer",

@@ -36,6 +36,13 @@ export const ru = {
       editPlayer: "Редактировать игрока",
       closeActions: "Закрыть меню игрока",
       renamePlayer: "Переименовать игрока",
+      renameDialog: {
+        title: "Переименовать игрока",
+        playerName: "Имя игрока",
+        namePlaceholder: "Введите новое имя...",
+        cancel: "Отмена",
+        confirm: "Переименовать",
+      },
       deletePlayer: "Удалить игрока",
       deleteDialog: {
         title: "Удалить игрока?",
@@ -140,8 +147,7 @@ export const ru = {
   spyTimer: {
     finish: "Завершить",
     expiredTitle: "Время вышло",
-    expiredMessage:
-      "Обсудите и проголосуйте за того, кого считаете шпионом",
+    expiredMessage: "Обсудите и проголосуйте за того, кого считаете шпионом",
     disabledTitle: "Таймер отключён",
     disabledMessage:
       "По завершении партии нажмите кнопку ниже, чтобы указать победителя",
@@ -239,8 +245,7 @@ export const ru = {
       yes: "Да",
       no: "Нет",
       timer: "Таймер",
-      timerRecommendation:
-        "Для данного состава рекомендуется %{count} минут",
+      timerRecommendation: "Для данного состава рекомендуется %{count} минут",
       minutesShort: "мин",
       timerHint: "Минимум 1 минута",
       noTimer: "Без таймера",

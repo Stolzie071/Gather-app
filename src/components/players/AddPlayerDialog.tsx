@@ -46,10 +46,7 @@ import {
   QUICK_AVATAR_PRESET_IDS,
 } from "@/players/avatarPresets";
 import { normalizePlayerName } from "@/players/playerUtils";
-import type {
-  CreatePlayerInput,
-  PlayerAvatarPresetId,
-} from "@/players/types";
+import type { CreatePlayerInput, PlayerAvatarPresetId } from "@/players/types";
 import {
   createPlayerPhotoPreview,
   createStoredPlayerPhoto,
@@ -555,9 +552,7 @@ export function AddPlayerDialog({
 
       <View pointerEvents="box-none" style={styles.dialogPositioner}>
         <Animated.View
-          pointerEvents={
-            duplicateName || isAvatarPickerOpen ? "none" : "auto"
-          }
+          pointerEvents={duplicateName || isAvatarPickerOpen ? "none" : "auto"}
           style={[{ width: dialogWidth, height: dialogHeight }, dialogStyle]}
         >
           <Squircle
@@ -604,15 +599,13 @@ export function AddPlayerDialog({
                 </AvatarOption>
 
                 {quickPresetIds.map((avatarId) => {
-                  const PresetAvatar =
-                    getPlayerAvatarPresetComponent(avatarId);
+                  const PresetAvatar = getPlayerAvatarPresetComponent(avatarId);
 
                   return (
                     <AvatarOption
                       key={avatarId}
                       selected={
-                        selectedPhoto === null &&
-                        selectedPresetId === avatarId
+                        selectedPhoto === null && selectedPresetId === avatarId
                       }
                       accessibilityLabel={t(
                         "playerSelection.addDialog.defaultAvatar",
@@ -704,7 +697,7 @@ export function AddPlayerDialog({
           playerName={duplicateName ?? ""}
           width={dialogWidth}
           onCancel={handleDuplicateCancel}
-          onCreateNew={handleCreateDuplicate}
+          onConfirm={handleCreateDuplicate}
           onHidden={handleDuplicateHidden}
           busy={isPhotoBusy}
         />

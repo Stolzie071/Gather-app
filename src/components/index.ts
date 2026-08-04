@@ -13,10 +13,8 @@ export { SetupStepNavigation } from "./games/SetupStepNavigation";
 export { NumberStepper } from "./games/NumberStepper";
 export { SelectionIndicator } from "./SelectionIndicator";
 export { AnimatedSwitch } from "./AnimatedSwitch";
-export {
-  TwoOptionSelector,
-  type TwoOptionValue,
-} from "./TwoOptionSelector";
+export { RenamePlayerDialog } from "./players/RenamePlayerDialog";
+export { TwoOptionSelector, type TwoOptionValue } from "./TwoOptionSelector";
 export { GameStartButton } from "./games/GameStartButton";
 export { GameRulesButton } from "./games/GameRulesButton";
 export { ExitGameDialog } from "./games/ExitGameDialog";

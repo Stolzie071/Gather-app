@@ -234,7 +234,7 @@ const styles = StyleSheet.create({
   },
 
   shadow: {
-    height: 260,
+    minHeight: 200,
     borderRadius: 20,
     backgroundColor: colors.background,
     boxShadow: [
@@ -254,7 +254,6 @@ const styles = StyleSheet.create({
 
   dialog: {
     width: "100%",
-    height: "100%",
     padding: 16,
     alignItems: "center",
     overflow: "hidden",
@@ -283,11 +282,9 @@ const styles = StyleSheet.create({
   },
 
   buttons: {
-    position: "absolute",
-    right: 16,
-    bottom: 16,
-    left: 16,
+    width: "100%",
     height: 44,
+    marginTop: 16,
     flexDirection: "row",
     gap: 16,
   },

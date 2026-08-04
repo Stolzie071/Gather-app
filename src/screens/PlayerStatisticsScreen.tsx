@@ -19,6 +19,7 @@ import Animated, {
   FadeInLeft,
   FadeOut,
 } from "react-native-reanimated";
+import { getComparablePlayerName } from "@/players/playerUtils";
 
 import {
   PlayerStatsWave,
@@ -28,6 +29,7 @@ import { SpyMainBackgroundDecor } from "@assets/Spy_game";
 import {
   BackButton,
   ExitGameDialog,
+  RenamePlayerDialog,
   SettingsButton,
   SettingsSheet,
 } from "@/components";
@@ -45,9 +47,7 @@ import { getCountForm } from "@/localization/countForms";
 import { useLocalization } from "@/localization/LocalizationProvider";
 import type { RootStackParamList } from "@/navigation/types";
 import { usePlayers } from "@/players/PlayersProvider";
-import {
-  calculatePlayerDetailStatistics,
-} from "@/statistics/calculatePlayerDetailStatistics";
+import { calculatePlayerDetailStatistics } from "@/statistics/calculatePlayerDetailStatistics";
 import {
   DEV_STATISTICS_HISTORY,
   DEV_STATISTICS_PLAYER,
@@ -84,17 +84,33 @@ export function PlayerStatisticsScreen({
   route,
 }: PlayerStatisticsScreenProps) {
   const { language, t } = useLocalization();
-  const { players, isPlayersLoaded, deletePlayer } = usePlayers();
+  const { players, isPlayersLoaded, deletePlayer, renamePlayer } = usePlayers();
   const { history, isHistoryLoaded, refreshHistory } = useGameHistory();
   const insets = useSafeAreaInsets();
   const { width: screenWidth, height: screenHeight } = useWindowDimensions();
-  const [expandedGameId, setExpandedGameId] =
-    useState<GameSectionId | null>(null);
+  const [expandedGameId, setExpandedGameId] = useState<GameSectionId | null>(
+    null,
+  );
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [hasOpenedSettings, setHasOpenedSettings] = useState(false);
   const [isPlayerActionsOpen, setIsPlayerActionsOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [isEntranceReady, setIsEntranceReady] = useState(false);
+  const [isRenameDialogOpen, setIsRenameDialogOpen] = useState(false);
+
+  const handleOpenRenameDialog = () => {
+    setIsPlayerActionsOpen(false);
+    setIsRenameDialogOpen(true);
+  };
+  const handleRenamePlayer = (nextName: string) => {
+    if (!player || isDevStatisticsPlayer) {
+      setIsRenameDialogOpen(false);
+      return;
+    }
+
+    renamePlayer(player.id, nextName);
+    setIsRenameDialogOpen(false);
+  };
 
   const sceneScale = screenWidth / DESIGN_WIDTH;
   const isCompactScreen =
@@ -110,9 +126,7 @@ export function PlayerStatisticsScreen({
     : history;
   const statistics = useMemo(
     () =>
-      player
-        ? calculatePlayerDetailStatistics(player, playerHistory)
-        : null,
+      player ? calculatePlayerDetailStatistics(player, playerHistory) : null,
     [player, playerHistory],
   );
 
@@ -254,6 +268,16 @@ export function PlayerStatisticsScreen({
     navigation.goBack();
   };
 
+  const isRenameNameTaken = (name: string) => {
+    const comparableName = getComparablePlayerName(name);
+
+    return players.some(
+      (item) =>
+        item.id !== player?.id &&
+        getComparablePlayerName(item.name) === comparableName,
+    );
+  };
+
   const isLoading = !isPlayersLoaded || !isHistoryLoaded;
   const isContentReady = !isLoading && isEntranceReady;
 
@@ -261,10 +285,7 @@ export function PlayerStatisticsScreen({
     <View style={styles.container}>
       <View
         pointerEvents="none"
-        style={[
-          styles.designScene,
-          { transform: [{ scale: sceneScale }] },
-        ]}
+        style={[styles.designScene, { transform: [{ scale: sceneScale }] }]}
       >
         <Image
           source={SpyMainBackgroundDecor}
@@ -331,9 +352,7 @@ export function PlayerStatisticsScreen({
           ]}
         >
           <Animated.View
-            entering={FadeInLeft.duration(260).easing(
-              Easing.out(Easing.cubic),
-            )}
+            entering={FadeInLeft.duration(260).easing(Easing.out(Easing.cubic))}
           >
             <PlayerDistributionCard
               statistics={statistics}
@@ -449,7 +468,7 @@ export function PlayerStatisticsScreen({
         renameLabel={t("statistics.playerDetails.renamePlayer")}
         deleteLabel={t("statistics.playerDetails.deletePlayer")}
         onClose={() => setIsPlayerActionsOpen(false)}
-        onRename={() => undefined}
+        onRename={handleOpenRenameDialog}
         onDelete={handleRequestPlayerDeletion}
       />
 
@@ -465,6 +484,13 @@ export function PlayerStatisticsScreen({
         confirmColor="#E42437"
         onStay={() => setIsDeleteDialogOpen(false)}
         onExit={handleConfirmPlayerDeletion}
+      />
+      <RenamePlayerDialog
+        visible={isRenameDialogOpen}
+        playerName={player?.name ?? ""}
+        isNameTaken={isRenameNameTaken}
+        onClose={() => setIsRenameDialogOpen(false)}
+        onRename={handleRenamePlayer}
       />
 
       {hasOpenedSettings && (
