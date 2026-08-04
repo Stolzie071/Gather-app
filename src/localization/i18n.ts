@@ -13,6 +13,12 @@ const ruTranslations = {
     packs: {
       ...ru.spySetup.packs,
       charactersSubtitle: "Из каких наборов будут выбраны персонажи?",
+      locationCount: {
+        one: "%{count} локация",
+        few: "%{count} локации",
+        many: "%{count} локаций",
+        other: "%{count} локаций",
+      },
       characterCount: {
         one: "%{count} персонаж",
         few: "%{count} персонажа",
@@ -34,6 +40,12 @@ const enTranslations = {
     packs: {
       ...en.spySetup.packs,
       charactersSubtitle: "Which packs should the characters come from?",
+      locationCount: {
+        one: "%{count} location",
+        few: "%{count} locations",
+        many: "%{count} locations",
+        other: "%{count} locations",
+      },
       characterCount: {
         one: "%{count} character",
         few: "%{count} characters",
