@@ -16,7 +16,9 @@ import {
 } from "@assets/Spy_game";
 import {
   CitiesPackIllustration,
+  DcHeroesPackIllustration,
   Dota2HeroesPackIllustration,
+  MarvelHeroesPackIllustration,
   NaturePackIllustration,
   TransportPackIllustration,
   WorkplacesPackIllustration,
@@ -41,6 +43,8 @@ export const SPY_PACK_ILLUSTRATIONS = {
   transport: TransportPackIllustration,
   cities: CitiesPackIllustration,
   "dota-2-heroes": Dota2HeroesPackIllustration,
+  "marvel-cinematic-universe": MarvelHeroesPackIllustration,
+  "dc-screen-characters": DcHeroesPackIllustration,
 } as const satisfies Record<string, ComponentType<SvgProps>>;
 
 export type SpyWordImageKey = keyof typeof SPY_WORD_IMAGES;
