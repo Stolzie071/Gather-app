@@ -1,71 +1,43 @@
-import {
-  SpyAirportLocation,
-  SpyBankLocation,
-  SpyCinemaLocation,
-  SpyHospitalLocation,
-  SpyHotelLocation,
-  SpyMuseumLocation,
-  SpyRestaurantLocation,
-  SpySchoolLocation,
-  SpySupermarketLocation,
-  SpyTrainStationLocation,
-} from "@assets/Spy_game";
+import { getSpyWordImage } from "@/games/spy/content/assets";
+import { builtInSpyContentRegistry } from "@/games/spy/content/builtInContent";
 import type { SpyWord } from "@/games/spy/types";
 
-export const SPY_LOCATIONS = [
-  {
-    id: "cinema",
-    name: "Кинотеатр",
-    image: SpyCinemaLocation,
-  },
-  {
-    id: "airport",
-    name: "Аэропорт",
-    image: SpyAirportLocation,
-  },
-  {
-    id: "bank",
-    name: "Банк",
-    image: SpyBankLocation,
-  },
-  {
-    id: "hospital",
-    name: "Больница",
-    image: SpyHospitalLocation,
-  },
-  {
-    id: "hotel",
-    name: "Отель",
-    image: SpyHotelLocation,
-  },
-  {
-    id: "museum",
-    name: "Музей",
-    image: SpyMuseumLocation,
-  },
-  {
-    id: "restaurant",
-    name: "Ресторан",
-    image: SpyRestaurantLocation,
-  },
-  {
-    id: "school",
-    name: "Школа",
-    image: SpySchoolLocation,
-  },
-  {
-    id: "supermarket",
-    name: "Супермаркет",
-    image: SpySupermarketLocation,
-  },
-  {
-    id: "train-station",
-    name: "Вокзал",
-    image: SpyTrainStationLocation,
-  },
-] as const satisfies readonly SpyWord[];
+const SPY_LOCATION_IDS = [
+  "cinema",
+  "airport",
+  "bank",
+  "hospital",
+  "hotel",
+  "museum",
+  "restaurant",
+  "school",
+  "supermarket",
+  "train-station",
+] as const;
 
-export type SpyLocationId = (typeof SPY_LOCATIONS)[number]["id"];
+export type SpyLocationId = (typeof SPY_LOCATION_IDS)[number];
+
+function getRequiredLocation(locationId: SpyLocationId): SpyWord {
+  const word = builtInSpyContentRegistry.getWord("locations", locationId);
+
+  if (!word) {
+    throw new Error(`Missing built-in Spy location "${locationId}"`);
+  }
+
+  const image = getSpyWordImage(word.imageKey);
+
+  if (!image) {
+    throw new Error(`Missing image for built-in Spy location "${locationId}"`);
+  }
+
+  return {
+    id: word.id,
+    name: word.name,
+    image,
+  };
+}
+
+export const SPY_LOCATIONS = SPY_LOCATION_IDS.map(getRequiredLocation);
 
 export function getSpyLocationById(locationId: string) {
   return SPY_LOCATIONS.find(({ id }) => id === locationId);
