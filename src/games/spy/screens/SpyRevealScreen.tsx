@@ -19,14 +19,16 @@ import {
   SettingsButton,
   SettingsSheet,
 } from "@/components";
+import { getSpyWordImage } from "@/games/spy/content/assets";
+import { builtInSpyContentRegistry } from "@/games/spy/content/builtInContent";
 import { SpyPlayerCardStack } from "@/games/spy/components/SpyPlayerCardStack";
-import { getSpyLocationById, SPY_LOCATIONS } from "@/games/spy/data/locations";
 import { useSpySession } from "@/games/spy/SpySessionProvider";
 import type { RootStackParamList } from "@/navigation/types";
 import { usePlayers } from "@/players/PlayersProvider";
 
 const DESIGN_WIDTH = 402;
 const DESIGN_HEIGHT = 874;
+
 type SpyRevealScreenProps = BlankStackScreenProps<
   RootStackParamList,
   "SpyReveal"
@@ -49,10 +51,16 @@ export function SpyRevealScreen({ navigation }: SpyRevealScreenProps) {
     () => players.find(({ id }) => id === currentPlayerId),
     [currentPlayerId, players],
   );
-  const currentLocation = activeSession
-    ? getSpyLocationById(activeSession.secretWordId)
+  const currentCategory = activeSession
+    ? builtInSpyContentRegistry.getCategory(activeSession.draft.categoryId)
     : undefined;
-  const fallbackLocation = SPY_LOCATIONS[0];
+  const currentWord = activeSession
+    ? builtInSpyContentRegistry.getWord(
+        activeSession.draft.categoryId,
+        activeSession.secretWordId,
+      )
+    : undefined;
+  const currentWordImage = getSpyWordImage(currentWord?.imageKey);
   const isCurrentPlayerSpy =
     activeSession?.spyIds.includes(currentPlayerId) ?? false;
   const spyKnowledge = useMemo(() => {
@@ -160,6 +168,18 @@ export function SpyRevealScreen({ navigation }: SpyRevealScreenProps) {
   }, [activeSession, navigation]);
 
   useEffect(() => {
+    if (!activeSession || !currentCategory || !currentWord) {
+      return;
+    }
+
+    if (currentCategory.presentation === "image" && !currentWordImage) {
+      console.warn(
+        `Missing image for Spy word "${currentWord.id}" in category "${currentCategory.id}"`,
+      );
+    }
+  }, [activeSession, currentCategory, currentWord, currentWordImage]);
+
+  useEffect(() => {
     if (!showReadyCard) {
       return;
     }
@@ -216,20 +236,23 @@ export function SpyRevealScreen({ navigation }: SpyRevealScreenProps) {
             isCompactScreen && styles.cardPositionCompact,
           ]}
         >
-          <SpyPlayerCardStack
-            key={`${activeSession?.id ?? "empty"}-${debugCardKey}`}
-            playerName={currentPlayer?.name ?? ""}
-            locationName={(currentLocation ?? fallbackLocation).name}
-            locationImage={(currentLocation ?? fallbackLocation).image}
-            revealType={isCurrentPlayerSpy ? "spy" : "location"}
-            spyKnowledge={spyKnowledge}
-            revealed={isCardRevealed}
-            showReadyCard={showReadyCard}
-            onReveal={handleRevealCard}
-            onPassPhone={handlePassPhone}
-            onStartGame={handleStartGame}
-            compact={isCompactScreen}
-          />
+          {currentCategory && currentWord && (
+            <SpyPlayerCardStack
+              key={`${activeSession?.id ?? "empty"}-${debugCardKey}`}
+              playerName={currentPlayer?.name ?? ""}
+              wordName={currentWord.name}
+              wordImage={currentWordImage}
+              presentation={currentCategory.presentation}
+              revealType={isCurrentPlayerSpy ? "spy" : "word"}
+              spyKnowledge={spyKnowledge}
+              revealed={isCardRevealed}
+              showReadyCard={showReadyCard}
+              onReveal={handleRevealCard}
+              onPassPhone={handlePassPhone}
+              onStartGame={handleStartGame}
+              compact={isCompactScreen}
+            />
+          )}
         </View>
       </View>
 
@@ -298,7 +321,6 @@ const styles = StyleSheet.create({
     overflow: "hidden",
     backgroundColor: "#B697EF",
   },
-
   designScene: {
     position: "absolute",
     top: 0,
@@ -307,7 +329,6 @@ const styles = StyleSheet.create({
     height: DESIGN_HEIGHT,
     transformOrigin: "center top",
   },
-
   backgroundDecor: {
     position: "absolute",
     top: 0,
@@ -315,7 +336,6 @@ const styles = StyleSheet.create({
     width: DESIGN_WIDTH,
     height: DESIGN_HEIGHT,
   },
-
   cardPosition: {
     position: "absolute",
     top: 0,
@@ -328,7 +348,6 @@ const styles = StyleSheet.create({
   cardPositionCompact: {
     transform: [{ translateY: 35 }],
   },
-
   debugPreviousButton: {
     position: "absolute",
     alignSelf: "center",
@@ -340,11 +359,9 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     backgroundColor: "rgba(42, 24, 73, 0.78)",
   },
-
   debugPreviousButtonPressed: {
     backgroundColor: "rgba(158, 124, 228, 0.9)",
   },
-
   debugPreviousButtonText: {
     color: "#FFFFFF",
     fontFamily: "Nunito_700Bold",
