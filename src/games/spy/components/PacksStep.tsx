@@ -1,4 +1,4 @@
-import { memo, useState, type ComponentType } from "react";
+import { memo, useMemo, useState, type ComponentType } from "react";
 import {
   FlatList,
   type LayoutChangeEvent,
@@ -10,6 +10,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import type { SvgProps } from "react-native-svg";
 
 import { PackCard, SetupStepNavigation } from "@/components";
+import { SPY_LOCATION_PACKS } from "@/games/spy/data/packs";
 import { useLocalization } from "@/localization/LocalizationProvider";
 import { colors } from "@/theme/colors";
 
@@ -34,7 +35,7 @@ type PacksStepProps = {
   top: number;
   sceneScale: number;
   bottomInset: number;
-  packs: readonly SpyPackListItem[];
+  packs?: readonly SpyPackListItem[];
   selectedPackIds: ReadonlySet<string>;
   onPackPress: (packId: string) => void;
   onBack: () => void;
@@ -53,6 +54,17 @@ export const PacksStep = memo(function PacksStep({
 }: PacksStepProps) {
   const { t } = useLocalization();
   const [headingHeight, setHeadingHeight] = useState(PAGE_HEADING_HEIGHT);
+  const displayedPacks = useMemo<readonly SpyPackListItem[]>(
+    () =>
+      packs ??
+      SPY_LOCATION_PACKS.map(({ id, Illustration, wordIds, enabled }) => ({
+        id,
+        Illustration,
+        wordCount: wordIds.length,
+        enabled,
+      })),
+    [packs],
+  );
   const listTop =
     (top + headingHeight + HEADING_GAP - CARD_SHADOW_SPACE) * sceneScale;
   const listBottom =
@@ -86,7 +98,7 @@ export const PacksStep = memo(function PacksStep({
       </View>
 
       <FlatList
-        data={packs}
+        data={displayedPacks}
         keyExtractor={(item) => item.id}
         renderItem={({ item: { id, Illustration, wordCount, enabled } }) => (
           <PackCard
