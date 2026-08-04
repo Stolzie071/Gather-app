@@ -1,0 +1,44 @@
+import {
+  SPY_PACK_ILLUSTRATIONS,
+  SPY_WORD_IMAGES,
+} from "./assets";
+import { SPY_CONTENT_CATEGORIES } from "./categories";
+import { createSpyContentRegistry } from "./registry";
+import type { SpyContentPackSource } from "./types";
+import workplacesSource from "./ru/locations/workplaces.json";
+
+const BUILT_IN_PACK_SOURCES = [
+  workplacesSource,
+] as readonly SpyContentPackSource[];
+
+function validateBuiltInAssets(
+  packSources: readonly SpyContentPackSource[],
+) {
+  packSources.forEach((pack) => {
+    if (
+      pack.illustrationKey &&
+      !(pack.illustrationKey in SPY_PACK_ILLUSTRATIONS)
+    ) {
+      throw new Error(
+        `Unknown Spy pack illustration key "${pack.illustrationKey}" in pack "${pack.id}"`,
+      );
+    }
+
+    pack.words.forEach((word) => {
+      if (word.imageKey && !(word.imageKey in SPY_WORD_IMAGES)) {
+        throw new Error(
+          `Unknown Spy word image key "${word.imageKey}" for word "${word.id}"`,
+        );
+      }
+    });
+  });
+}
+
+validateBuiltInAssets(BUILT_IN_PACK_SOURCES);
+
+export const builtInSpyContentRegistry = createSpyContentRegistry({
+  categories: SPY_CONTENT_CATEGORIES,
+  packs: BUILT_IN_PACK_SOURCES,
+});
+
+export const BUILT_IN_SPY_CONTENT_LOCALE = "ru" as const;
