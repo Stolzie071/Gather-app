@@ -42,6 +42,14 @@ type PacksStepProps = {
   onNext: () => void;
 };
 
+function getPackTitle(packId: string, translate: (key: string) => string) {
+  if (packId === "dota-2-heroes") {
+    return "Герои Dota 2";
+  }
+
+  return translate(`spySetup.packs.items.${packId}`);
+}
+
 export const PacksStep = memo(function PacksStep({
   top,
   sceneScale,
@@ -64,6 +72,9 @@ export const PacksStep = memo(function PacksStep({
         enabled,
       })),
     [packs],
+  );
+  const showsCharacterPacks = displayedPacks.some(
+    ({ id }) => id === "dota-2-heroes",
   );
   const listTop =
     (top + headingHeight + HEADING_GAP - CARD_SHADOW_SPACE) * sceneScale;
@@ -93,7 +104,11 @@ export const PacksStep = memo(function PacksStep({
           onLayout={handleHeadingLayout}
         >
           <Text style={styles.pageTitle}>{t("spySetup.packs.title")}</Text>
-          <Text style={styles.pageSubtitle}>{t("spySetup.packs.subtitle")}</Text>
+          <Text style={styles.pageSubtitle}>
+            {showsCharacterPacks
+              ? "Из каких наборов будут выбраны персонажи?"
+              : t("spySetup.packs.subtitle")}
+          </Text>
         </View>
       </View>
 
@@ -103,10 +118,12 @@ export const PacksStep = memo(function PacksStep({
         renderItem={({ item: { id, Illustration, wordCount, enabled } }) => (
           <PackCard
             illustration={<Illustration width={116} height={84} />}
-            title={t(`spySetup.packs.items.${id}`)}
-            wordCountLabel={t("spySetup.packs.locationCount", {
-              count: wordCount,
-            })}
+            title={getPackTitle(id, t)}
+            wordCountLabel={
+              showsCharacterPacks
+                ? `${wordCount} слов`
+                : t("spySetup.packs.locationCount", { count: wordCount })
+            }
             selected={selectedPackIds.has(id)}
             disabled={!enabled}
             onPress={() => onPackPress(id)}
@@ -172,57 +189,45 @@ const styles = StyleSheet.create({
   container: {
     ...StyleSheet.absoluteFillObject,
   },
-
   headingScene: {
     position: "absolute",
     top: 0,
     alignSelf: "center",
-
     width: DESIGN_WIDTH,
     height: "100%",
-
     transformOrigin: "center top",
   },
-
   pageHeading: {
     position: "absolute",
     left: 16,
     width: 370,
-
     paddingHorizontal: 22,
   },
-
   pageTitle: {
     color: colors.textPrimary,
     fontFamily: "Nunito_800ExtraBold",
     fontSize: 24,
     lineHeight: 33,
   },
-
   pageSubtitle: {
     marginTop: 1,
-
     color: colors.textSecondary,
     fontFamily: "Nunito_600SemiBold",
     fontSize: 14,
     lineHeight: 19,
   },
-
   packList: {
     position: "absolute",
   },
-
   packListContent: {
     gap: 16,
     paddingBottom: 16,
   },
-
   topListFade: {
     position: "absolute",
     right: 0,
     left: 0,
   },
-
   bottomListFade: {
     position: "absolute",
     right: 0,
