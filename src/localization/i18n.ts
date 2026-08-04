@@ -3,12 +3,42 @@ import { I18n } from "i18n-js";
 
 import { en } from "./translations/en";
 import { ru } from "./translations/ru";
+import {
+  enSpyContentTranslations,
+  ruSpyContentTranslations,
+} from "./translations/spyContent";
 
 export type Language = "ru" | "en";
 
 export const i18n = new I18n({
-  ru,
-  en,
+  ru: {
+    ...ru,
+    spySetup: {
+      ...ru.spySetup,
+      packs: {
+        ...ru.spySetup.packs,
+        ...ruSpyContentTranslations.packs,
+        items: {
+          ...ru.spySetup.packs.items,
+          ...ruSpyContentTranslations.packs.items,
+        },
+      },
+    },
+  },
+  en: {
+    ...en,
+    spySetup: {
+      ...en.spySetup,
+      packs: {
+        ...en.spySetup.packs,
+        ...enSpyContentTranslations.packs,
+        items: {
+          ...en.spySetup.packs.items,
+          ...enSpyContentTranslations.packs.items,
+        },
+      },
+    },
+  },
 });
 
 i18n.defaultLocale = "ru";
