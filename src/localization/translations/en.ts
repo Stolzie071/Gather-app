@@ -130,12 +130,15 @@ export const en = {
     instruction: "%{name}, tap the card to discover your location or role",
     revealCard: "Reveal %{name}'s card",
     locationLabel: "LOCATION",
+    wordLabel: "CHARACTER",
     roleLabel: "ROLE",
     spyRoleName: "Spy",
     otherSpies: "Other spies:",
     allPlayersAreSpiesExcept: "All players are spies except:",
     locationWarning:
       "Answer carefully.\nDon't let the spy figure out\nwhere you are.",
+    wordWarning:
+      "Answer carefully.\nDon't let the spy figure out\nwhich character you received.",
     spyWarning:
       "Listen carefully.\nTry to figure out which location\nthe others received.",
     passPhone: "Pass the phone",
