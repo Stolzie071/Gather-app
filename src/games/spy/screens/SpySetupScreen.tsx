@@ -43,16 +43,16 @@ import type { CreatePlayerInput, Player } from "@/players/types";
 import { deleteStoredPlayerPhoto } from "@/storage/playerPhotoStorage";
 import { colors } from "@/theme/colors";
 import { CategoryStep } from "@/games/spy/components/CategoryStep";
-import { PacksStep } from "@/games/spy/components/PacksStep";
+import {
+  PacksStep,
+  type SpyPackListItem,
+} from "@/games/spy/components/PacksStep";
 import { GameOptionsStep } from "@/games/spy/components/GameOptionsStep";
 import { getSpySetupRecommendation } from "@/games/spy/logic/getSpySetupRecommendation";
 import { SetupSummaryStep } from "@/games/spy/components/SetupSummaryStep";
 import type { SpyCategoryId } from "@/games/spy/data/categories";
-import {
-  getSpyLocationWordIds,
-  SPY_LOCATION_PACKS,
-  type SpyLocationPackId,
-} from "@/games/spy/data/packs";
+import { getSpyPackIllustration } from "@/games/spy/content/assets";
+import { builtInSpyContentRegistry } from "@/games/spy/content/builtInContent";
 import { useSpySession } from "@/games/spy/SpySessionProvider";
 import { useAppHaptics } from "@/haptics/useAppHaptics";
 
@@ -122,9 +122,9 @@ export function SpySetupScreen({ navigation }: SpySetupScreenProps) {
   );
   const [selectedCategoryId, setSelectedCategoryId] =
     useState<SpyCategoryId | null>(null);
-  const [selectedPackIds, setSelectedPackIds] = useState<
-    Set<SpyLocationPackId>
-  >(() => new Set());
+  const [selectedPackIds, setSelectedPackIds] = useState<Set<string>>(
+    () => new Set(),
+  );
   const [selectedPlayerIds, setSelectedPlayerIds] = useState<readonly string[]>(
     [],
   );
@@ -154,12 +154,39 @@ export function SpySetupScreen({ navigation }: SpySetupScreenProps) {
     () => [...savedPlayers, ...temporaryPlayers],
     [savedPlayers, temporaryPlayers],
   );
+  const availablePacks = useMemo(
+    () =>
+      selectedCategoryId
+        ? builtInSpyContentRegistry.getPacksByCategory(selectedCategoryId)
+        : [],
+    [selectedCategoryId],
+  );
+  const packListItems = useMemo<readonly SpyPackListItem[]>(
+    () =>
+      availablePacks.flatMap((pack) => {
+        const Illustration = getSpyPackIllustration(pack.illustrationKey);
+
+        if (!Illustration) {
+          return [];
+        }
+
+        return [
+          {
+            id: pack.id,
+            Illustration,
+            wordCount: pack.wordIds.length,
+            enabled: pack.enabled,
+          },
+        ];
+      }),
+    [availablePacks],
+  );
   const selectedPackTitles = useMemo(
     () =>
-      SPY_LOCATION_PACKS.filter(({ id }) => selectedPackIds.has(id)).map(
-        ({ id }) => t(`spySetup.packs.items.${id}`),
-      ),
-    [selectedPackIds, t],
+      availablePacks
+        .filter(({ id }) => selectedPackIds.has(id))
+        .map(({ id }) => t(`spySetup.packs.items.${id}`)),
+    [availablePacks, selectedPackIds, t],
   );
   const selectedCategoryTitle = selectedCategoryId
     ? t(`spySetup.category.${selectedCategoryId}.title`)
@@ -277,16 +304,17 @@ export function SpySetupScreen({ navigation }: SpySetupScreenProps) {
 
   const handleCategoryPress = useCallback(
     (categoryId: SpyCategoryId) => {
-      setSelectedCategoryId(categoryId);
-
-      if (categoryId === "locations") {
-        moveToStep(2);
+      if (categoryId !== selectedCategoryId) {
+        setSelectedPackIds(new Set());
       }
+
+      setSelectedCategoryId(categoryId);
+      moveToStep(2);
     },
-    [moveToStep],
+    [moveToStep, selectedCategoryId],
   );
 
-  const handlePackPress = useCallback((packId: SpyLocationPackId) => {
+  const handlePackPress = useCallback((packId: string) => {
     setSelectedPackIds((currentPackIds) => {
       const nextPackIds = new Set(currentPackIds);
 
@@ -331,7 +359,10 @@ export function SpySetupScreen({ navigation }: SpySetupScreenProps) {
     setIsStarting(true);
 
     const packIds = [...selectedPackIds];
-    const availableWordIds = getSpyLocationWordIds(packIds);
+    const availableWordIds = builtInSpyContentRegistry.getWordIds(
+      selectedCategoryId,
+      packIds,
+    );
 
     try {
       startSession({
@@ -531,6 +562,7 @@ export function SpySetupScreen({ navigation }: SpySetupScreenProps) {
               top={pageContentTop}
               sceneScale={sceneScale}
               bottomInset={insets.bottom}
+              packs={packListItems}
               selectedPackIds={selectedPackIds}
               onPackPress={handlePackPress}
               onBack={handlePacksBack}
