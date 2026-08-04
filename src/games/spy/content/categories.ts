@@ -8,7 +8,7 @@ export const SPY_CONTENT_CATEGORIES = [
   },
   {
     id: "characters",
-    enabled: false,
+    enabled: true,
     presentation: "text",
   },
   {
