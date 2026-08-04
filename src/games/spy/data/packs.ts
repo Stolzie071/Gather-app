@@ -4,19 +4,29 @@ import {
   TransportPackIllustration,
   WorkplacesPackIllustration,
 } from "@assets/Spy_game/Packs_page";
-import { SPY_LOCATIONS, type SpyLocationId } from "./locations";
+import { builtInSpyContentRegistry } from "@/games/spy/content/builtInContent";
 import type { SpyPack } from "@/games/spy/types";
+import type { SpyLocationId } from "./locations";
 
 type SpyLocationPack = SpyPack<SpyLocationId> & {
   Illustration: typeof NaturePackIllustration;
 };
 
+const workplacesPack = builtInSpyContentRegistry.getPack(
+  "locations",
+  "workplaces",
+);
+
+if (!workplacesPack) {
+  throw new Error('Missing built-in Spy location pack "workplaces"');
+}
+
 export const SPY_LOCATION_PACKS = [
   {
     id: "workplaces",
     Illustration: WorkplacesPackIllustration,
-    wordIds: SPY_LOCATIONS.map(({ id }) => id),
-    enabled: true,
+    wordIds: workplacesPack.wordIds as readonly SpyLocationId[],
+    enabled: workplacesPack.enabled,
   },
   {
     id: "nature",
@@ -43,13 +53,8 @@ export type SpyLocationPackId = (typeof SPY_LOCATION_PACKS)[number]["id"];
 export function getSpyLocationWordIds(
   selectedPackIds: readonly SpyLocationPackId[],
 ) {
-  const selectedPackIdSet = new Set(selectedPackIds);
-
-  return [
-    ...new Set(
-      SPY_LOCATION_PACKS.filter(({ id }) => selectedPackIdSet.has(id)).flatMap(
-        ({ wordIds }) => wordIds,
-      ),
-    ),
-  ];
+  return builtInSpyContentRegistry.getWordIds(
+    "locations",
+    selectedPackIds,
+  ) as readonly SpyLocationId[];
 }
