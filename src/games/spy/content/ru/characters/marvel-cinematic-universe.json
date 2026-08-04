@@ -1,0 +1,192 @@
+{
+  "id": "marvel-cinematic-universe",
+  "categoryId": "characters",
+  "enabled": true,
+  "illustrationKey": "marvel-cinematic-universe",
+  "words": [
+    {
+      "id": "tony-stark",
+      "name": "Тони Старк (Железный человек)"
+    },
+    {
+      "id": "steve-rogers",
+      "name": "Стив Роджерс (Капитан Америка)"
+    },
+    {
+      "id": "thor",
+      "name": "Тор"
+    },
+    {
+      "id": "bruce-banner",
+      "name": "Брюс Бэннер (Халк)"
+    },
+    {
+      "id": "natasha-romanoff",
+      "name": "Наташа Романофф (Чёрная вдова)"
+    },
+    {
+      "id": "clint-barton",
+      "name": "Клинт Бартон (Соколиный глаз)"
+    },
+    {
+      "id": "nick-fury",
+      "name": "Ник Фьюри"
+    },
+    {
+      "id": "loki",
+      "name": "Локи"
+    },
+    {
+      "id": "james-rhodes",
+      "name": "Джеймс Роудс (Воитель)"
+    },
+    {
+      "id": "sam-wilson",
+      "name": "Сэм Уилсон (Сокол)"
+    },
+    {
+      "id": "bucky-barnes",
+      "name": "Баки Барнс (Зимний солдат)"
+    },
+    {
+      "id": "wanda-maximoff",
+      "name": "Ванда (Алая Ведьма)"
+    },
+    {
+      "id": "vision",
+      "name": "Вижн"
+    },
+    {
+      "id": "pietro-maximoff",
+      "name": "Ртуть"
+    },
+    {
+      "id": "peter-parker",
+      "name": "Питер Паркер (Человек-паук)"
+    },
+    {
+      "id": "stephen-strange",
+      "name": "Стивен Стрэндж (Доктор Стрэндж)"
+    },
+    {
+      "id": "tchalla",
+      "name": "Т’Чалла (Чёрная пантера)"
+    },
+    {
+      "id": "shuri",
+      "name": "Шури (Чёрная пантера)"
+    },
+    {
+      "id": "scott-lang",
+      "name": "Скотт Лэнг (Человек-муравей)"
+    },
+    {
+      "id": "hope-van-dyne",
+      "name": "Хоуп (Оса)"
+    },
+    {
+      "id": "hank-pym",
+      "name": "Хэнк Пим"
+    },
+    {
+      "id": "carol-danvers",
+      "name": "Кэрол Дэнверс (Капитан Марвел)"
+    },
+    {
+      "id": "shang-chi",
+      "name": "Шан-Чи"
+    },
+    {
+      "id": "matt-murdock",
+      "name": "Мэтт Мёрдок (Сорвиголова)"
+    },
+    {
+      "id": "frank-castle",
+      "name": "Фрэнк Касл (Каратель)"
+    },
+    {
+      "id": "marc-spector",
+      "name": "Марк Спектор (Лунный рыцарь)"
+    },
+    {
+      "id": "gamora",
+      "name": "Гамора"
+    },
+    {
+      "id": "peter-quill",
+      "name": "Питер Квилл (Звёздный Лорд)"
+    },
+    {
+      "id": "rocket",
+      "name": "Ракета"
+    },
+    {
+      "id": "groot",
+      "name": "Грут"
+    },
+    {
+      "id": "drax",
+      "name": "Дракс"
+    },
+    {
+      "id": "mantis",
+      "name": "Мантис"
+    },
+    {
+      "id": "nebula",
+      "name": "Небула"
+    },
+    {
+      "id": "thanos",
+      "name": "Танос"
+    },
+    {
+      "id": "ronan-the-accuser",
+      "name": "Ронан Обвинитель"
+    },
+    {
+      "id": "hela",
+      "name": "Хела"
+    },
+    {
+      "id": "wong",
+      "name": "Вонг"
+    },
+    {
+      "id": "red-skull",
+      "name": "Красный Череп"
+    },
+    {
+      "id": "ultron",
+      "name": "Альтрон"
+    },
+    {
+      "id": "killmonger",
+      "name": "Киллмонгер"
+    },
+    {
+      "id": "deadpool",
+      "name": "Дэдпул"
+    },
+    {
+      "id": "wolverine",
+      "name": "Росомаха"
+    },
+    {
+      "id": "reed-richards",
+      "name": "Рид Ричардс (Мистер Фантастик)"
+    },
+    {
+      "id": "sue-storm",
+      "name": "Сью Шторм (Женщина-невидимка)"
+    },
+    {
+      "id": "johnny-storm",
+      "name": "Джонни Шторм (Человек-факел)"
+    },
+    {
+      "id": "ben-grimm",
+      "name": "Бен Гримм (Существо)"
+    }
+  ]
+}

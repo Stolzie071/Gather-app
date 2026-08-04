@@ -1,0 +1,116 @@
+{
+  "id": "dc-screen-characters",
+  "categoryId": "characters",
+  "enabled": true,
+  "illustrationKey": "dc-screen-characters",
+  "words": [
+    {
+      "id": "bruce-wayne",
+      "name": "Брюс Уэйн (Бэтмен)"
+    },
+    {
+      "id": "clark-kent",
+      "name": "Кларк Кент (Супермен)"
+    },
+    {
+      "id": "diana-prince",
+      "name": "Диана Принс (Чудо-женщина)"
+    },
+    {
+      "id": "barry-allen",
+      "name": "Барри Аллен (Флэш)"
+    },
+    {
+      "id": "arthur-curry",
+      "name": "Артур Карри (Аквамен)"
+    },
+    {
+      "id": "victor-stone",
+      "name": "Виктор Стоун (Киборг)"
+    },
+    {
+      "id": "billy-batson",
+      "name": "Билли Бэтсон (Шазам)"
+    },
+    {
+      "id": "kara-zor-el",
+      "name": "Кара Зор-Эл (Супергёрл)"
+    },
+    {
+      "id": "john-stewart",
+      "name": "Хэл Джордан (Зелёный Фонарь)"
+    },
+    {
+      "id": "harley-quinn",
+      "name": "Харли Квинн"
+    },
+    {
+      "id": "joker",
+      "name": "Джокер"
+    },
+    {
+      "id": "lex-luthor",
+      "name": "Лекс Лютор"
+    },
+    {
+      "id": "lois-lane",
+      "name": "Лоис Лейн"
+    },
+    {
+      "id": "alfred-pennyworth",
+      "name": "Альфред Пенниуорт"
+    },
+    {
+      "id": "jim-gordon",
+      "name": "Джим Гордон"
+    },
+    {
+      "id": "selina-kyle",
+      "name": "Селина Кайл (Женщина-кошка)"
+    },
+    {
+      "id": "oswald-cobblepot",
+      "name": "Освальд Кобблпот (Пингвин)"
+    },
+    {
+      "id": "edward-nashton",
+      "name": "Эдвард Нэштон (Загадочник)"
+    },
+    {
+      "id": "deadshot",
+      "name": "Дэдшот"
+    },
+    {
+      "id": "black-adam",
+      "name": "Чёрный Адам"
+    },
+    {
+      "id": "black-manta",
+      "name": "Чёрная Манта"
+    },
+    {
+      "id": "steppenwolf",
+      "name": "Степной Волк"
+    },
+    {
+      "id": "doomsday",
+      "name": "Думсдэй"
+    },
+    {
+      "id": "cheetah",
+      "name": "Гепарда"
+    },
+    {
+      "id": "enchantress",
+      "name": "Чародейка"
+    },
+    {
+      "id": "bane",
+      "name": "Бэйн"
+    },
+    {
+      "id": "deathstroke",
+      "name": "Дефстроук"
+    }
+  ]
+}
