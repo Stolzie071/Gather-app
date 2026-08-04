@@ -1,3 +1,5 @@
+import type { ImageSourcePropType } from "react-native";
+
 import { getSpyWordImage } from "@/games/spy/content/assets";
 import { builtInSpyContentRegistry } from "@/games/spy/content/builtInContent";
 import type { SpyWord } from "@/games/spy/types";
@@ -17,7 +19,13 @@ const SPY_LOCATION_IDS = [
 
 export type SpyLocationId = (typeof SPY_LOCATION_IDS)[number];
 
-function getRequiredLocation(locationId: SpyLocationId): SpyWord {
+type SpyLocationWord = Omit<SpyWord, "image"> & {
+  image: ImageSourcePropType;
+};
+
+function getRequiredLocation(
+  locationId: SpyLocationId,
+): SpyLocationWord {
   const word = builtInSpyContentRegistry.getWord("locations", locationId);
 
   if (!word) {
