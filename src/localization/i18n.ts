@@ -28,6 +28,8 @@ const ruTranslations = {
       items: {
         ...ru.spySetup.packs.items,
         "dota-2-heroes": "Герои Dota 2",
+        "marvel-cinematic-universe": "Персонажи Marvel (КВМ)",
+        "dc-screen-characters": "Персонажи DC (DCU)",
       },
     },
   },
@@ -55,6 +57,8 @@ const enTranslations = {
       items: {
         ...en.spySetup.packs.items,
         "dota-2-heroes": "Dota 2 Heroes",
+        "marvel-cinematic-universe": "Marvel Characters (MCU)",
+        "dc-screen-characters": "DC Characters (DCU)",
       },
     },
   },
