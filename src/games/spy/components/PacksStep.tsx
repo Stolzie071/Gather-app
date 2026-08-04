@@ -1,4 +1,4 @@
-import { memo, useState } from "react";
+import { memo, useState, type ComponentType } from "react";
 import {
   FlatList,
   type LayoutChangeEvent,
@@ -7,12 +7,9 @@ import {
   View,
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
+import type { SvgProps } from "react-native-svg";
 
 import { PackCard, SetupStepNavigation } from "@/components";
-import {
-  SPY_LOCATION_PACKS,
-  type SpyLocationPackId,
-} from "@/games/spy/data/packs";
 import { useLocalization } from "@/localization/LocalizationProvider";
 import { colors } from "@/theme/colors";
 
@@ -26,12 +23,20 @@ const NAVIGATION_HEIGHT = 48;
 const NAVIGATION_BOTTOM_SPACE = 16;
 const LIST_TO_NAVIGATION_GAP = 16;
 
+export type SpyPackListItem = {
+  id: string;
+  Illustration: ComponentType<SvgProps>;
+  wordCount: number;
+  enabled: boolean;
+};
+
 type PacksStepProps = {
   top: number;
   sceneScale: number;
   bottomInset: number;
-  selectedPackIds: ReadonlySet<SpyLocationPackId>;
-  onPackPress: (packId: SpyLocationPackId) => void;
+  packs: readonly SpyPackListItem[];
+  selectedPackIds: ReadonlySet<string>;
+  onPackPress: (packId: string) => void;
   onBack: () => void;
   onNext: () => void;
 };
@@ -40,6 +45,7 @@ export const PacksStep = memo(function PacksStep({
   top,
   sceneScale,
   bottomInset,
+  packs,
   selectedPackIds,
   onPackPress,
   onBack,
@@ -48,8 +54,7 @@ export const PacksStep = memo(function PacksStep({
   const { t } = useLocalization();
   const [headingHeight, setHeadingHeight] = useState(PAGE_HEADING_HEIGHT);
   const listTop =
-    (top + headingHeight + HEADING_GAP - CARD_SHADOW_SPACE) *
-    sceneScale;
+    (top + headingHeight + HEADING_GAP - CARD_SHADOW_SPACE) * sceneScale;
   const listBottom =
     bottomInset +
     NAVIGATION_BOTTOM_SPACE +
@@ -81,14 +86,14 @@ export const PacksStep = memo(function PacksStep({
       </View>
 
       <FlatList
-        data={SPY_LOCATION_PACKS}
+        data={packs}
         keyExtractor={(item) => item.id}
-        renderItem={({ item: { id, Illustration, wordIds, enabled } }) => (
+        renderItem={({ item: { id, Illustration, wordCount, enabled } }) => (
           <PackCard
             illustration={<Illustration width={116} height={84} />}
             title={t(`spySetup.packs.items.${id}`)}
             wordCountLabel={t("spySetup.packs.locationCount", {
-              count: wordIds.length,
+              count: wordCount,
             })}
             selected={selectedPackIds.has(id)}
             disabled={!enabled}
