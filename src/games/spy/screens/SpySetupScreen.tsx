@@ -54,6 +54,7 @@ import {
   type SpyLocationPackId,
 } from "@/games/spy/data/packs";
 import { useSpySession } from "@/games/spy/SpySessionProvider";
+import { useAppHaptics } from "@/haptics/useAppHaptics";
 
 const DESIGN_WIDTH = 402;
 const DESIGN_HEIGHT = 874;
@@ -107,6 +108,7 @@ export function SpySetupScreen({ navigation }: SpySetupScreenProps) {
     commitPlayers,
   } = usePlayers();
   const { startSession } = useSpySession();
+  const { playSetupStart } = useAppHaptics();
   const insets = useSafeAreaInsets();
   const { width: screenWidth, height: screenHeight } = useWindowDimensions();
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
@@ -134,6 +136,8 @@ export function SpySetupScreen({ navigation }: SpySetupScreenProps) {
   const [spiesKnowEachOther, setSpiesKnowEachOther] = useState(false);
   const [timerMinutes, setTimerMinutes] = useState(10);
   const [timerDisabled, setTimerDisabled] = useState(false);
+  const [isStarting, setIsStarting] = useState(false);
+  const isStartingRef = useRef(false);
   const [recommendationsWereShown, setRecommendationsWereShown] =
     useState(false);
   const recommendationsWereShownRef = useRef(false);
@@ -319,9 +323,12 @@ export function SpySetupScreen({ navigation }: SpySetupScreenProps) {
   const handleEditPacks = useCallback(() => moveToStep(2), [moveToStep]);
   const handleEditOptions = useCallback(() => moveToStep(3), [moveToStep]);
   const handleStart = useCallback(() => {
-    if (!selectedCategoryId) {
+    if (!selectedCategoryId || isStartingRef.current) {
       return;
     }
+
+    isStartingRef.current = true;
+    setIsStarting(true);
 
     const packIds = [...selectedPackIds];
     const availableWordIds = getSpyLocationWordIds(packIds);
@@ -339,12 +346,16 @@ export function SpySetupScreen({ navigation }: SpySetupScreenProps) {
         },
         availableWordIds,
       });
+      playSetupStart();
       navigation.replace("SpyReveal");
     } catch (error: unknown) {
+      isStartingRef.current = false;
+      setIsStarting(false);
       console.warn("Failed to create Spy session", error);
     }
   }, [
     navigation,
+    playSetupStart,
     selectedCategoryId,
     selectedPackIds,
     selectedPlayerIds,
@@ -572,6 +583,7 @@ export function SpySetupScreen({ navigation }: SpySetupScreenProps) {
               onEditPacks={handleEditPacks}
               onEditOptions={handleEditOptions}
               onStart={handleStart}
+              startDisabled={isStarting}
             />
           )}
         </View>

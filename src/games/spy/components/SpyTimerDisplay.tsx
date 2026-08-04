@@ -10,6 +10,7 @@ import { useSpySession } from "@/games/spy/SpySessionProvider";
 import type { SpySession } from "@/games/spy/types";
 import { useLocalization } from "@/localization/LocalizationProvider";
 import { colors } from "@/theme/colors";
+import { useAppHaptics } from "@/haptics/useAppHaptics";
 
 const EXPIRED_PROGRESS_COLOR = "#FFD153";
 
@@ -26,6 +27,7 @@ export const SpyTimerDisplay = memo(function SpyTimerDisplay({
 }: SpyTimerDisplayProps) {
   const { t } = useLocalization();
   const { updateSession } = useSpySession();
+  const { playTimerExpired } = useAppHaptics();
   const [nowMilliseconds, setNowMilliseconds] = useState(() => Date.now());
   const timerState = useMemo(
     () => (session ? getSpyTimerState(session, nowMilliseconds) : null),
@@ -69,6 +71,7 @@ export const SpyTimerDisplay = memo(function SpyTimerDisplay({
       return;
     }
 
+    playTimerExpired();
     updateSession((currentSession) =>
       currentSession.id === session.id
         ? {
@@ -77,7 +80,7 @@ export const SpyTimerDisplay = memo(function SpyTimerDisplay({
           }
         : currentSession,
     );
-  }, [session, timerState?.kind, updateSession]);
+  }, [playTimerExpired, session, timerState?.kind, updateSession]);
 
   const label =
     timerState?.kind === "running"

@@ -9,6 +9,7 @@ import Animated, {
 import { ArrowIcon } from "@assets/icons";
 import { Squircle } from "@/components/Squircle";
 import { colors } from "@/theme/colors";
+import { useAppHaptics } from "@/haptics/useAppHaptics";
 
 type NavigationButtonProps = {
   label: string;
@@ -25,6 +26,7 @@ function NavigationButton({
   disabled = false,
   onPress,
 }: NavigationButtonProps) {
+  const { playNextStep } = useAppHaptics();
   const scale = useSharedValue(1);
   const isPrimary = variant === "primary";
 
@@ -38,7 +40,10 @@ function NavigationButton({
       accessibilityLabel={label}
       accessibilityState={{ disabled }}
       disabled={disabled}
-      onPress={onPress}
+      onPress={() => {
+        playNextStep();
+        onPress();
+      }}
       onPressIn={() => {
         scale.value = withTiming(0.97, { duration: 70 });
       }}

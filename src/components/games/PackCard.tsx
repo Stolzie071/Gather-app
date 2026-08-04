@@ -10,6 +10,7 @@ import Animated, {
 import { SelectionIndicator } from "@/components/SelectionIndicator";
 import { Squircle } from "@/components/Squircle";
 import { colors } from "@/theme/colors";
+import { useAppHaptics } from "@/haptics/useAppHaptics";
 
 type PackCardProps = {
   illustration: ReactNode;
@@ -28,6 +29,7 @@ export function PackCard({
   disabled = false,
   onPress,
 }: PackCardProps) {
+  const { playSelection } = useAppHaptics();
   const scale = useSharedValue(1);
 
   const animatedStyle = useAnimatedStyle(() => ({
@@ -40,7 +42,10 @@ export function PackCard({
       accessibilityLabel={title}
       accessibilityState={{ checked: selected, disabled }}
       disabled={disabled}
-      onPress={onPress}
+      onPress={() => {
+        playSelection();
+        onPress();
+      }}
       onPressIn={() => {
         scale.value = withTiming(0.97, { duration: 75 });
       }}

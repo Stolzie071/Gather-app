@@ -29,6 +29,7 @@ import { useSpySession } from "@/games/spy/SpySessionProvider";
 import { useLocalization } from "@/localization/LocalizationProvider";
 import type { RootStackParamList } from "@/navigation/types";
 import { colors } from "@/theme/colors";
+import { useAppHaptics } from "@/haptics/useAppHaptics";
 
 const DESIGN_WIDTH = 402;
 const DESIGN_HEIGHT = 874;
@@ -40,6 +41,7 @@ type SpyTimerScreenProps = BlankStackScreenProps<
 export function SpyTimerScreen({ navigation }: SpyTimerScreenProps) {
   const { t } = useLocalization();
   const { activeSession, clearSession, updateSession } = useSpySession();
+  const { playPrimaryAction } = useAppHaptics();
   const isFocused = useIsFocused();
   const insets = useSafeAreaInsets();
   const { width: screenWidth, height: screenHeight } = useWindowDimensions();
@@ -71,12 +73,13 @@ export function SpyTimerScreen({ navigation }: SpyTimerScreenProps) {
   }, []);
 
   const handleFinish = useCallback(() => {
+    playPrimaryAction();
     updateSession((session) => ({
       ...session,
       phase: "results",
     }));
     navigation.replace("SpyResults");
-  }, [navigation, updateSession]);
+  }, [navigation, playPrimaryAction, updateSession]);
 
   useEffect(() => {
     if (!activeSession && isFocused) {
@@ -202,6 +205,7 @@ export function SpyTimerScreen({ navigation }: SpyTimerScreenProps) {
 
       <BackButton
         onPress={handleRequestExit}
+        hapticFeedback={false}
         compact={isCompactScreen}
         style={{
           position: "absolute",

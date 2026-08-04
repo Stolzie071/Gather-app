@@ -5,6 +5,7 @@ import { ArrowIcon, PlayersIcon, TimeIcon } from "@assets/icons";
 
 import { Squircle } from "@/components/Squircle";
 import { colors } from "@/theme/colors";
+import { useAppHaptics } from "@/haptics/useAppHaptics";
 
 import Animated, {
   useAnimatedStyle,
@@ -28,6 +29,7 @@ export function GameCard({
   illustration,
   onPress,
 }: GameCardProps) {
+  const { playPrimaryAction } = useAppHaptics();
   const scale = useSharedValue(1);
 
   const animatedStyle = useAnimatedStyle(() => ({
@@ -35,7 +37,10 @@ export function GameCard({
   }));
   return (
     <Pressable
-      onPress={onPress}
+      onPress={() => {
+        playPrimaryAction();
+        onPress();
+      }}
       style={styles.pressable}
       accessibilityRole="button"
       onPressIn={() => {

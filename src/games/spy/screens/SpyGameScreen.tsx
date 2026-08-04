@@ -8,7 +8,7 @@ import {
 import type { BlankStackScreenProps } from "react-native-screen-transitions/blank-stack";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { colors } from "@/theme/colors";
 
 import {
@@ -37,6 +37,7 @@ import { Squircle } from "@/components/Squircle";
 import type { RootStackParamList } from "@/navigation/types";
 import { useFavorites } from "@/favorites/FavoritesProvider";
 import { useLocalization } from "@/localization/LocalizationProvider";
+import { useAppHaptics } from "@/haptics/useAppHaptics";
 
 const DESIGN_WIDTH = 402;
 const DESIGN_HEIGHT = 874;
@@ -47,6 +48,7 @@ type SpyGameScreenProps = BlankStackScreenProps<RootStackParamList, "SpyGame">;
 
 export function SpyGameScreen({ navigation }: SpyGameScreenProps) {
   const { t } = useLocalization();
+  const { playSuccess } = useAppHaptics();
   const insets = useSafeAreaInsets();
   const { width: screenWidth, height: screenHeight } = useWindowDimensions();
   const sceneScale = screenWidth / DESIGN_WIDTH;
@@ -64,6 +66,11 @@ export function SpyGameScreen({ navigation }: SpyGameScreenProps) {
     setHasOpenedSettings(true);
     setIsSettingsOpen(true);
   };
+
+  const handleStartGame = useCallback(() => {
+    playSuccess();
+    navigation.navigate("SpySetup");
+  }, [navigation, playSuccess]);
 
   return (
     <LinearGradient
@@ -200,7 +207,7 @@ export function SpyGameScreen({ navigation }: SpyGameScreenProps) {
             >
               <GameStartButton
                 text={t("spyGame.start")}
-                onPress={() => navigation.navigate("SpySetup")}
+                onPress={handleStartGame}
                 style={[
                   styles.startButton,
                   isCompactScreen && styles.startButtonCompact,

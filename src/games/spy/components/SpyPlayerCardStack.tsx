@@ -25,6 +25,7 @@ import { GameStartButton } from "@/components";
 import { Squircle } from "@/components/Squircle";
 import { useLocalization } from "@/localization/LocalizationProvider";
 import { colors } from "@/theme/colors";
+import { useAppHaptics } from "@/haptics/useAppHaptics";
 
 const REVEAL_DURATION = 320;
 const PASS_EXIT_DURATION = 260;
@@ -95,6 +96,7 @@ export const SpyPlayerCardStack = memo(function SpyPlayerCardStack({
   compact = false,
 }: SpyPlayerCardStackProps) {
   const { t } = useLocalization();
+  const { playPrimaryAction, playSetupStart } = useAppHaptics();
   const [phase, setPhase] = useState<CardPhase>(
     revealed ? "revealed" : "closed",
   );
@@ -177,6 +179,7 @@ export const SpyPlayerCardStack = memo(function SpyPlayerCardStack({
       return;
     }
 
+    playPrimaryAction();
     passProgress.value = 0;
     setPhase("revealing");
     animationFrameRef.current = requestAnimationFrame(() => {
@@ -194,7 +197,7 @@ export const SpyPlayerCardStack = memo(function SpyPlayerCardStack({
         },
       );
     });
-  }, [finishReveal, passProgress, phase, revealProgress]);
+  }, [finishReveal, passProgress, phase, playPrimaryAction, revealProgress]);
 
   const finishNextCardEntry = useCallback(() => {
     setPhase("closed");
@@ -211,6 +214,7 @@ export const SpyPlayerCardStack = memo(function SpyPlayerCardStack({
       return;
     }
 
+    playPrimaryAction();
     if (animationFrameRef.current !== null) {
       cancelAnimationFrame(animationFrameRef.current);
       animationFrameRef.current = null;
@@ -234,7 +238,12 @@ export const SpyPlayerCardStack = memo(function SpyPlayerCardStack({
         },
       );
     });
-  }, [finishPassExit, passProgress, phase]);
+  }, [finishPassExit, passProgress, phase, playPrimaryAction]);
+
+  const handleStartGame = useCallback(() => {
+    playSetupStart();
+    onStartGame();
+  }, [onStartGame, playSetupStart]);
 
   useEffect(() => {
     if (phase !== "waitingForNext") {
@@ -314,9 +323,9 @@ export const SpyPlayerCardStack = memo(function SpyPlayerCardStack({
                 {t("spyReveal.readyInstruction")}
               </Text>
 
-              <GameStartButton
-                text={t("spyReveal.startGame")}
-                onPress={onStartGame}
+                <GameStartButton
+                  text={t("spyReveal.startGame")}
+                  onPress={handleStartGame}
                 style={styles.readyStartButton}
                 textStyle={styles.passButtonText}
                 cornerRadius={10}

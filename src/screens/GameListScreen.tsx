@@ -1,4 +1,5 @@
 import {
+  ActivityIndicator,
   Image,
   StyleSheet,
   useWindowDimensions,
@@ -35,9 +36,13 @@ import {
 import type { RootStackParamList } from "@/navigation/types";
 import { useFavorites } from "@/favorites/FavoritesProvider";
 
-import { useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Animated, {
   Easing,
+  FadeIn,
+  FadeInDown,
+  FadeInLeft,
+  FadeOut,
   runOnJS,
   useAnimatedStyle,
   useSharedValue,
@@ -50,6 +55,7 @@ const DESIGN_WIDTH = 402;
 const DESIGN_HEIGHT = 874;
 const SURFACE_TOP = 169;
 const CARD_SHADOW_SPACE = 6;
+const CONTENT_REVEAL_DELAY = 370;
 function normalizeSearchValue(value: string) {
   return value.trim().toLocaleLowerCase().replaceAll("ё", "е");
 }
@@ -86,6 +92,11 @@ export function GameListScreen({ navigation }: GameListScreenProps) {
   const [activeTab, setActiveTab] = useState<GameListTab>("all");
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [hasOpenedSettings, setHasOpenedSettings] = useState(false);
+  const [isContentReady, setIsContentReady] = useState(false);
+  const [isHorizontalSwipeActive, setIsHorizontalSwipeActive] = useState(false);
+  const rasterizationTimerRef = useRef<ReturnType<typeof setTimeout> | null>(
+    null,
+  );
   const swipeProgress = useSharedValue(0);
   const swipeStartProgress = useSharedValue(0);
   const filteredGames = useMemo(
@@ -105,12 +116,64 @@ export function GameListScreen({ navigation }: GameListScreenProps) {
     transform: [{ translateX: -swipeProgress.value * screenWidth }],
   }));
 
+  useEffect(() => {
+    const revealTimer = setTimeout(() => {
+      setIsContentReady(true);
+    }, CONTENT_REVEAL_DELAY);
+
+    return () => clearTimeout(revealTimer);
+  }, []);
+
+  const beginHorizontalRasterization = useCallback(() => {
+    if (rasterizationTimerRef.current) {
+      clearTimeout(rasterizationTimerRef.current);
+      rasterizationTimerRef.current = null;
+    }
+
+    setIsHorizontalSwipeActive(true);
+  }, []);
+
+  const finishHorizontalRasterization = useCallback(() => {
+    if (rasterizationTimerRef.current) {
+      clearTimeout(rasterizationTimerRef.current);
+    }
+
+    rasterizationTimerRef.current = setTimeout(() => {
+      setIsHorizontalSwipeActive(false);
+      rasterizationTimerRef.current = null;
+    }, 80);
+  }, []);
+
+  const completeHorizontalSwipe = useCallback(
+    (tab: GameListTab) => {
+      setActiveTab(tab);
+      finishHorizontalRasterization();
+    },
+    [finishHorizontalRasterization],
+  );
+
+  useEffect(
+    () => () => {
+      if (rasterizationTimerRef.current) {
+        clearTimeout(rasterizationTimerRef.current);
+      }
+    },
+    [],
+  );
+
   const handleTabChange = (tab: GameListTab) => {
-    setActiveTab(tab);
-    swipeProgress.value = withTiming(tab === "all" ? 0 : 1, {
-      duration: 320,
-      easing: Easing.out(Easing.cubic),
-    });
+    swipeProgress.value = withTiming(
+      tab === "all" ? 0 : 1,
+      {
+        duration: 320,
+        easing: Easing.out(Easing.cubic),
+      },
+      (finished) => {
+        if (finished) {
+          runOnJS(setActiveTab)(tab);
+        }
+      },
+    );
   };
 
   const handleOpenSettings = () => {
@@ -124,6 +187,7 @@ export function GameListScreen({ navigation }: GameListScreenProps) {
         .activeOffsetX([-12, 12])
         .failOffsetY([-12, 12])
         .onBegin(() => {
+          runOnJS(beginHorizontalRasterization)();
           swipeStartProgress.value = swipeProgress.value;
         })
         .onUpdate((event) => {
@@ -137,29 +201,58 @@ export function GameListScreen({ navigation }: GameListScreenProps) {
             swipeProgress.value - (event.velocityX / screenWidth) * 0.15;
           const targetProgress = projectedProgress >= 0.5 ? 1 : 0;
 
-          swipeProgress.value = withTiming(targetProgress, {
-            duration: 260,
-            easing: Easing.out(Easing.cubic),
-          });
-
-          runOnJS(setActiveTab)(targetProgress === 0 ? "all" : "favorites");
+          swipeProgress.value = withTiming(
+            targetProgress,
+            {
+              duration: 260,
+              easing: Easing.out(Easing.cubic),
+            },
+            (finished) => {
+              if (finished) {
+                runOnJS(completeHorizontalSwipe)(
+                  targetProgress === 0 ? "all" : "favorites",
+                );
+              }
+            },
+          );
+        })
+        .onFinalize((_event, success) => {
+          if (!success) {
+            runOnJS(finishHorizontalRasterization)();
+          }
         }),
-    [screenWidth, swipeProgress, swipeStartProgress],
+    [
+      beginHorizontalRasterization,
+      completeHorizontalSwipe,
+      finishHorizontalRasterization,
+      screenWidth,
+      swipeProgress,
+      swipeStartProgress,
+    ],
   );
 
-  const renderGameCard = ({ item }: { item: Game }) => {
-    const Illustration = item.Illustration;
+  const renderGameCard = useCallback(
+    ({ item, index }: { item: Game; index: number }) => {
+      const Illustration = item.Illustration;
 
-    return (
-      <GameCard
-        title={t(item.titleKey)}
-        players={t(item.playersKey)}
-        duration={t(item.durationKey)}
-        illustration={<Illustration width={96} height={86} opacity={0.5} />}
-        onPress={() => navigation.navigate(item.route)}
-      />
-    );
-  };
+      return (
+        <Animated.View
+          entering={FadeInLeft.duration(220)
+            .delay(80 + Math.min(index, 7) * 45)
+            .easing(Easing.out(Easing.cubic))}
+        >
+          <GameCard
+            title={t(item.titleKey)}
+            players={t(item.playersKey)}
+            duration={t(item.durationKey)}
+            illustration={<Illustration width={96} height={86} opacity={0.5} />}
+            onPress={() => navigation.navigate(item.route)}
+          />
+        </Animated.View>
+      );
+    },
+    [navigation, t],
+  );
 
   return (
     <LinearGradient
@@ -222,15 +315,36 @@ export function GameListScreen({ navigation }: GameListScreenProps) {
           },
         ]}
       >
-        <SearchBar
-          value={searchQuery}
-          onChangeText={setSearchQuery}
-          placeholder={t("gameList.searchPlaceholder")}
-          style={styles.searchBar}
-        />
+        {!isContentReady && (
+          <Animated.View
+            entering={FadeIn.delay(120).duration(140)}
+            exiting={FadeOut.duration(100)}
+            style={styles.loadingState}
+          >
+            <ActivityIndicator size="small" color={colors.primary} />
+          </Animated.View>
+        )}
+
+        {isContentReady && (
+          <Animated.View
+            entering={FadeInDown.duration(220).easing(
+              Easing.out(Easing.cubic),
+            )}
+            style={styles.searchBar}
+          >
+            <SearchBar
+              value={searchQuery}
+              onChangeText={setSearchQuery}
+              placeholder={t("gameList.searchPlaceholder")}
+              style={styles.searchBarFill}
+            />
+          </Animated.View>
+        )}
       </View>
       <GestureDetector gesture={pagePanGesture}>
         <Animated.View
+          renderToHardwareTextureAndroid={isHorizontalSwipeActive}
+          shouldRasterizeIOS={isHorizontalSwipeActive}
           style={[
             styles.listsTrack,
             {
@@ -246,15 +360,20 @@ export function GameListScreen({ navigation }: GameListScreenProps) {
             style={{ width: screenWidth }}
           >
             <FlatList
-              data={filteredGames}
+              data={isContentReady ? filteredGames : []}
               keyExtractor={(item) => item.id}
               renderItem={renderGameCard}
               ListEmptyComponent={
-                <View style={styles.emptyList}>
-                  <Text style={styles.emptyListText}>
-                    {t("gameList.emptySearch")}
-                  </Text>
-                </View>
+                isContentReady ? (
+                  <Animated.View
+                    entering={FadeIn.duration(180)}
+                    style={styles.emptyList}
+                  >
+                    <Text style={styles.emptyListText}>
+                      {t("gameList.emptySearch")}
+                    </Text>
+                  </Animated.View>
+                ) : null
               }
               style={[
                 styles.gameList,
@@ -274,6 +393,9 @@ export function GameListScreen({ navigation }: GameListScreenProps) {
               ]}
               showsVerticalScrollIndicator={false}
               keyboardShouldPersistTaps="handled"
+              initialNumToRender={4}
+              maxToRenderPerBatch={4}
+              windowSize={5}
             />
           </View>
 
@@ -282,20 +404,25 @@ export function GameListScreen({ navigation }: GameListScreenProps) {
             style={{ width: screenWidth }}
           >
             <FlatList
-              data={filteredFavoriteGames}
+              data={isContentReady ? filteredFavoriteGames : []}
               keyExtractor={(item) => item.id}
               renderItem={renderGameCard}
               ListEmptyComponent={
-                <View style={styles.emptyList}>
-                  <Text style={styles.emptyListText}>
-                    {searchQuery.trim()
-                      ? t("gameList.emptySearch")
-                      : t("gameList.emptyFavorites")}
-                  </Text>
-                  {!searchQuery.trim() && (
-                    <Text style={styles.emptyFavoritesFace}>:(</Text>
-                  )}
-                </View>
+                isContentReady ? (
+                  <Animated.View
+                    entering={FadeIn.duration(180)}
+                    style={styles.emptyList}
+                  >
+                    <Text style={styles.emptyListText}>
+                      {searchQuery.trim()
+                        ? t("gameList.emptySearch")
+                        : t("gameList.emptyFavorites")}
+                    </Text>
+                    {!searchQuery.trim() && (
+                      <Text style={styles.emptyFavoritesFace}>:(</Text>
+                    )}
+                  </Animated.View>
+                ) : null
               }
               style={[
                 styles.gameList,
@@ -315,6 +442,9 @@ export function GameListScreen({ navigation }: GameListScreenProps) {
               ]}
               showsVerticalScrollIndicator={false}
               keyboardShouldPersistTaps="handled"
+              initialNumToRender={4}
+              maxToRenderPerBatch={4}
+              windowSize={5}
             />
           </View>
         </Animated.View>
@@ -475,6 +605,17 @@ const styles = StyleSheet.create({
     top: 289,
     left: 16,
     width: 370,
+  },
+  searchBarFill: {
+    width: "100%",
+  },
+  loadingState: {
+    position: "absolute",
+    top: 304,
+    right: 0,
+    left: 0,
+    alignItems: "center",
+    justifyContent: "center",
   },
   gameList: {
     position: "absolute",

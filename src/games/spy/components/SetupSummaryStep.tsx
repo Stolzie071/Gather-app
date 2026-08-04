@@ -17,6 +17,7 @@ import { Squircle } from "@/components/Squircle";
 import { getCountForm } from "@/localization/countForms";
 import { useLocalization } from "@/localization/LocalizationProvider";
 import { colors } from "@/theme/colors";
+import { useAppHaptics } from "@/haptics/useAppHaptics";
 
 const DESIGN_WIDTH = 402;
 const DESIGN_HEIGHT = 874;
@@ -29,11 +30,16 @@ type SummaryRowProps = {
 };
 
 function SummaryRow({ icon, title, value, onEdit }: SummaryRowProps) {
+  const { playSetupStart } = useAppHaptics();
+
   return (
     <Pressable
       accessibilityRole="button"
       accessibilityLabel={`${title}: ${value}`}
-      onPress={onEdit}
+      onPress={() => {
+        playSetupStart();
+        onEdit();
+      }}
       style={styles.summaryRow}
     >
       <Squircle
@@ -71,6 +77,7 @@ type SetupSummaryStepProps = {
   onEditPacks: () => void;
   onEditOptions: () => void;
   onStart: () => void;
+  startDisabled?: boolean;
 };
 
 export const SetupSummaryStep = memo(function SetupSummaryStep({
@@ -86,6 +93,7 @@ export const SetupSummaryStep = memo(function SetupSummaryStep({
   onEditPacks,
   onEditOptions,
   onStart,
+  startDisabled = false,
 }: SetupSummaryStepProps) {
   const { language, t } = useLocalization();
   const playerForm = getCountForm(playerCount, language);
@@ -177,6 +185,7 @@ export const SetupSummaryStep = memo(function SetupSummaryStep({
                 <GameStartButton
                   text={t("spySetup.summary.start")}
                   onPress={onStart}
+                  disabled={startDisabled}
                   style={styles.startButton}
                   textStyle={styles.startButtonText}
                   cornerRadius={10}
@@ -374,9 +383,10 @@ const styles = StyleSheet.create({
   editButton: {
     width: 32,
     height: 40,
-    marginLeft: 8,
+    marginLeft: 16,
     alignItems: "center",
     justifyContent: "center",
+    opacity: 0.7,
   },
 
   divider: {

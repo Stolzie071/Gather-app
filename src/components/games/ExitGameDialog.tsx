@@ -26,6 +26,7 @@ import { AlertIcon } from "@assets/icons";
 import { Squircle } from "@/components/Squircle";
 import { useLocalization } from "@/localization/LocalizationProvider";
 import { colors } from "@/theme/colors";
+import { useAppHaptics } from "@/haptics/useAppHaptics";
 
 type DialogButtonProps = {
   children: ReactNode;
@@ -70,6 +71,7 @@ type ExitGameDialogProps = {
   message?: string;
   stayLabel?: string;
   exitLabel?: string;
+  confirmColor?: string;
 };
 
 export function ExitGameDialog({
@@ -81,12 +83,15 @@ export function ExitGameDialog({
   message,
   stayLabel,
   exitLabel,
+  confirmColor = colors.primary,
 }: ExitGameDialogProps) {
   const { t } = useLocalization();
+  const { playWarning } = useAppHaptics();
   const { width: screenWidth } = useWindowDimensions();
   const [rendered, setRendered] = useState(visible);
   const visibilityProgress = useSharedValue(0);
   const onStayRef = useRef(onStay);
+  const wasVisible = useRef(false);
 
   const backdropStyle = useAnimatedStyle(() => ({
     opacity: visibilityProgress.value * 0.5,
@@ -113,10 +118,16 @@ export function ExitGameDialog({
   }, [onStay]);
 
   useEffect(() => {
+    if (visible && !wasVisible.current) {
+      playWarning();
+    }
+
+    wasVisible.current = visible;
+
     if (visible) {
       setRendered(true);
     }
-  }, [visible]);
+  }, [playWarning, visible]);
 
   useEffect(() => {
     if (!rendered) {
@@ -196,7 +207,7 @@ export function ExitGameDialog({
               <Squircle
                 style={styles.button}
                 cornerRadius={8}
-                fillColor={colors.primary}
+                fillColor={confirmColor}
               >
                 <Text style={styles.exitLabel}>{resolvedExitLabel}</Text>
               </Squircle>

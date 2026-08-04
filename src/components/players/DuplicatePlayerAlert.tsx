@@ -20,6 +20,7 @@ import { AlertIcon } from "@assets/icons";
 import { Squircle } from "@/components/Squircle";
 import { useLocalization } from "@/localization/LocalizationProvider";
 import { colors } from "@/theme/colors";
+import { useAppHaptics } from "@/haptics/useAppHaptics";
 
 const ALERT_HEIGHT = 244;
 
@@ -90,7 +91,9 @@ export function DuplicatePlayerAlert({
   busy = false,
 }: DuplicatePlayerAlertProps) {
   const { t } = useLocalization();
+  const { playWarning } = useAppHaptics();
   const [rendered, setRendered] = useState(visible);
+  const wasVisible = useRef(false);
   const onHiddenRef = useRef(onHidden);
   const visibilityProgress = useSharedValue(0);
 
@@ -124,10 +127,16 @@ export function DuplicatePlayerAlert({
   }, [onHidden]);
 
   useEffect(() => {
+    if (visible && !wasVisible.current) {
+      playWarning();
+    }
+
+    wasVisible.current = visible;
+
     if (visible) {
       setRendered(true);
     }
-  }, [visible]);
+  }, [playWarning, visible]);
 
   useEffect(() => {
     if (!rendered) {

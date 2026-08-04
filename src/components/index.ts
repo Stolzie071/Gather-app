@@ -24,6 +24,7 @@ export { PlayerSelectionSheet } from "./players/PlayerSelectionSheet";
 export { AddPlayerDialog } from "./players/AddPlayerDialog";
 export { DuplicatePlayerAlert } from "./players/DuplicatePlayerAlert";
 export { PlayerAvatarView } from "./players/PlayerAvatarView";
+export { PlayerAvatarPickerDialog } from "./players/PlayerAvatarPickerDialog";
 export { PlayerPhotoCropper } from "./players/PlayerPhotoCropper";
 export { PlayerPhotoSourceDialog } from "./players/PlayerPhotoSourceDialog";
 export { GameListTabs, type GameListTab } from "./games/GameListTabs";

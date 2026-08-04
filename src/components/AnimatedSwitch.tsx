@@ -9,6 +9,7 @@ import Animated, {
 } from "react-native-reanimated";
 
 import { colors } from "@/theme/colors";
+import { useAppHaptics } from "@/haptics/useAppHaptics";
 
 const THUMB_INSET = 2;
 const ANIMATION_DURATION = 160;
@@ -31,13 +32,16 @@ type AnimatedSwitchProps = {
   value: boolean;
   onValueChange: (nextValue: boolean) => void;
   compact?: boolean;
+  forceHaptic?: boolean;
 };
 
 export function AnimatedSwitch({
   value,
   onValueChange,
   compact = false,
+  forceHaptic = false,
 }: AnimatedSwitchProps) {
+  const { playToggleState } = useAppHaptics();
   const size = compact ? SWITCH_SIZES.compact : SWITCH_SIZES.regular;
 
   const thumbTravelDistance =
@@ -68,6 +72,7 @@ export function AnimatedSwitch({
     const nextValue = !visualValue.current;
     visualValue.current = nextValue;
     internallyRequestedValue.current = nextValue;
+    playToggleState(nextValue, forceHaptic);
 
     thumbTranslateX.value = withTiming(
       nextValue ? thumbTravelDistance : 0,
@@ -106,6 +111,7 @@ export function AnimatedSwitch({
   return (
     <Pressable
       onPress={handlePress}
+      hitSlop={{ top: 10, bottom: 10 }}
       style={[
         styles.track,
         {

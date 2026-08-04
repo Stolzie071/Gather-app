@@ -10,6 +10,7 @@ import Animated, {
 import { ArrowIcon } from "@assets/icons";
 import { Squircle } from "@/components/Squircle";
 import { colors } from "@/theme/colors";
+import { useAppHaptics } from "@/haptics/useAppHaptics";
 
 type CategoryCardProps = {
   icon: ReactNode;
@@ -26,6 +27,7 @@ export function CategoryCard({
   disabled = false,
   onPress,
 }: CategoryCardProps) {
+  const { playSelection } = useAppHaptics();
   const scale = useSharedValue(1);
 
   const animatedStyle = useAnimatedStyle(() => ({
@@ -38,7 +40,10 @@ export function CategoryCard({
       accessibilityLabel={title}
       accessibilityState={{ disabled }}
       disabled={disabled}
-      onPress={onPress}
+      onPress={() => {
+        playSelection();
+        onPress();
+      }}
       onPressIn={() => {
         scale.value = withTiming(0.97, { duration: 75 });
       }}

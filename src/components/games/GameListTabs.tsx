@@ -14,6 +14,7 @@ import Animated, {
 
 import { FavoritesIcon, TabDiceIcon } from "@assets/icons";
 import { colors } from "@/theme/colors";
+import { useAppHaptics } from "@/haptics/useAppHaptics";
 
 const INDICATOR_WIDTH = 46;
 const AnimatedTabDiceIcon = Animated.createAnimatedComponent(TabDiceIcon);
@@ -43,6 +44,7 @@ export function GameListTabs({
   swipeProgress,
   onTabChange,
 }: GameListTabsProps) {
+  const { playSelection } = useAppHaptics();
   const allIsActive = activeTab === "all";
   const favoritesIsActive = activeTab === "favorites";
   const [tabLayouts, setTabLayouts] = useState<
@@ -111,6 +113,15 @@ export function GameListTabs({
       }));
     };
 
+  const handleTabPress = (tab: GameListTab) => {
+    if (tab === activeTab) {
+      return;
+    }
+
+    playSelection();
+    onTabChange(tab);
+  };
+
   return (
     <View
       style={[
@@ -132,7 +143,7 @@ export function GameListTabs({
 
       <Pressable
         style={styles.tab}
-        onPress={() => onTabChange("all")}
+        onPress={() => handleTabPress("all")}
         onLayout={handleTabLayout("all")}
         accessibilityRole="tab"
         accessibilityState={{ selected: allIsActive }}
@@ -150,7 +161,7 @@ export function GameListTabs({
 
       <Pressable
         style={styles.tab}
-        onPress={() => onTabChange("favorites")}
+        onPress={() => handleTabPress("favorites")}
         onLayout={handleTabLayout("favorites")}
         accessibilityRole="tab"
         accessibilityState={{ selected: favoritesIsActive }}

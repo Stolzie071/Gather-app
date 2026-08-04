@@ -235,6 +235,7 @@ export function SpyRevealScreen({ navigation }: SpyRevealScreenProps) {
 
       <BackButton
         onPress={handleRequestExit}
+        hapticFeedback={false}
         compact={isCompactScreen}
         style={{
           position: "absolute",

@@ -32,6 +32,7 @@ import { getCountForm } from "@/localization/countForms";
 import { useLocalization } from "@/localization/LocalizationProvider";
 import { getSpySetupRecommendation } from "@/games/spy/logic/getSpySetupRecommendation";
 import { colors } from "@/theme/colors";
+import { useAppHaptics } from "@/haptics/useAppHaptics";
 
 const DESIGN_WIDTH = 402;
 const PAGE_HEADING_HEIGHT = 53;
@@ -158,6 +159,7 @@ export const GameOptionsStep = memo(function GameOptionsStep({
   onNext,
 }: GameOptionsStepProps) {
   const { language, t } = useLocalization();
+  const { playToggleState } = useAppHaptics();
   const [headingHeight, setHeadingHeight] = useState(PAGE_HEADING_HEIGHT);
   const recommendationsWereShownRef = useRef(recommendationsWereShown);
   const playersButtonScale = useSharedValue(1);
@@ -386,9 +388,16 @@ export const GameOptionsStep = memo(function GameOptionsStep({
                 rightLabel={t("spySetup.options.no")}
                 disabled={knowledgeDisabled}
                 compact
-                onValueChange={(value) =>
-                  onSpiesKnowEachOtherChange(value === "left")
-                }
+                onValueChange={(value) => {
+                  const nextValue = value === "left";
+
+                  if (nextValue === spiesKnowEachOther) {
+                    return;
+                  }
+
+                  playToggleState(nextValue);
+                  onSpiesKnowEachOtherChange(nextValue);
+                }}
               />
             </View>
           </Animated.View>

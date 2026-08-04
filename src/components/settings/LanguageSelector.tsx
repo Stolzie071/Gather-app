@@ -2,6 +2,7 @@ import {
   TwoOptionSelector,
   type TwoOptionValue,
 } from "@/components/TwoOptionSelector";
+import { useAppHaptics } from "@/haptics/useAppHaptics";
 
 export type Language = "ru" | "en";
 
@@ -16,8 +17,17 @@ export function LanguageSelector({
   onValueChange,
   compact = false,
 }: LanguageSelectorProps) {
+  const { playToggle } = useAppHaptics();
+
   const handleValueChange = (nextValue: TwoOptionValue) => {
-    onValueChange(nextValue === "left" ? "ru" : "en");
+    const nextLanguage = nextValue === "left" ? "ru" : "en";
+
+    if (nextLanguage === value) {
+      return;
+    }
+
+    playToggle();
+    onValueChange(nextLanguage);
   };
 
   return (

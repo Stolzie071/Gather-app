@@ -10,7 +10,10 @@ import {
 
 import { createPlayerProfile } from "@/players/playerUtils";
 import type { CreatePlayerInput, Player } from "@/players/types";
-import { clearStoredPlayerPhotos } from "@/storage/playerPhotoStorage";
+import {
+  clearStoredPlayerPhotos,
+  deleteStoredPlayerPhoto,
+} from "@/storage/playerPhotoStorage";
 import { loadPlayers, savePlayers } from "@/storage/playersStorage";
 
 type PlayersContextValue = {
@@ -18,6 +21,7 @@ type PlayersContextValue = {
   isPlayersLoaded: boolean;
   addPlayer: (input: CreatePlayerInput) => Player;
   commitPlayers: (players: readonly Player[]) => void;
+  deletePlayer: (playerId: string) => void;
   clearPlayers: () => void;
   clearPlayerPhotos: () => void;
 };
@@ -84,6 +88,25 @@ export function PlayersProvider({ children }: PropsWithChildren) {
     });
   }, []);
 
+  const deletePlayer = useCallback(
+    (playerId: string) => {
+      const playerToDelete = players.find((player) => player.id === playerId);
+
+      if (playerToDelete?.avatar.type === "photo") {
+        try {
+          deleteStoredPlayerPhoto(playerToDelete.avatar.fileName);
+        } catch (error: unknown) {
+          console.warn("Failed to delete player photo", error);
+        }
+      }
+
+      setPlayers((currentPlayers) =>
+        currentPlayers.filter((player) => player.id !== playerId),
+      );
+    },
+    [players],
+  );
+
   const clearPlayers = useCallback(() => {
     setPlayers([]);
   }, []);
@@ -110,6 +133,7 @@ export function PlayersProvider({ children }: PropsWithChildren) {
       isPlayersLoaded,
       addPlayer,
       commitPlayers,
+      deletePlayer,
       clearPlayers,
       clearPlayerPhotos,
     }),
@@ -118,6 +142,7 @@ export function PlayersProvider({ children }: PropsWithChildren) {
       clearPlayerPhotos,
       clearPlayers,
       commitPlayers,
+      deletePlayer,
       isPlayersLoaded,
       players,
     ],

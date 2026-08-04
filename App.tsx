@@ -17,6 +17,8 @@ import {
 } from "@react-navigation/native";
 import { createBlankStackNavigator } from "react-native-screen-transitions/blank-stack";
 import { GameListScreen } from "./src/screens/GameListScreen";
+import { StatisticsScreen } from "./src/screens/StatisticsScreen";
+import { PlayerStatisticsScreen } from "./src/screens/PlayerStatisticsScreen";
 import type { RootStackParamList } from "@/navigation/types";
 import {
   SpyGameScreen,
@@ -32,6 +34,7 @@ import { FavoritesProvider } from "@/favorites/FavoritesProvider";
 import { PlayersProvider } from "@/players/PlayersProvider";
 import { SettingsProvider } from "@/settings/SettingsProvider";
 import { SpySessionProvider } from "@/games/spy/SpySessionProvider";
+import { GameHistoryProvider } from "@/history/GameHistoryProvider";
 import { useSpySession } from "@/games/spy/SpySessionProvider";
 import { ExitGameDialog } from "@/components";
 import { StyleSheet, useWindowDimensions, View } from "react-native";
@@ -84,6 +87,16 @@ function AppNavigation() {
       >
         <Stack.Navigator initialRouteName="Home" nativeScreens={false}>
           <Stack.Screen name="Home" component={HomeScreen} />
+          <Stack.Screen
+            name="Statistics"
+            component={StatisticsScreen}
+            options={iosPageTransition}
+          />
+          <Stack.Screen
+            name="PlayerStatistics"
+            component={PlayerStatisticsScreen}
+            options={iosPageTransition}
+          />
           <Stack.Screen
             name="GameList"
             component={GameListScreen}
@@ -162,9 +175,11 @@ export default function App() {
           <LocalizationProvider>
             <FavoritesProvider>
               <PlayersProvider>
-                <SpySessionProvider>
-                  <AppNavigation />
-                </SpySessionProvider>
+                <GameHistoryProvider>
+                  <SpySessionProvider>
+                    <AppNavigation />
+                  </SpySessionProvider>
+                </GameHistoryProvider>
               </PlayersProvider>
             </FavoritesProvider>
           </LocalizationProvider>

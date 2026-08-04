@@ -1,5 +1,6 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
+import { isPlayerAvatarPresetId } from "@/players/avatarPresets";
 import type { Player, PlayerAvatar } from "@/players/types";
 
 const LEGACY_PLAYERS_KEY = "@gather/players";
@@ -16,6 +17,10 @@ function readPlayerAvatar(value: unknown): PlayerAvatar | null {
 
   if (value.type === "default") {
     return { type: "default" };
+  }
+
+  if (value.type === "preset" && isPlayerAvatarPresetId(value.id)) {
+    return { type: "preset", id: value.id };
   }
 
   if (

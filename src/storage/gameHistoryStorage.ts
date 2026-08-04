@@ -145,3 +145,13 @@ export function appendGameHistoryEntry(entry: GameHistoryEntry) {
 
   return operation.then(() => wasAdded);
 }
+
+export function clearGameHistory() {
+  const operation = writeQueue.then(() =>
+    AsyncStorage.removeItem(GAME_HISTORY_KEY),
+  );
+
+  writeQueue = operation.catch(() => undefined);
+
+  return operation;
+}

@@ -41,6 +41,7 @@ import { useLocalization } from "@/localization/LocalizationProvider";
 import { getComparablePlayerName } from "@/players/playerUtils";
 import type { CreatePlayerInput, Player } from "@/players/types";
 import { colors } from "@/theme/colors";
+import { useAppHaptics } from "@/haptics/useAppHaptics";
 
 const DESIGN_WINDOW_WIDTH = 370;
 const DESIGN_WINDOW_HEIGHT = 641;
@@ -186,6 +187,8 @@ export function PlayerSelectionSheet({
   onCreatePlayer,
 }: PlayerSelectionSheetProps) {
   const { language, t } = useLocalization();
+  const { playCompletion, playNextStep, playPrimaryAction, playSelection } =
+    useAppHaptics();
   const insets = useSafeAreaInsets();
   const { width: screenWidth, height: screenHeight } = useWindowDimensions();
   const [searchQuery, setSearchQuery] = useState("");
@@ -229,22 +232,25 @@ export function PlayerSelectionSheet({
   }));
 
   const handleClose = useCallback(() => {
+    playNextStep();
     Keyboard.dismiss();
     setIsAddDialogOpen(false);
     onClose();
-  }, [onClose]);
+  }, [onClose, playNextStep]);
 
   const handleConfirm = () => {
     if (!hasMinimumPlayers) {
       return;
     }
 
+    playCompletion();
     Keyboard.dismiss();
     onConfirm(draftPlayerIds);
     onClose();
   };
 
   const handlePlayerPress = useCallback((playerId: string) => {
+    playSelection();
     setDraftPlayerIds((currentIds) => {
       if (currentIds.includes(playerId)) {
         return currentIds.filter((id) => id !== playerId);
@@ -256,7 +262,7 @@ export function PlayerSelectionSheet({
 
       return [...currentIds, playerId];
     });
-  }, [maximumPlayers]);
+  }, [maximumPlayers, playSelection]);
 
   const renderPlayer = useCallback<ListRenderItem<Player>>(
     ({ item }) => {
@@ -277,6 +283,7 @@ export function PlayerSelectionSheet({
   const handleAddPlayer = (input: CreatePlayerInput) => {
     const player = onCreatePlayer(input);
 
+    playCompletion();
     setDraftPlayerIds((currentIds) =>
       currentIds.length < maximumPlayers
         ? [...currentIds, player.id]
@@ -448,6 +455,7 @@ export function PlayerSelectionSheet({
             <AnimatedButton
               disabled={isLoading}
               onPress={() => {
+                playPrimaryAction();
                 Keyboard.dismiss();
                 setHasOpenedAddDialog(true);
                 setIsAddDialogOpen(true);

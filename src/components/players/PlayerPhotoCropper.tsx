@@ -17,7 +17,7 @@ import Animated, {
   useSharedValue,
 } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import Svg, { Circle, Defs, Mask, Rect } from "react-native-svg";
+import Svg, { Circle } from "react-native-svg";
 
 import { Squircle } from "@/components/Squircle";
 import { useLocalization } from "@/localization/LocalizationProvider";
@@ -251,24 +251,31 @@ export function PlayerPhotoCropper({
           <View
             style={[styles.viewport, { width: cropSize, height: cropSize }]}
           >
-            <Animated.View
+            <View
               style={[
-                styles.imagePosition,
-                {
-                  width: baseImageWidth,
-                  height: baseImageHeight,
-                  left: (cropSize - baseImageWidth) / 2,
-                  top: (cropSize - baseImageHeight) / 2,
-                },
-                imageStyle,
+                styles.circularClip,
+                { borderRadius: cropSize / 2 },
               ]}
             >
-              <Image
-                source={{ uri: source.uri }}
-                resizeMode="cover"
-                style={StyleSheet.absoluteFillObject}
-              />
-            </Animated.View>
+              <Animated.View
+                style={[
+                  styles.imagePosition,
+                  {
+                    width: baseImageWidth,
+                    height: baseImageHeight,
+                    left: (cropSize - baseImageWidth) / 2,
+                    top: (cropSize - baseImageHeight) / 2,
+                  },
+                  imageStyle,
+                ]}
+              >
+                <Image
+                  source={{ uri: source.uri }}
+                  resizeMode="cover"
+                  style={StyleSheet.absoluteFillObject}
+                />
+              </Animated.View>
+            </View>
 
             <Svg
               pointerEvents="none"
@@ -276,36 +283,10 @@ export function PlayerPhotoCropper({
               height={cropSize}
               style={StyleSheet.absoluteFillObject}
             >
-              <Defs>
-                <Mask id="player-photo-crop-mask">
-                  <Rect
-                    x={0}
-                    y={0}
-                    width={cropSize}
-                    height={cropSize}
-                    fill="white"
-                  />
-                  <Circle
-                    cx={cropSize / 2}
-                    cy={cropSize / 2}
-                    r={cropSize / 2 - 2}
-                    fill="black"
-                  />
-                </Mask>
-              </Defs>
-
-              <Rect
-                x={0}
-                y={0}
-                width={cropSize}
-                height={cropSize}
-                fill="#171220"
-                mask="url(#player-photo-crop-mask)"
-              />
               <Circle
                 cx={cropSize / 2}
                 cy={cropSize / 2}
-                r={cropSize / 2 - 2}
+                r={cropSize / 2 - 1.5}
                 fill="none"
                 stroke={colors.primary}
                 strokeWidth={3}
@@ -398,6 +379,11 @@ const styles = StyleSheet.create({
   },
 
   viewport: {
+    position: "relative",
+  },
+
+  circularClip: {
+    ...StyleSheet.absoluteFillObject,
     overflow: "hidden",
     backgroundColor: "#000000",
   },

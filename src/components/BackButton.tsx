@@ -3,6 +3,7 @@ import { Pressable, StyleSheet } from "react-native";
 
 import { BackIcon } from "@assets/icons";
 import { colors } from "@/theme/colors";
+import { useAppHaptics } from "@/haptics/useAppHaptics";
 
 import Animated, {
   useAnimatedStyle,
@@ -15,13 +16,16 @@ type BackButtonProps = {
   onPress: () => void;
   style?: StyleProp<ViewStyle>;
   compact?: boolean;
+  hapticFeedback?: boolean;
 };
 
 export function BackButton({
   onPress,
   style,
   compact = false,
+  hapticFeedback = true,
 }: BackButtonProps) {
+  const { playTopAction } = useAppHaptics();
   const scale = useSharedValue(1);
 
   const animatedStyle = useAnimatedStyle(() => ({
@@ -29,7 +33,12 @@ export function BackButton({
   }));
   return (
     <Pressable
-      onPress={onPress}
+      onPress={() => {
+        if (hapticFeedback) {
+          playTopAction();
+        }
+        onPress();
+      }}
       style={style}
       hitSlop={8}
       onPressIn={() => {

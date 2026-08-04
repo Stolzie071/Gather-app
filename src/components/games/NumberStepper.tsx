@@ -7,6 +7,7 @@ import Animated, {
 } from "react-native-reanimated";
 
 import { colors } from "@/theme/colors";
+import { useAppHaptics } from "@/haptics/useAppHaptics";
 
 type StepperButtonProps = {
   operation: "decrease" | "increase";
@@ -70,12 +71,17 @@ export function NumberStepper({
   onDecrease,
   onIncrease,
 }: NumberStepperProps) {
+  const { playSelection } = useAppHaptics();
+
   return (
     <View style={styles.container}>
       <StepperButton
         operation="decrease"
         disabled={disabled || value <= minimum}
-        onPress={onDecrease}
+        onPress={() => {
+          playSelection();
+          onDecrease();
+        }}
       />
 
       <View style={styles.valueContainer}>
@@ -86,7 +92,10 @@ export function NumberStepper({
       <StepperButton
         operation="increase"
         disabled={disabled || value >= maximum}
-        onPress={onIncrease}
+        onPress={() => {
+          playSelection();
+          onIncrease();
+        }}
       />
     </View>
   );

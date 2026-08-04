@@ -32,15 +32,26 @@ import Animated, {
   withTiming,
 } from "react-native-reanimated";
 
-import { AvatarIcon, CameraIcon } from "@assets/icons";
+import { CameraIcon } from "@assets/icons";
 import { DuplicatePlayerAlert } from "@/components/players/DuplicatePlayerAlert";
+import { PlayerAvatarPickerDialog } from "@/components/players/PlayerAvatarPickerDialog";
 import { PlayerPhotoCropper } from "@/components/players/PlayerPhotoCropper";
 import { PlayerPhotoSourceDialog } from "@/components/players/PlayerPhotoSourceDialog";
 import { Squircle } from "@/components/Squircle";
 import { useLocalization } from "@/localization/LocalizationProvider";
-import { normalizePlayerName } from "@/players/playerUtils";
-import type { CreatePlayerInput } from "@/players/types";
 import {
+  DEFAULT_PLAYER_AVATAR_ID,
+  getPlayerAvatarPresetComponent,
+  PLAYER_AVATAR_PREVIEW_SOURCES,
+  QUICK_AVATAR_PRESET_IDS,
+} from "@/players/avatarPresets";
+import { normalizePlayerName } from "@/players/playerUtils";
+import type {
+  CreatePlayerInput,
+  PlayerAvatarPresetId,
+} from "@/players/types";
+import {
+  createPlayerPhotoPreview,
   createStoredPlayerPhoto,
   type PlayerPhotoSource,
 } from "@/storage/playerPhotoStorage";
@@ -48,7 +59,6 @@ import { colors } from "@/theme/colors";
 
 const DESIGN_DIALOG_WIDTH = 370;
 const DESIGN_DIALOG_HEIGHT = 344;
-const AVATAR_PLACEHOLDER_COUNT = 7;
 const KEYBOARD_GAP = 12;
 
 type DialogButtonProps = {
@@ -103,6 +113,7 @@ type AvatarOptionProps = {
   accessibilityLabel: string;
   children: ReactNode;
   onPress?: () => void;
+  role?: "button" | "radio";
 };
 
 function AvatarOption({
@@ -110,6 +121,7 @@ function AvatarOption({
   accessibilityLabel,
   children,
   onPress,
+  role = "radio",
 }: AvatarOptionProps) {
   const scale = useSharedValue(1);
   const animatedStyle = useAnimatedStyle(() => ({
@@ -118,9 +130,9 @@ function AvatarOption({
 
   return (
     <Pressable
-      accessibilityRole="radio"
+      accessibilityRole={role}
       accessibilityLabel={accessibilityLabel}
-      accessibilityState={{ checked: selected }}
+      accessibilityState={role === "radio" ? { checked: selected } : undefined}
       onPress={onPress}
       onPressIn={() => {
         scale.value = withTiming(0.92, { duration: 70 });
@@ -165,12 +177,17 @@ export function AddPlayerDialog({
   const insets = useSafeAreaInsets();
   const { width: screenWidth, height: screenHeight } = useWindowDimensions();
   const [name, setName] = useState("");
-  const [selectedAvatarIndex, setSelectedAvatarIndex] = useState(0);
+  const [selectedPresetId, setSelectedPresetId] =
+    useState<PlayerAvatarPresetId>(DEFAULT_PLAYER_AVATAR_ID);
+  const [quickPresetIds, setQuickPresetIds] = useState<
+    readonly PlayerAvatarPresetId[]
+  >(QUICK_AVATAR_PRESET_IDS);
   const [selectedPhoto, setSelectedPhoto] = useState<PlayerPhotoSource | null>(
     null,
   );
   const [cropSource, setCropSource] = useState<PlayerPhotoSource | null>(null);
   const [isPhotoSourceOpen, setIsPhotoSourceOpen] = useState(false);
+  const [isAvatarPickerOpen, setIsAvatarPickerOpen] = useState(false);
   const [isPhotoBusy, setIsPhotoBusy] = useState(false);
   const [duplicateName, setDuplicateName] = useState<string | null>(null);
   const [isDuplicateAlertOpen, setIsDuplicateAlertOpen] = useState(false);
@@ -210,6 +227,7 @@ export function AddPlayerDialog({
   const handleClose = useCallback(() => {
     Keyboard.dismiss();
     setIsPhotoSourceOpen(false);
+    setIsAvatarPickerOpen(false);
     setDuplicateName(null);
     onClose();
   }, [onClose]);
@@ -306,6 +324,50 @@ export function AddPlayerDialog({
     setIsPhotoSourceOpen(true);
   }, [isPhotoBusy]);
 
+  const handleMoreAvatarsPress = useCallback(() => {
+    Keyboard.dismiss();
+    setIsAvatarPickerOpen(true);
+  }, []);
+
+  const handlePresetAvatarSelect = useCallback(
+    (avatarId: PlayerAvatarPresetId) => {
+      setQuickPresetIds((currentIds) => {
+        if (currentIds.includes(avatarId)) {
+          return currentIds;
+        }
+
+        const selectedIndex = currentIds.indexOf(selectedPresetId);
+        const replacementIndex = selectedIndex >= 0 ? selectedIndex : 0;
+        const nextIds = [...currentIds];
+
+        nextIds[replacementIndex] = avatarId;
+        return nextIds;
+      });
+      setSelectedPresetId(avatarId);
+      setSelectedPhoto(null);
+      setIsAvatarPickerOpen(false);
+    },
+    [selectedPresetId],
+  );
+
+  const handleCropConfirm = useCallback(
+    async (croppedPhoto: PlayerPhotoSource) => {
+      try {
+        setIsPhotoBusy(true);
+        const previewUri = await createPlayerPhotoPreview(croppedPhoto);
+
+        setSelectedPhoto({ ...croppedPhoto, previewUri });
+        setCropSource(null);
+      } catch (error: unknown) {
+        console.warn("Failed to create player photo preview", error);
+        showPhotoError();
+      } finally {
+        setIsPhotoBusy(false);
+      }
+    },
+    [showPhotoError],
+  );
+
   const handleCameraSource = useCallback(() => {
     setIsPhotoSourceOpen(false);
     void handleTakePhoto();
@@ -323,7 +385,7 @@ export function AddPlayerDialog({
 
         const avatar = selectedPhoto
           ? await createStoredPlayerPhoto(selectedPhoto)
-          : { type: "default" as const };
+          : { type: "preset" as const, id: selectedPresetId };
 
         onAdd({ name: playerName, avatar });
       } catch (error: unknown) {
@@ -333,7 +395,7 @@ export function AddPlayerDialog({
         setIsPhotoBusy(false);
       }
     },
-    [onAdd, selectedPhoto, showPhotoError],
+    [onAdd, selectedPhoto, selectedPresetId, showPhotoError],
   );
 
   const handleAdd = useCallback(() => {
@@ -374,6 +436,14 @@ export function AddPlayerDialog({
   }, [onHidden]);
 
   useEffect(() => {
+    PLAYER_AVATAR_PREVIEW_SOURCES.forEach((source) => {
+      const uri = Image.resolveAssetSource(source).uri;
+
+      void Image.prefetch(uri).catch(() => false);
+    });
+  }, []);
+
+  useEffect(() => {
     addDialogOpacity.value = withTiming(isDuplicateAlertOpen ? 0 : 1, {
       duration: isDuplicateAlertOpen ? 100 : 120,
       easing: Easing.out(Easing.cubic),
@@ -386,10 +456,12 @@ export function AddPlayerDialog({
 
     if (justOpened) {
       setName("");
-      setSelectedAvatarIndex(0);
+      setSelectedPresetId(DEFAULT_PLAYER_AVATAR_ID);
+      setQuickPresetIds(QUICK_AVATAR_PRESET_IDS);
       setSelectedPhoto(null);
       setCropSource(null);
       setIsPhotoSourceOpen(false);
+      setIsAvatarPickerOpen(false);
       setIsPhotoBusy(false);
       setDuplicateName(null);
       setIsDuplicateAlertOpen(false);
@@ -483,7 +555,9 @@ export function AddPlayerDialog({
 
       <View pointerEvents="box-none" style={styles.dialogPositioner}>
         <Animated.View
-          pointerEvents={duplicateName ? "none" : "auto"}
+          pointerEvents={
+            duplicateName || isAvatarPickerOpen ? "none" : "auto"
+          }
           style={[{ width: dialogWidth, height: dialogHeight }, dialogStyle]}
         >
           <Squircle
@@ -516,7 +590,9 @@ export function AddPlayerDialog({
                 >
                   {selectedPhoto ? (
                     <Image
-                      source={{ uri: selectedPhoto.uri }}
+                      source={{
+                        uri: selectedPhoto.previewUri ?? selectedPhoto.uri,
+                      }}
                       resizeMode="cover"
                       style={styles.selectedPhoto}
                     />
@@ -527,26 +603,44 @@ export function AddPlayerDialog({
                   )}
                 </AvatarOption>
 
-                {Array.from(
-                  { length: AVATAR_PLACEHOLDER_COUNT },
-                  (_, index) => (
+                {quickPresetIds.map((avatarId) => {
+                  const PresetAvatar =
+                    getPlayerAvatarPresetComponent(avatarId);
+
+                  return (
                     <AvatarOption
-                      key={index}
+                      key={avatarId}
                       selected={
-                        selectedPhoto === null && selectedAvatarIndex === index
+                        selectedPhoto === null &&
+                        selectedPresetId === avatarId
                       }
                       accessibilityLabel={t(
                         "playerSelection.addDialog.defaultAvatar",
                       )}
                       onPress={() => {
                         setSelectedPhoto(null);
-                        setSelectedAvatarIndex(index);
+                        setSelectedPresetId(avatarId);
                       }}
                     >
-                      <AvatarIcon width={42} height={42} />
+                      <PresetAvatar width={42} height={42} />
                     </AvatarOption>
-                  ),
-                )}
+                  );
+                })}
+
+                <AvatarOption
+                  selected={false}
+                  accessibilityLabel={t(
+                    "playerSelection.addDialog.moreAvatars",
+                  )}
+                  onPress={handleMoreAvatarsPress}
+                  role="button"
+                >
+                  <View style={styles.moreAvatarOption}>
+                    <Text style={styles.moreAvatarLabel}>
+                      {t("playerSelection.addDialog.more")}
+                    </Text>
+                  </View>
+                </AvatarOption>
               </ScrollView>
 
               <Text style={styles.nameLabel}>
@@ -623,14 +717,18 @@ export function AddPlayerDialog({
           onCancel={() => setIsPhotoSourceOpen(false)}
         />
 
+        <PlayerAvatarPickerDialog
+          visible={visible && isAvatarPickerOpen}
+          selectedId={selectedPresetId}
+          onCancel={() => setIsAvatarPickerOpen(false)}
+          onSelect={handlePresetAvatarSelect}
+        />
+
         {cropSource && (
           <PlayerPhotoCropper
             source={cropSource}
             onCancel={() => setCropSource(null)}
-            onConfirm={(croppedPhoto) => {
-              setSelectedPhoto(croppedPhoto);
-              setCropSource(null);
-            }}
+            onConfirm={(croppedPhoto) => void handleCropConfirm(croppedPhoto)}
           />
         )}
       </View>
@@ -718,6 +816,22 @@ const styles = StyleSheet.create({
     width: 42,
     height: 42,
     borderRadius: 21,
+  },
+
+  moreAvatarOption: {
+    width: 42,
+    height: 42,
+    borderRadius: 21,
+    backgroundColor: colors.secondary3,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+
+  moreAvatarLabel: {
+    color: colors.primary,
+    fontFamily: "Nunito_700Bold",
+    fontSize: 10,
+    lineHeight: 14,
   },
 
   nameLabel: {

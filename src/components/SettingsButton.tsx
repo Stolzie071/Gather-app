@@ -1,6 +1,7 @@
 import { Pressable, StyleSheet, StyleProp, ViewStyle } from "react-native";
 import SettingsIcon from "../../assets/icons/Settings_but.svg";
 import { colors } from "../theme/colors";
+import { useAppHaptics } from "@/haptics/useAppHaptics";
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
@@ -19,6 +20,7 @@ export function SettingsButton({
   style,
   compact = false,
 }: SettingsButtonProps) {
+  const { playTopAction } = useAppHaptics();
   const scale = useSharedValue(1);
   const rotate = useSharedValue(0);
 
@@ -28,7 +30,10 @@ export function SettingsButton({
 
   return (
     <Pressable
-      onPress={onPress}
+      onPress={() => {
+        playTopAction();
+        onPress();
+      }}
       style={style}
       onPressIn={() => {
         scale.value = withTiming(0.92, { duration: 70 });

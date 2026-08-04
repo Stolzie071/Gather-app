@@ -6,9 +6,11 @@ import {
   ScrollView,
   Dimensions,
   BackHandler,
+  Platform,
 } from "react-native";
+import * as Haptics from "expo-haptics";
 import { colors } from "../theme/colors";
-import { useCallback, useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import { SettingsSection } from "@/components/settings/SettingsSection";
 import { SettingsRow } from "@/components/settings/SettingsRow";
@@ -34,6 +36,10 @@ import { LanguageSelector } from "@/components/settings/LanguageSelector";
 import { useLocalization } from "@/localization/LocalizationProvider";
 import { usePlayers } from "@/players/PlayersProvider";
 import { useSettings } from "@/settings/SettingsProvider";
+import {
+  clearGameHistory,
+  loadGameHistory,
+} from "@/storage/gameHistoryStorage";
 
 import Animated, {
   useSharedValue,
@@ -52,6 +58,86 @@ type SettingsSheetProps = {
 const SCREEN_HEIGHT = Dimensions.get("window").height;
 const HIDDEN_POSITION = SCREEN_HEIGHT + 10;
 
+type HapticTest = {
+  titleKey: string;
+  run: () => Promise<void>;
+};
+
+const COMMON_HAPTIC_TESTS: HapticTest[] = [
+  {
+    titleKey: "settings.hapticTests.selection",
+    run: () => Haptics.selectionAsync(),
+  },
+  {
+    titleKey: "settings.hapticTests.impactLight",
+    run: () => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light),
+  },
+  {
+    titleKey: "settings.hapticTests.impactMedium",
+    run: () => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium),
+  },
+  {
+    titleKey: "settings.hapticTests.impactHeavy",
+    run: () => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy),
+  },
+  {
+    titleKey: "settings.hapticTests.impactSoft",
+    run: () => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Soft),
+  },
+  {
+    titleKey: "settings.hapticTests.impactRigid",
+    run: () => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Rigid),
+  },
+  {
+    titleKey: "settings.hapticTests.notificationSuccess",
+    run: () =>
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success),
+  },
+  {
+    titleKey: "settings.hapticTests.notificationWarning",
+    run: () =>
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning),
+  },
+  {
+    titleKey: "settings.hapticTests.notificationError",
+    run: () =>
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error),
+  },
+];
+
+const ANDROID_HAPTIC_TESTS: HapticTest[] = [
+  {
+    titleKey: "settings.hapticTests.androidConfirm",
+    run: () =>
+      Haptics.performAndroidHapticsAsync(Haptics.AndroidHaptics.Confirm),
+  },
+  {
+    titleKey: "settings.hapticTests.androidReject",
+    run: () =>
+      Haptics.performAndroidHapticsAsync(Haptics.AndroidHaptics.Reject),
+  },
+  {
+    titleKey: "settings.hapticTests.androidToggleOn",
+    run: () =>
+      Haptics.performAndroidHapticsAsync(Haptics.AndroidHaptics.Toggle_On),
+  },
+  {
+    titleKey: "settings.hapticTests.androidToggleOff",
+    run: () =>
+      Haptics.performAndroidHapticsAsync(Haptics.AndroidHaptics.Toggle_Off),
+  },
+  {
+    titleKey: "settings.hapticTests.androidSegmentTick",
+    run: () =>
+      Haptics.performAndroidHapticsAsync(Haptics.AndroidHaptics.Segment_Tick),
+  },
+  {
+    titleKey: "settings.hapticTests.androidClockTick",
+    run: () =>
+      Haptics.performAndroidHapticsAsync(Haptics.AndroidHaptics.Clock_Tick),
+  },
+];
+
 function DeveloperSlashIcon() {
   return (
     <View style={styles.developerIcon}>
@@ -69,6 +155,7 @@ export function SettingsSheet({
   const { language, setLanguage, t } = useLocalization();
   const { settings, updateSetting } = useSettings();
   const { clearPlayers, clearPlayerPhotos } = usePlayers();
+  const [savedGameCount, setSavedGameCount] = useState(0);
 
   const translateY = useSharedValue(HIDDEN_POSITION);
   const onHiddenRef = useRef(onHidden);
@@ -79,6 +166,36 @@ export function SettingsSheet({
   useEffect(() => {
     onHiddenRef.current = onHidden;
   }, [onHidden]);
+
+  useEffect(() => {
+    if (!visible || !__DEV__) {
+      return;
+    }
+
+    let isActive = true;
+
+    loadGameHistory()
+      .then((history) => {
+        if (isActive) {
+          setSavedGameCount(history.length);
+        }
+      })
+      .catch((error: unknown) => {
+        console.warn("Failed to load game history", error);
+      });
+
+    return () => {
+      isActive = false;
+    };
+  }, [visible]);
+
+  const handleClearGameHistory = useCallback(() => {
+    clearGameHistory()
+      .then(() => setSavedGameCount(0))
+      .catch((error: unknown) => {
+        console.warn("Failed to clear game history", error);
+      });
+  }, []);
 
   const animatedStyle = useAnimatedStyle(() => {
     return {
@@ -215,6 +332,7 @@ export function SettingsSheet({
               rightContent={
                 <AnimatedSwitch
                   value={settings.hapticsEnabled}
+                  forceHaptic
                   onValueChange={(value) =>
                     updateSetting("hapticsEnabled", value)
                   }
@@ -322,19 +440,49 @@ export function SettingsSheet({
             />
           </SettingsSection>
           {__DEV__ && (
-            <SettingsSection title={t("settings.sections.developer")}>
-              <SettingsRow
-                icon={<DeveloperSlashIcon />}
-                title={t("settings.items.clearPlayers")}
-                showDivider
-                onPress={clearPlayers}
-              />
-              <SettingsRow
-                icon={<DeveloperSlashIcon />}
-                title={t("settings.items.clearPhotos")}
-                onPress={clearPlayerPhotos}
-              />
-            </SettingsSection>
+            <>
+              <SettingsSection title={t("settings.sections.developer")}>
+                <SettingsRow
+                  icon={<DeveloperSlashIcon />}
+                  title={t("settings.items.clearPlayers")}
+                  showDivider
+                  onPress={clearPlayers}
+                />
+                <SettingsRow
+                  icon={<DeveloperSlashIcon />}
+                  title={t("settings.items.clearPhotos")}
+                  showDivider
+                  onPress={clearPlayerPhotos}
+                />
+                <SettingsRow
+                  icon={<DeveloperSlashIcon />}
+                  title={t("settings.items.savedGames", {
+                    count: savedGameCount,
+                  })}
+                  showDivider
+                />
+                <SettingsRow
+                  icon={<DeveloperSlashIcon />}
+                  title={t("settings.items.clearGameHistory")}
+                  onPress={handleClearGameHistory}
+                />
+              </SettingsSection>
+
+              <SettingsSection title={t("settings.sections.hapticTests")}>
+                {[
+                  ...COMMON_HAPTIC_TESTS,
+                  ...(Platform.OS === "android" ? ANDROID_HAPTIC_TESTS : []),
+                ].map((test, index, tests) => (
+                  <SettingsRow
+                    key={test.titleKey}
+                    icon={<VibrationIcon width={36} height={36} />}
+                    title={t(test.titleKey)}
+                    showDivider={index < tests.length - 1}
+                    onPress={() => void test.run()}
+                  />
+                ))}
+              </SettingsSection>
+            </>
           )}
         </ScrollView>
       </Animated.View>

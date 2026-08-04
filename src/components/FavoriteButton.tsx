@@ -9,6 +9,7 @@ import Animated, {
 
 import { FavoriteFillIcon, FavoriteOutlineIcon } from "@assets/icons";
 import { colors } from "@/theme/colors";
+import { useAppHaptics } from "@/haptics/useAppHaptics";
 
 type FavoriteButtonProps = {
   onPress: () => void;
@@ -23,6 +24,7 @@ export function FavoriteButton({
   compact = false,
   active = false,
 }: FavoriteButtonProps) {
+  const { playToggleState } = useAppHaptics();
   const scale = useSharedValue(1);
   const Icon = active ? FavoriteFillIcon : FavoriteOutlineIcon;
 
@@ -32,7 +34,10 @@ export function FavoriteButton({
 
   return (
     <Pressable
-      onPress={onPress}
+      onPress={() => {
+        playToggleState(!active);
+        onPress();
+      }}
       style={style}
       hitSlop={8}
       accessibilityRole="button"

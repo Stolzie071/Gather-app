@@ -22,6 +22,7 @@ import {
 import { ArrowIcon, CupIcon, DiceIcon } from "@assets/icons";
 import { colors } from "@/theme/colors";
 import { useLocalization } from "@/localization/LocalizationProvider";
+import { useAppHaptics } from "@/haptics/useAppHaptics";
 
 import {
   Dice_decor,
@@ -58,6 +59,7 @@ export function HomeScreen({ navigation }: HomeScreenProps) {
   const insets = useSafeAreaInsets();
   const { width: screenWidth, height: screenHeight } = useWindowDimensions();
   const { t } = useLocalization();
+  const { playPrimaryAction } = useAppHaptics();
 
   const waveScale = (screenWidth + WAVE_SIDE_OVERFLOW * 2) / WAVE_WIDTH;
   const verticalScale = Math.min(screenHeight / DESIGN_HEIGHT, 1);
@@ -148,7 +150,10 @@ export function HomeScreen({ navigation }: HomeScreenProps) {
         >
           <Button
             text={t("home.play")}
-            onPress={() => navigation.navigate("GameList")}
+            onPress={() => {
+              playPrimaryAction();
+              navigation.navigate("GameList");
+            }}
             compact={isCompactScreen}
             icon={<DiceIcon width={buttonIconSize} height={buttonIconSize} />}
             rightIcon={
@@ -161,7 +166,10 @@ export function HomeScreen({ navigation }: HomeScreenProps) {
           />
           <Button
             text={t("home.statistics")}
-            onPress={() => {}}
+            onPress={() => {
+              playPrimaryAction();
+              navigation.navigate("Statistics");
+            }}
             variant="secondary"
             compact={isCompactScreen}
             icon={<CupIcon width={buttonIconSize} height={buttonIconSize} />}
@@ -274,7 +282,7 @@ const styles = StyleSheet.create({
   Dice_guy: {
     position: "absolute",
     left: 131,
-    top: -64,
+    top: -70,
   },
 
   Hand: {

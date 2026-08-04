@@ -46,6 +46,7 @@ import { usePlayers } from "@/players/PlayersProvider";
 import type { PlayerAvatar } from "@/players/types";
 import { appendGameHistoryEntry } from "@/storage/gameHistoryStorage";
 import { colors } from "@/theme/colors";
+import { useAppHaptics } from "@/haptics/useAppHaptics";
 
 const DESIGN_WIDTH = 402;
 const PANEL_TOP = 250;
@@ -142,6 +143,7 @@ export function SpyResultsScreen({ navigation }: SpyResultsScreenProps) {
   const { t } = useLocalization();
   const { players } = usePlayers();
   const { activeSession, clearSession, updateSession } = useSpySession();
+  const { playCompletion, playSelection } = useAppHaptics();
   const isFocused = useIsFocused();
   const insets = useSafeAreaInsets();
   const { width: screenWidth, height: screenHeight } = useWindowDimensions();
@@ -203,6 +205,7 @@ export function SpyResultsScreen({ navigation }: SpyResultsScreenProps) {
   }, []);
 
   const handleToggleWinner = useCallback((playerId: string) => {
+    playSelection();
     updateSession((session) => {
       if (!session.draft.playerIds.includes(playerId)) {
         return session;
@@ -221,7 +224,7 @@ export function SpyResultsScreen({ navigation }: SpyResultsScreenProps) {
         winnerIds: [...nextIds],
       };
     });
-  }, [updateSession]);
+  }, [playSelection, updateSession]);
 
   const handleDone = useCallback(async () => {
     if (
@@ -239,6 +242,7 @@ export function SpyResultsScreen({ navigation }: SpyResultsScreenProps) {
       const historyEntry = createSpyGameHistoryEntry(activeSession);
 
       await appendGameHistoryEntry(historyEntry);
+      playCompletion();
       clearSession();
       navigation.popTo("SpyGame");
     } catch (error: unknown) {
@@ -246,7 +250,7 @@ export function SpyResultsScreen({ navigation }: SpyResultsScreenProps) {
       isSavingResultRef.current = false;
       setIsSavingResult(false);
     }
-  }, [activeSession, clearSession, navigation]);
+  }, [activeSession, clearSession, navigation, playCompletion]);
 
   useEffect(() => {
     if (!activeSession && isFocused) {
@@ -390,6 +394,7 @@ export function SpyResultsScreen({ navigation }: SpyResultsScreenProps) {
 
       <BackButton
         onPress={handleRequestExit}
+        hapticFeedback={false}
         compact={isCompactScreen}
         style={{
           position: "absolute",
@@ -529,8 +534,8 @@ const styles = StyleSheet.create({
   topListFade: {
     position: "absolute",
     top: 10,
-    right: 0,
-    left: 0,
+    right: 16,
+    left: 16,
     height: 8,
   },
 
