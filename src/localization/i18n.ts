@@ -3,42 +3,54 @@ import { I18n } from "i18n-js";
 
 import { en } from "./translations/en";
 import { ru } from "./translations/ru";
-import {
-  enSpyContentTranslations,
-  ruSpyContentTranslations,
-} from "./translations/spyContent";
 
 export type Language = "ru" | "en";
 
+const ruTranslations = {
+  ...ru,
+  spySetup: {
+    ...ru.spySetup,
+    packs: {
+      ...ru.spySetup.packs,
+      charactersSubtitle: "Из каких наборов будут выбраны персонажи?",
+      characterCount: {
+        one: "%{count} персонаж",
+        few: "%{count} персонажа",
+        many: "%{count} персонажей",
+        other: "%{count} персонажей",
+      },
+      items: {
+        ...ru.spySetup.packs.items,
+        "dota-2-heroes": "Герои Dota 2",
+      },
+    },
+  },
+};
+
+const enTranslations = {
+  ...en,
+  spySetup: {
+    ...en.spySetup,
+    packs: {
+      ...en.spySetup.packs,
+      charactersSubtitle: "Which packs should the characters come from?",
+      characterCount: {
+        one: "%{count} character",
+        few: "%{count} characters",
+        many: "%{count} characters",
+        other: "%{count} characters",
+      },
+      items: {
+        ...en.spySetup.packs.items,
+        "dota-2-heroes": "Dota 2 Heroes",
+      },
+    },
+  },
+};
+
 export const i18n = new I18n({
-  ru: {
-    ...ru,
-    spySetup: {
-      ...ru.spySetup,
-      packs: {
-        ...ru.spySetup.packs,
-        ...ruSpyContentTranslations.packs,
-        items: {
-          ...ru.spySetup.packs.items,
-          ...ruSpyContentTranslations.packs.items,
-        },
-      },
-    },
-  },
-  en: {
-    ...en,
-    spySetup: {
-      ...en.spySetup,
-      packs: {
-        ...en.spySetup.packs,
-        ...enSpyContentTranslations.packs,
-        items: {
-          ...en.spySetup.packs.items,
-          ...enSpyContentTranslations.packs.items,
-        },
-      },
-    },
-  },
+  ru: ruTranslations,
+  en: enTranslations,
 });
 
 i18n.defaultLocale = "ru";
