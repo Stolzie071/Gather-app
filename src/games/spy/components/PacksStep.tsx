@@ -42,14 +42,6 @@ type PacksStepProps = {
   onNext: () => void;
 };
 
-function getPackTitle(packId: string, translate: (key: string) => string) {
-  if (packId === "dota-2-heroes") {
-    return "Герои Dota 2";
-  }
-
-  return translate(`spySetup.packs.items.${packId}`);
-}
-
 export const PacksStep = memo(function PacksStep({
   top,
   sceneScale,
@@ -105,9 +97,11 @@ export const PacksStep = memo(function PacksStep({
         >
           <Text style={styles.pageTitle}>{t("spySetup.packs.title")}</Text>
           <Text style={styles.pageSubtitle}>
-            {showsCharacterPacks
-              ? "Из каких наборов будут выбраны персонажи?"
-              : t("spySetup.packs.subtitle")}
+            {t(
+              showsCharacterPacks
+                ? "spySetup.packs.charactersSubtitle"
+                : "spySetup.packs.subtitle",
+            )}
           </Text>
         </View>
       </View>
@@ -118,12 +112,13 @@ export const PacksStep = memo(function PacksStep({
         renderItem={({ item: { id, Illustration, wordCount, enabled } }) => (
           <PackCard
             illustration={<Illustration width={116} height={84} />}
-            title={getPackTitle(id, t)}
-            wordCountLabel={
+            title={t(`spySetup.packs.items.${id}`)}
+            wordCountLabel={t(
               showsCharacterPacks
-                ? `${wordCount} слов`
-                : t("spySetup.packs.locationCount", { count: wordCount })
-            }
+                ? "spySetup.packs.characterCount"
+                : "spySetup.packs.locationCount",
+              { count: wordCount },
+            )}
             selected={selectedPackIds.has(id)}
             disabled={!enabled}
             onPress={() => onPackPress(id)}
