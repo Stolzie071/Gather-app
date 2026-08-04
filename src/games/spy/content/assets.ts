@@ -14,7 +14,12 @@ import {
   SpySupermarketLocation,
   SpyTrainStationLocation,
 } from "@assets/Spy_game";
-import { WorkplacesPackIllustration } from "@assets/Spy_game/Packs_page";
+import {
+  CitiesPackIllustration,
+  NaturePackIllustration,
+  TransportPackIllustration,
+  WorkplacesPackIllustration,
+} from "@assets/Spy_game/Packs_page";
 
 export const SPY_WORD_IMAGES = {
   cinema: SpyCinemaLocation,
@@ -31,6 +36,9 @@ export const SPY_WORD_IMAGES = {
 
 export const SPY_PACK_ILLUSTRATIONS = {
   workplaces: WorkplacesPackIllustration,
+  nature: NaturePackIllustration,
+  transport: TransportPackIllustration,
+  cities: CitiesPackIllustration,
 } as const satisfies Record<string, ComponentType<SvgProps>>;
 
 export type SpyWordImageKey = keyof typeof SPY_WORD_IMAGES;
