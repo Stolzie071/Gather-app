@@ -7,8 +7,33 @@ import { createSpyContentRegistry } from "./registry";
 import type { SpyContentPackSource } from "./types";
 import workplacesSource from "./ru/locations/workplaces.json";
 
+const PLACEHOLDER_LOCATION_PACKS = [
+  {
+    id: "nature",
+    categoryId: "locations",
+    enabled: false,
+    illustrationKey: "nature",
+    words: [],
+  },
+  {
+    id: "transport",
+    categoryId: "locations",
+    enabled: false,
+    illustrationKey: "transport",
+    words: [],
+  },
+  {
+    id: "cities",
+    categoryId: "locations",
+    enabled: false,
+    illustrationKey: "cities",
+    words: [],
+  },
+] as const satisfies readonly SpyContentPackSource[];
+
 const BUILT_IN_PACK_SOURCES = [
   workplacesSource,
+  ...PLACEHOLDER_LOCATION_PACKS,
 ] as readonly SpyContentPackSource[];
 
 function validateBuiltInAssets(
