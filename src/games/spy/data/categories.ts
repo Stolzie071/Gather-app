@@ -7,57 +7,49 @@ import {
   MySetsCategoryIcon,
   OtherCategoryIcon,
 } from "@assets/Spy_game/icons";
+import { SPY_CONTENT_CATEGORIES } from "@/games/spy/content/categories";
 
-export const SPY_CATEGORIES = [
-  {
-    id: "locations",
+const CATEGORY_VISUALS = {
+  locations: {
     Icon: LocationsCategoryIcon,
     width: 32,
     height: 42,
-    enabled: true,
   },
-  {
-    id: "characters",
+  characters: {
     Icon: CharactersCategoryIcon,
     width: 48,
     height: 42,
-    enabled: false,
   },
-  {
-    id: "items",
+  items: {
     Icon: ItemsCategoryIcon,
     width: 47,
     height: 43,
-    enabled: false,
   },
-  {
-    id: "animals",
+  animals: {
     Icon: AnimalsCategoryIcon,
     width: 42,
     height: 44,
-    enabled: false,
   },
-  {
-    id: "professions",
+  professions: {
     Icon: CareerCategoryIcon,
     width: 42,
     height: 46,
-    enabled: false,
   },
-  {
-    id: "other",
+  other: {
     Icon: OtherCategoryIcon,
     width: 37,
     height: 47,
-    enabled: false,
   },
-  {
-    id: "mySets",
+  mySets: {
     Icon: MySetsCategoryIcon,
     width: 42,
     height: 44,
-    enabled: false,
   },
-] as const;
+} as const;
 
-export type SpyCategoryId = (typeof SPY_CATEGORIES)[number]["id"];
+export const SPY_CATEGORIES = SPY_CONTENT_CATEGORIES.map((category) => ({
+  ...category,
+  ...CATEGORY_VISUALS[category.id],
+}));
+
+export type SpyCategoryId = (typeof SPY_CONTENT_CATEGORIES)[number]["id"];
