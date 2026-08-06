@@ -18,7 +18,7 @@ export const SPY_CONTENT_CATEGORIES = [
   },
   {
     id: "animals",
-    enabled: false,
+    enabled: true,
     presentation: "text",
   },
   {
