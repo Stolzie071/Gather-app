@@ -13,6 +13,7 @@ const ruTranslations = {
     packs: {
       ...ru.spySetup.packs,
       charactersSubtitle: "Из каких наборов будут выбраны персонажи?",
+      animalsSubtitle: "Из каких наборов будут выбраны животные?",
       locationCount: {
         one: "%{count} локация",
         few: "%{count} локации",
@@ -25,11 +26,19 @@ const ruTranslations = {
         many: "%{count} персонажей",
         other: "%{count} персонажей",
       },
+      animalCount: {
+        one: "%{count} животное",
+        few: "%{count} животных",
+        many: "%{count} животных",
+        other: "%{count} животных",
+      },
       items: {
         ...ru.spySetup.packs.items,
         "dota-2-heroes": "Герои Dota 2",
         "marvel-cinematic-universe": "Персонажи Marvel",
         "dc-screen-characters": "Персонажи DC",
+        "domestic-animals": "Домашние животные",
+        "wild-animals": "Дикие животные",
       },
     },
   },
@@ -42,6 +51,7 @@ const enTranslations = {
     packs: {
       ...en.spySetup.packs,
       charactersSubtitle: "Which packs should the characters come from?",
+      animalsSubtitle: "Which packs should the animals come from?",
       locationCount: {
         one: "%{count} location",
         few: "%{count} locations",
@@ -54,11 +64,19 @@ const enTranslations = {
         many: "%{count} characters",
         other: "%{count} characters",
       },
+      animalCount: {
+        one: "%{count} animal",
+        few: "%{count} animals",
+        many: "%{count} animals",
+        other: "%{count} animals",
+      },
       items: {
         ...en.spySetup.packs.items,
         "dota-2-heroes": "Dota 2 Heroes",
         "marvel-cinematic-universe": "Marvel Characters",
         "dc-screen-characters": "DC Characters",
+        "domestic-animals": "Domestic Animals",
+        "wild-animals": "Wild Animals",
       },
     },
   },
