@@ -42,6 +42,13 @@ type PacksStepProps = {
   onNext: () => void;
 };
 
+const CHARACTER_PACK_IDS = new Set([
+  "dota-2-heroes",
+  "marvel-cinematic-universe",
+  "dc-screen-characters",
+]);
+const ANIMAL_PACK_IDS = new Set(["domestic-animals", "wild-animals"]);
+
 export const PacksStep = memo(function PacksStep({
   top,
   sceneScale,
@@ -65,8 +72,11 @@ export const PacksStep = memo(function PacksStep({
       })),
     [packs],
   );
-  const showsCharacterPacks = displayedPacks.some(
-    ({ id }) => id === "dota-2-heroes",
+  const showsCharacterPacks = displayedPacks.some(({ id }) =>
+    CHARACTER_PACK_IDS.has(id),
+  );
+  const showsAnimalPacks = displayedPacks.some(({ id }) =>
+    ANIMAL_PACK_IDS.has(id),
   );
   const listTop =
     (top + headingHeight + HEADING_GAP - CARD_SHADOW_SPACE) * sceneScale;
@@ -79,6 +89,17 @@ export const PacksStep = memo(function PacksStep({
   const handleHeadingLayout = (event: LayoutChangeEvent) => {
     setHeadingHeight(event.nativeEvent.layout.height);
   };
+
+  const subtitleKey = showsCharacterPacks
+    ? "spySetup.packs.charactersSubtitle"
+    : showsAnimalPacks
+      ? "spySetup.packs.animalsSubtitle"
+      : "spySetup.packs.subtitle";
+  const countKey = showsCharacterPacks
+    ? "spySetup.packs.characterCount"
+    : showsAnimalPacks
+      ? "spySetup.packs.animalCount"
+      : "spySetup.packs.locationCount";
 
   return (
     <View pointerEvents="box-none" style={styles.container}>
@@ -96,13 +117,7 @@ export const PacksStep = memo(function PacksStep({
           onLayout={handleHeadingLayout}
         >
           <Text style={styles.pageTitle}>{t("spySetup.packs.title")}</Text>
-          <Text style={styles.pageSubtitle}>
-            {t(
-              showsCharacterPacks
-                ? "spySetup.packs.charactersSubtitle"
-                : "spySetup.packs.subtitle",
-            )}
-          </Text>
+          <Text style={styles.pageSubtitle}>{t(subtitleKey)}</Text>
         </View>
       </View>
 
@@ -113,12 +128,7 @@ export const PacksStep = memo(function PacksStep({
           <PackCard
             illustration={<Illustration width={116} height={84} />}
             title={t(`spySetup.packs.items.${id}`)}
-            wordCountLabel={t(
-              showsCharacterPacks
-                ? "spySetup.packs.characterCount"
-                : "spySetup.packs.locationCount",
-              { count: wordCount },
-            )}
+            wordCountLabel={t(countKey, { count: wordCount })}
             selected={selectedPackIds.has(id)}
             disabled={!enabled}
             onPress={() => onPackPress(id)}
