@@ -1,0 +1,116 @@
+{
+  "id": "domestic-animals",
+  "categoryId": "animals",
+  "enabled": true,
+  "illustrationKey": "domestic-animals",
+  "words": [
+    {
+      "id": "cat",
+      "name": "Кошка"
+    },
+    {
+      "id": "dog",
+      "name": "Собака"
+    },
+    {
+      "id": "hamster",
+      "name": "Хомяк"
+    },
+    {
+      "id": "guinea-pig",
+      "name": "Морская свинка"
+    },
+    {
+      "id": "rabbit",
+      "name": "Кролик"
+    },
+    {
+      "id": "mouse",
+      "name": "Мышь"
+    },
+    {
+      "id": "rat",
+      "name": "Крыса"
+    },
+    {
+      "id": "chinchilla",
+      "name": "Шиншилла"
+    },
+    {
+      "id": "ferret",
+      "name": "Хорёк"
+    },
+    {
+      "id": "parrot",
+      "name": "Попугай"
+    },
+    {
+      "id": "aquarium-fish",
+      "name": "Аквариумная рыбка"
+    },
+    {
+      "id": "turtle",
+      "name": "Черепаха"
+    },
+    {
+      "id": "cow",
+      "name": "Корова"
+    },
+    {
+      "id": "bull",
+      "name": "Бык"
+    },
+    {
+      "id": "calf",
+      "name": "Телёнок"
+    },
+    {
+      "id": "goat",
+      "name": "Коза"
+    },
+    {
+      "id": "sheep",
+      "name": "Овца"
+    },
+    {
+      "id": "ram",
+      "name": "Баран"
+    },
+    {
+      "id": "piglet",
+      "name": "Поросёнок"
+    },
+    {
+      "id": "horse",
+      "name": "Лошадь"
+    },
+    {
+      "id": "pony",
+      "name": "Пони"
+    },
+    {
+      "id": "donkey",
+      "name": "Осёл"
+    },
+    {
+      "id": "chicken",
+      "name": "Курица"
+    },
+    {
+      "id": "rooster",
+      "name": "Петух"
+    },
+    {
+      "id": "chick",
+      "name": "Цыплёнок"
+    },
+    {
+      "id": "duck",
+      "name": "Утка"
+    },
+    {
+      "id": "goose",
+      "name": "Гусь"
+    }
+  ]
+}

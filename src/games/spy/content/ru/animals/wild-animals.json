@@ -1,0 +1,188 @@
+{
+  "id": "wild-animals",
+  "categoryId": "animals",
+  "enabled": true,
+  "illustrationKey": "wild-animals",
+  "words": [
+    {
+      "id": "lion",
+      "name": "Лев"
+    },
+    {
+      "id": "tiger",
+      "name": "Тигр"
+    },
+    {
+      "id": "leopard",
+      "name": "Леопард"
+    },
+    {
+      "id": "cheetah",
+      "name": "Гепард"
+    },
+    {
+      "id": "jaguar",
+      "name": "Ягуар"
+    },
+    {
+      "id": "wolf",
+      "name": "Волк"
+    },
+    {
+      "id": "fox",
+      "name": "Лиса"
+    },
+    {
+      "id": "brown-bear",
+      "name": "Бурый медведь"
+    },
+    {
+      "id": "polar-bear",
+      "name": "Белый медведь"
+    },
+    {
+      "id": "panda",
+      "name": "Панда"
+    },
+    {
+      "id": "elephant",
+      "name": "Слон"
+    },
+    {
+      "id": "giraffe",
+      "name": "Жираф"
+    },
+    {
+      "id": "zebra",
+      "name": "Зебра"
+    },
+    {
+      "id": "rhinoceros",
+      "name": "Носорог"
+    },
+    {
+      "id": "hippopotamus",
+      "name": "Бегемот"
+    },
+    {
+      "id": "gorilla",
+      "name": "Горилла"
+    },
+    {
+      "id": "chimpanzee",
+      "name": "Шимпанзе"
+    },
+    {
+      "id": "orangutan",
+      "name": "Орангутан"
+    },
+    {
+      "id": "kangaroo",
+      "name": "Кенгуру"
+    },
+    {
+      "id": "koala",
+      "name": "Коала"
+    },
+    {
+      "id": "sloth",
+      "name": "Ленивец"
+    },
+    {
+      "id": "anteater",
+      "name": "Муравьед"
+    },
+    {
+      "id": "armadillo",
+      "name": "Броненосец"
+    },
+    {
+      "id": "hyena",
+      "name": "Гиена"
+    },
+    {
+      "id": "moose",
+      "name": "Лось"
+    },
+    {
+      "id": "deer",
+      "name": "Олень"
+    },
+    {
+      "id": "wild-boar",
+      "name": "Кабан"
+    },
+    {
+      "id": "buffalo",
+      "name": "Буйвол"
+    },
+    {
+      "id": "camel",
+      "name": "Верблюд"
+    },
+    {
+      "id": "llama",
+      "name": "Лама"
+    },
+    {
+      "id": "crocodile",
+      "name": "Крокодил"
+    },
+    {
+      "id": "alligator",
+      "name": "Аллигатор"
+    },
+    {
+      "id": "python",
+      "name": "Питон"
+    },
+    {
+      "id": "cobra",
+      "name": "Кобра"
+    },
+    {
+      "id": "iguana",
+      "name": "Игуана"
+    },
+    {
+      "id": "eagle",
+      "name": "Орёл"
+    },
+    {
+      "id": "owl",
+      "name": "Сова"
+    },
+    {
+      "id": "flamingo",
+      "name": "Фламинго"
+    },
+    {
+      "id": "penguin",
+      "name": "Пингвин"
+    },
+    {
+      "id": "ostrich",
+      "name": "Страус"
+    },
+    {
+      "id": "peacock",
+      "name": "Павлин"
+    },
+    {
+      "id": "shark",
+      "name": "Акула"
+    },
+    {
+      "id": "dolphin",
+      "name": "Дельфин"
+    },
+    {
+      "id": "whale",
+      "name": "Кит"
+    },
+    {
+      "id": "orca",
+      "name": "Косатка"
+    }
+  ]
+}
