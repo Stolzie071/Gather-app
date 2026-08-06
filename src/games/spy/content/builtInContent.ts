@@ -5,6 +5,8 @@ import {
 import { SPY_CONTENT_CATEGORIES } from "./categories";
 import { createSpyContentRegistry } from "./registry";
 import type { SpyContentPackSource } from "./types";
+import domesticAnimalsSource from "./ru/animals/domestic-animals.json";
+import wildAnimalsSource from "./ru/animals/wild-animals.json";
 import dcScreenCharactersSource from "./ru/characters/dc-screen-characters.json";
 import dota2HeroesSource from "./ru/characters/dota-2-heroes.json";
 import marvelCinematicUniverseSource from "./ru/characters/marvel-cinematic-universe.json";
@@ -40,6 +42,8 @@ const BUILT_IN_PACK_SOURCES = [
   dota2HeroesSource,
   marvelCinematicUniverseSource,
   dcScreenCharactersSource,
+  domesticAnimalsSource,
+  wildAnimalsSource,
 ] as readonly SpyContentPackSource[];
 
 function validateBuiltInAssets(
