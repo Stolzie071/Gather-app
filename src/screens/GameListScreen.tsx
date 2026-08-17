@@ -372,11 +372,13 @@ export function GameListScreen({ navigation }: GameListScreenProps) {
                 isContentReady ? (
                   <Animated.View
                     entering={FadeIn.duration(180)}
-                    style={styles.emptyList}
+                    style={styles.emptyListAnimation}
                   >
-                    <Text style={styles.emptyListText}>
-                      {t("gameList.emptySearch")}
-                    </Text>
+                    <View style={styles.emptyList}>
+                      <Text style={styles.emptyListText}>
+                        {t("gameList.emptySearch")}
+                      </Text>
+                    </View>
                   </Animated.View>
                 ) : null
               }
@@ -418,16 +420,18 @@ export function GameListScreen({ navigation }: GameListScreenProps) {
                 isContentReady ? (
                   <Animated.View
                     entering={FadeIn.duration(180)}
-                    style={styles.emptyList}
+                    style={styles.emptyListAnimation}
                   >
-                    <Text style={styles.emptyListText}>
-                      {searchQuery.trim()
-                        ? t("gameList.emptySearch")
-                        : t("gameList.emptyFavorites")}
-                    </Text>
-                    {!searchQuery.trim() && (
-                      <Text style={styles.emptyFavoritesFace}>:(</Text>
-                    )}
+                    <View style={styles.emptyList}>
+                      <Text style={styles.emptyListText}>
+                        {searchQuery.trim()
+                          ? t("gameList.emptySearch")
+                          : t("gameList.emptyFavorites")}
+                      </Text>
+                      {!searchQuery.trim() && (
+                        <Text style={styles.emptyFavoritesFace}>:(</Text>
+                      )}
+                    </View>
                   </Animated.View>
                 ) : null
               }
@@ -677,6 +681,10 @@ const styles = StyleSheet.create({
     position: "absolute",
     right: 0,
     left: 0,
+  },
+
+  emptyListAnimation: {
+    flex: 1,
   },
 
   emptyList: {

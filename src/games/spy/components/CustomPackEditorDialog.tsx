@@ -213,7 +213,14 @@ const WordRow = memo(function WordRow({
             onPress={() => onDelete(word.id)}
           >
             <View style={styles.deleteButton}>
-              <Text style={styles.deleteIcon}>×</Text>
+              <View pointerEvents="none" style={styles.deleteIcon}>
+                <View
+                  style={[styles.deleteIconLine, styles.deleteIconLineForward]}
+                />
+                <View
+                  style={[styles.deleteIconLine, styles.deleteIconLineBackward]}
+                />
+              </View>
             </View>
           </AnimatedButton>
         </View>
@@ -931,11 +938,23 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   deleteIcon: {
-    marginTop: -2,
-    color: "#ED1818",
-    fontFamily: "Nunito_600SemiBold",
-    fontSize: 27,
-    lineHeight: 30,
+    width: 16,
+    height: 16,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  deleteIconLine: {
+    position: "absolute",
+    width: 2,
+    height: 18,
+    borderRadius: 1,
+    backgroundColor: "#ED1818",
+  },
+  deleteIconLineForward: {
+    transform: [{ rotate: "45deg" }],
+  },
+  deleteIconLineBackward: {
+    transform: [{ rotate: "-45deg" }],
   },
   fullWidthAction: {
     width: "100%",
