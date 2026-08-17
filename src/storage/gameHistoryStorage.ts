@@ -1,6 +1,10 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-import type { GameHistoryEntry, SpyGameHistoryEntry } from "@/history/types";
+import type {
+  GameHistoryEntry,
+  SpyGameHistoryEntry,
+  SpyHistorySecretWord,
+} from "@/history/types";
 
 const GAME_HISTORY_KEY = "@gather/game-history-v1";
 
@@ -26,6 +30,32 @@ function readDate(value: unknown) {
   return typeof value === "string" && Number.isFinite(Date.parse(value))
     ? value
     : null;
+}
+
+function readSecretWord(
+  value: unknown,
+  legacyWordId: string,
+  legacyCategoryId: string,
+): SpyHistorySecretWord | null {
+  if (
+    !isRecord(value) ||
+    typeof value.id !== "string" ||
+    value.id.length === 0 ||
+    typeof value.name !== "string" ||
+    value.name.trim().length === 0 ||
+    typeof value.categoryId !== "string" ||
+    value.categoryId.length === 0 ||
+    value.id !== legacyWordId ||
+    value.categoryId !== legacyCategoryId
+  ) {
+    return null;
+  }
+
+  return {
+    id: value.id,
+    name: value.name,
+    categoryId: value.categoryId,
+  };
 }
 
 function readSpyGameHistoryEntry(value: unknown): SpyGameHistoryEntry | null {
@@ -69,6 +99,11 @@ function readSpyGameHistoryEntry(value: unknown): SpyGameHistoryEntry | null {
   }
 
   const playerIdSet = new Set(playerIds);
+  const secretWord = readSecretWord(
+    value.secretWord,
+    value.secretWordId,
+    value.categoryId,
+  );
 
   if (
     winnerIds.some((playerId) => !playerIdSet.has(playerId)) ||
@@ -89,6 +124,7 @@ function readSpyGameHistoryEntry(value: unknown): SpyGameHistoryEntry | null {
     categoryId: value.categoryId,
     packIds,
     secretWordId: value.secretWordId,
+    secretWord,
     spiesKnowEachOther: value.spiesKnowEachOther,
     timerEnabled: value.timerEnabled,
     timerMinutes: value.timerMinutes,

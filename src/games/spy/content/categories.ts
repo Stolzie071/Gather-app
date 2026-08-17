@@ -12,28 +12,18 @@ export const SPY_CONTENT_CATEGORIES = [
     presentation: "text",
   },
   {
-    id: "items",
-    enabled: false,
-    presentation: "text",
-  },
-  {
     id: "animals",
     enabled: true,
     presentation: "text",
   },
   {
-    id: "professions",
-    enabled: false,
-    presentation: "text",
-  },
-  {
     id: "other",
-    enabled: false,
+    enabled: true,
     presentation: "text",
   },
   {
     id: "mySets",
-    enabled: false,
+    enabled: true,
     presentation: "text",
   },
 ] as const satisfies readonly SpyContentCategory[];

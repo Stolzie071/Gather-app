@@ -29,6 +29,7 @@ import {
   SpySetupWave,
   SpySetupWaveShadow,
 } from "@assets/Spy_game";
+import { MySetsCategoryIcon } from "@assets/Spy_game/icons";
 import {
   BackButton,
   PlayerSelectionSheet,
@@ -48,11 +49,12 @@ import {
   type SpyPackListItem,
 } from "@/games/spy/components/PacksStep";
 import { GameOptionsStep } from "@/games/spy/components/GameOptionsStep";
+import { CustomPackEditorDialog } from "@/games/spy/components/CustomPackEditorDialog";
 import { getSpySetupRecommendation } from "@/games/spy/logic/getSpySetupRecommendation";
 import { SetupSummaryStep } from "@/games/spy/components/SetupSummaryStep";
 import type { SpyCategoryId } from "@/games/spy/data/categories";
 import { getSpyPackIllustration } from "@/games/spy/content/assets";
-import { builtInSpyContentRegistry } from "@/games/spy/content/builtInContent";
+import { useSpyContent } from "@/games/spy/content/SpyContentProvider";
 import { useSpySession } from "@/games/spy/SpySessionProvider";
 import { useAppHaptics } from "@/haptics/useAppHaptics";
 
@@ -109,6 +111,13 @@ export function SpySetupScreen({ navigation }: SpySetupScreenProps) {
   } = usePlayers();
   const { startSession } = useSpySession();
   const { playSetupStart } = useAppHaptics();
+  const {
+    registry: contentRegistry,
+    createCustomPack,
+    updateCustomPack,
+    deleteCustomPack,
+    getCustomPack,
+  } = useSpyContent();
   const insets = useSafeAreaInsets();
   const { width: screenWidth, height: screenHeight } = useWindowDimensions();
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
@@ -116,6 +125,12 @@ export function SpySetupScreen({ navigation }: SpySetupScreenProps) {
   const [isPlayerSelectionOpen, setIsPlayerSelectionOpen] = useState(false);
   const [hasOpenedPlayerSelection, setHasOpenedPlayerSelection] =
     useState(false);
+  const [isCustomPackDialogOpen, setIsCustomPackDialogOpen] = useState(false);
+  const [hasOpenedCustomPackDialog, setHasOpenedCustomPackDialog] =
+    useState(false);
+  const [editingCustomPackId, setEditingCustomPackId] = useState<string | null>(
+    null,
+  );
   const [currentStep, setCurrentStep] = useState<SetupStep>(1);
   const [renderedSteps, setRenderedSteps] = useState<ReadonlySet<SetupStep>>(
     () => new Set([1]),
@@ -151,46 +166,51 @@ export function SpySetupScreen({ navigation }: SpySetupScreenProps) {
   const pageContentTop = PAGE_CONTENT_TOP + gameAreaOffset;
   const playerCount = selectedPlayerIds.length;
   const availablePlayers = useMemo(
-    () => [...savedPlayers, ...temporaryPlayers],
+    () => [...temporaryPlayers, ...savedPlayers],
     [savedPlayers, temporaryPlayers],
   );
   const availablePacks = useMemo(
     () =>
       selectedCategoryId
-        ? builtInSpyContentRegistry.getPacksByCategory(selectedCategoryId)
+        ? contentRegistry.getPacksByCategory(selectedCategoryId)
         : [],
-    [selectedCategoryId],
+    [contentRegistry, selectedCategoryId],
   );
   const packListItems = useMemo<readonly SpyPackListItem[]>(
     () =>
-      availablePacks.flatMap((pack) => {
-        const Illustration = getSpyPackIllustration(pack.illustrationKey);
+      availablePacks.map((pack) => {
+        const customPack = getCustomPack(pack.id);
+        const Illustration = customPack
+          ? MySetsCategoryIcon
+          : getSpyPackIllustration(pack.illustrationKey);
 
-        if (!Illustration) {
-          return [];
-        }
-
-        return [
-          {
-            id: pack.id,
-            Illustration,
-            wordCount: pack.wordIds.length,
-            enabled: pack.enabled,
-          },
-        ];
+        return {
+          id: pack.id,
+          title: customPack?.name,
+          Illustration,
+          wordCount: pack.wordIds.length,
+          enabled: pack.enabled,
+          isCustom: Boolean(customPack),
+        };
       }),
-    [availablePacks],
+    [availablePacks, getCustomPack],
   );
   const selectedPackTitles = useMemo(
     () =>
       availablePacks
         .filter(({ id }) => selectedPackIds.has(id))
-        .map(({ id }) => t(`spySetup.packs.items.${id}`)),
-    [availablePacks, selectedPackIds, t],
+        .map(
+          ({ id }) =>
+            getCustomPack(id)?.name ?? t(`spySetup.packs.items.${id}`),
+        ),
+    [availablePacks, getCustomPack, selectedPackIds, t],
   );
   const selectedCategoryTitle = selectedCategoryId
     ? t(`spySetup.category.${selectedCategoryId}.title`)
     : "";
+  const editingCustomPack = editingCustomPackId
+    ? getCustomPack(editingCustomPackId)
+    : undefined;
   const stepsTrackStyle = useAnimatedStyle(() => ({
     transform: [{ translateX: -(stepProgress.value - 1) * screenWidth }],
   }));
@@ -328,11 +348,72 @@ export function SpySetupScreen({ navigation }: SpySetupScreenProps) {
     });
   }, []);
 
+  const handleOpenCustomPackDialog = useCallback(() => {
+    setEditingCustomPackId(null);
+    setHasOpenedCustomPackDialog(true);
+
+    requestAnimationFrame(() => {
+      setIsCustomPackDialogOpen(true);
+    });
+  }, []);
+
+  const handleEditCustomPack = useCallback((packId: string) => {
+    setEditingCustomPackId(packId);
+    setHasOpenedCustomPackDialog(true);
+
+    requestAnimationFrame(() => {
+      setIsCustomPackDialogOpen(true);
+    });
+  }, []);
+
+  const handleCloseCustomPackDialog = useCallback(() => {
+    setIsCustomPackDialogOpen(false);
+  }, []);
+
+  const handleCustomPackDialogHidden = useCallback(() => {
+    setHasOpenedCustomPackDialog(false);
+    setEditingCustomPackId(null);
+  }, []);
+
+  const handleSubmitCustomPack = useCallback(
+    (input: Parameters<typeof createCustomPack>[0]) => {
+      if (editingCustomPackId) {
+        updateCustomPack(editingCustomPackId, input);
+        return;
+      }
+
+      const pack = createCustomPack(input);
+
+      setSelectedPackIds((currentPackIds) => {
+        const nextPackIds = new Set(currentPackIds);
+        nextPackIds.add(pack.id);
+        return nextPackIds;
+      });
+    },
+    [createCustomPack, editingCustomPackId, updateCustomPack],
+  );
+
+  const handleDeleteCustomPack = useCallback(
+    (packId: string) => {
+      deleteCustomPack(packId);
+      setSelectedPackIds((currentPackIds) => {
+        if (!currentPackIds.has(packId)) {
+          return currentPackIds;
+        }
+
+        const nextPackIds = new Set(currentPackIds);
+        nextPackIds.delete(packId);
+        return nextPackIds;
+      });
+    },
+    [deleteCustomPack],
+  );
+
   const handleCreateTemporaryPlayer = useCallback(
     (input: CreatePlayerInput) => {
       const player = createPlayerProfile(input);
 
-      setTemporaryPlayers((currentPlayers) => [...currentPlayers, player]);
+      setTemporaryPlayers((currentPlayers) => [player, ...currentPlayers]);
 
       return player;
     },
@@ -359,7 +440,7 @@ export function SpySetupScreen({ navigation }: SpySetupScreenProps) {
     setIsStarting(true);
 
     const packIds = [...selectedPackIds];
-    const availableWordIds = builtInSpyContentRegistry.getWordIds(
+    const availableWordIds = contentRegistry.getWordIds(
       selectedCategoryId,
       packIds,
     );
@@ -387,6 +468,7 @@ export function SpySetupScreen({ navigation }: SpySetupScreenProps) {
   }, [
     navigation,
     playSetupStart,
+    contentRegistry,
     selectedCategoryId,
     selectedPackIds,
     selectedPlayerIds,
@@ -557,14 +639,17 @@ export function SpySetupScreen({ navigation }: SpySetupScreenProps) {
           pointerEvents={currentStep === 2 ? "auto" : "none"}
           style={[styles.stepPage, { width: screenWidth }]}
         >
-          {renderedSteps.has(2) && (
+          {renderedSteps.has(2) && selectedCategoryId && (
             <PacksStep
               top={pageContentTop}
               sceneScale={sceneScale}
               bottomInset={insets.bottom}
+              categoryId={selectedCategoryId}
               packs={packListItems}
               selectedPackIds={selectedPackIds}
               onPackPress={handlePackPress}
+              onCreatePack={handleOpenCustomPackDialog}
+              onEditPack={handleEditCustomPack}
               onBack={handlePacksBack}
               onNext={handlePacksNext}
             />
@@ -689,6 +774,17 @@ export function SpySetupScreen({ navigation }: SpySetupScreenProps) {
           onHidden={handlePlayerSelectionHidden}
           onConfirm={handleConfirmPlayers}
           onCreatePlayer={handleCreateTemporaryPlayer}
+        />
+      )}
+
+      {hasOpenedCustomPackDialog && (
+        <CustomPackEditorDialog
+          visible={isCustomPackDialogOpen}
+          pack={editingCustomPack}
+          onClose={handleCloseCustomPackDialog}
+          onHidden={handleCustomPackDialogHidden}
+          onSubmit={handleSubmitCustomPack}
+          onDelete={handleDeleteCustomPack}
         />
       )}
 

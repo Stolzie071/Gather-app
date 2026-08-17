@@ -21,6 +21,9 @@ import {
   Dota2HeroesPackIllustration,
   MarvelHeroesPackIllustration,
   NaturePackIllustration,
+  ProfessionsPackIllustration,
+  SchoolItemsPackIllustration,
+  SeaAnimalsPackIllustration,
   TransportPackIllustration,
   WildAnimalsPackIllustration,
   WorkplacesPackIllustration,
@@ -49,6 +52,9 @@ export const SPY_PACK_ILLUSTRATIONS = {
   "dc-screen-characters": DcHeroesPackIllustration,
   "domestic-animals": DomesticAnimalsPackIllustration,
   "wild-animals": WildAnimalsPackIllustration,
+  "sea-animals": SeaAnimalsPackIllustration,
+  "school-items": SchoolItemsPackIllustration,
+  professions: ProfessionsPackIllustration,
 } as const satisfies Record<string, ComponentType<SvgProps>>;
 
 export type SpyWordImageKey = keyof typeof SPY_WORD_IMAGES;

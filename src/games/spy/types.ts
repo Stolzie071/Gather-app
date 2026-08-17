@@ -1,19 +1,5 @@
-import type { ImageSourcePropType } from "react-native";
-
-export type SpyWord = {
-  id: string;
-  name: string;
-  image?: ImageSourcePropType;
-};
-
-export type SpyPack<TWordId extends string = string> = {
-  id: string;
-  wordIds: readonly TWordId[];
-  enabled: boolean;
-};
-
 export type SpyDraft = {
-  categoryId: string | null;
+  categoryId: string;
   packIds: readonly string[];
   playerIds: readonly string[];
   spyCount: number;

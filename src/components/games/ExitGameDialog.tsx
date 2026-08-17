@@ -6,6 +6,7 @@ import {
   type ReactNode,
 } from "react";
 import {
+  BackHandler,
   Pressable,
   StyleSheet,
   Text,
@@ -147,6 +148,22 @@ export function ExitGameDialog({
       },
     );
   }, [finishHiding, rendered, visibilityProgress, visible]);
+
+  useEffect(() => {
+    if (!visible) {
+      return;
+    }
+
+    const subscription = BackHandler.addEventListener(
+      "hardwareBackPress",
+      () => {
+        onStayRef.current();
+        return true;
+      },
+    );
+
+    return () => subscription.remove();
+  }, [visible]);
 
   if (!rendered) {
     return null;

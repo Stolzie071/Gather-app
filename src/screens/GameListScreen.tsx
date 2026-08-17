@@ -55,6 +55,9 @@ const DESIGN_WIDTH = 402;
 const DESIGN_HEIGHT = 874;
 const SURFACE_TOP = 169;
 const CARD_SHADOW_SPACE = 6;
+const TOP_LIST_FADE_HEIGHT = 8;
+const BOTTOM_LIST_FADE_HEIGHT = 16;
+const TABS_HEIGHT = 59;
 const CONTENT_REVEAL_DELAY = 370;
 function normalizeSearchValue(value: string) {
   return value.trim().toLocaleLowerCase().replaceAll("ё", "е");
@@ -86,6 +89,10 @@ export function GameListScreen({ navigation }: GameListScreenProps) {
   const { width: screenWidth, height: screenHeight } = useWindowDimensions();
 
   const sceneScale = screenWidth / DESIGN_WIDTH;
+  const topListFadeHeight = TOP_LIST_FADE_HEIGHT * sceneScale;
+  const bottomListFadeHeight = BOTTOM_LIST_FADE_HEIGHT * sceneScale;
+  const listTop = (349 - CARD_SHADOW_SPACE) * sceneScale - topListFadeHeight;
+  const listBottom = insets.bottom + TABS_HEIGHT;
 
   const isCompactScreen = screenHeight < 700 || screenWidth < 350;
   const [searchQuery, setSearchQuery] = useState("");
@@ -327,9 +334,7 @@ export function GameListScreen({ navigation }: GameListScreenProps) {
 
         {isContentReady && (
           <Animated.View
-            entering={FadeInDown.duration(220).easing(
-              Easing.out(Easing.cubic),
-            )}
+            entering={FadeInDown.duration(220).easing(Easing.out(Easing.cubic))}
             style={styles.searchBar}
           >
             <SearchBar
@@ -349,8 +354,8 @@ export function GameListScreen({ navigation }: GameListScreenProps) {
             styles.listsTrack,
             {
               width: screenWidth * 2,
-              top: (349 - CARD_SHADOW_SPACE) * sceneScale,
-              bottom: insets.bottom + 75,
+              top: listTop,
+              bottom: listBottom,
             },
             listsAnimatedStyle,
           ]}
@@ -387,7 +392,9 @@ export function GameListScreen({ navigation }: GameListScreenProps) {
               contentContainerStyle={[
                 styles.gameListContent,
                 {
-                  paddingTop: CARD_SHADOW_SPACE * sceneScale,
+                  paddingTop:
+                    topListFadeHeight + CARD_SHADOW_SPACE * sceneScale,
+                  paddingBottom: bottomListFadeHeight,
                   paddingHorizontal: CARD_SHADOW_SPACE * sceneScale,
                 },
               ]}
@@ -436,7 +443,9 @@ export function GameListScreen({ navigation }: GameListScreenProps) {
               contentContainerStyle={[
                 styles.gameListContent,
                 {
-                  paddingTop: CARD_SHADOW_SPACE * sceneScale,
+                  paddingTop:
+                    topListFadeHeight + CARD_SHADOW_SPACE * sceneScale,
+                  paddingBottom: bottomListFadeHeight,
                   paddingHorizontal: CARD_SHADOW_SPACE * sceneScale,
                 },
               ]}
@@ -449,6 +458,31 @@ export function GameListScreen({ navigation }: GameListScreenProps) {
           </View>
         </Animated.View>
       </GestureDetector>
+
+      <LinearGradient
+        pointerEvents="none"
+        colors={[colors.background, "rgba(248, 244, 253, 0)"]}
+        style={[
+          styles.topListFade,
+          {
+            top: listTop,
+            height: topListFadeHeight,
+          },
+        ]}
+      />
+
+      <LinearGradient
+        pointerEvents="none"
+        colors={["rgba(248, 244, 253, 0)", colors.background]}
+        style={[
+          styles.bottomListFade,
+          {
+            bottom: listBottom,
+            height: bottomListFadeHeight,
+          },
+        ]}
+      />
+
       <BackButton
         onPress={() => navigation.goBack()}
         compact={isCompactScreen}
@@ -631,7 +665,18 @@ const styles = StyleSheet.create({
   gameListContent: {
     flexGrow: 1,
     gap: 16,
-    paddingBottom: 16,
+  },
+
+  topListFade: {
+    position: "absolute",
+    right: 0,
+    left: 0,
+  },
+
+  bottomListFade: {
+    position: "absolute",
+    right: 0,
+    left: 0,
   },
 
   emptyList: {

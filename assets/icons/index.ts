@@ -26,3 +26,4 @@ export { default as AvatarIcon } from "./Avatar.svg";
 export { default as CameraIcon } from "./camera.svg";
 export { default as AlertIcon } from "./alert.svg";
 export { default as ClickIcon } from "./click_icon.svg";
+export { default as BinIcon } from "./bin.svg";

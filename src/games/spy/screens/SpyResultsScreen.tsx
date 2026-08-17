@@ -38,6 +38,7 @@ import {
   SettingsSheet,
 } from "@/components";
 import { Squircle } from "@/components/Squircle";
+import { useSpyContent } from "@/games/spy/content/SpyContentProvider";
 import { createSpyGameHistoryEntry } from "@/games/spy/logic/createSpyGameHistoryEntry";
 import { useSpySession } from "@/games/spy/SpySessionProvider";
 import { useLocalization } from "@/localization/LocalizationProvider";
@@ -140,6 +141,7 @@ type SpyResultsScreenProps = BlankStackScreenProps<
 >;
 
 export function SpyResultsScreen({ navigation }: SpyResultsScreenProps) {
+  const { registry: contentRegistry } = useSpyContent();
   const { t } = useLocalization();
   const { players } = usePlayers();
   const { activeSession, clearSession, updateSession } = useSpySession();
@@ -239,7 +241,19 @@ export function SpyResultsScreen({ navigation }: SpyResultsScreenProps) {
     setIsSavingResult(true);
 
     try {
-      const historyEntry = createSpyGameHistoryEntry(activeSession);
+      const secretWord = contentRegistry.getWord(
+        activeSession.draft.categoryId,
+        activeSession.secretWordId,
+      );
+
+      if (!secretWord) {
+        throw new Error("Cannot save Spy history without a secret word");
+      }
+
+      const historyEntry = createSpyGameHistoryEntry(
+        activeSession,
+        secretWord.name,
+      );
 
       await appendGameHistoryEntry(historyEntry);
       playCompletion();
@@ -250,7 +264,13 @@ export function SpyResultsScreen({ navigation }: SpyResultsScreenProps) {
       isSavingResultRef.current = false;
       setIsSavingResult(false);
     }
-  }, [activeSession, clearSession, navigation, playCompletion]);
+  }, [
+    activeSession,
+    clearSession,
+    contentRegistry,
+    navigation,
+    playCompletion,
+  ]);
 
   useEffect(() => {
     if (!activeSession && isFocused) {

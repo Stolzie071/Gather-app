@@ -86,7 +86,7 @@ export function PlayersProvider({ children }: PropsWithChildren) {
   const addPlayer = useCallback((input: CreatePlayerInput) => {
     const player = createPlayerProfile(input);
 
-    setPlayers((currentPlayers) => [...currentPlayers, player]);
+    setPlayers((currentPlayers) => [player, ...currentPlayers]);
 
     return player;
   }, []);
@@ -101,7 +101,7 @@ export function PlayersProvider({ children }: PropsWithChildren) {
       );
 
       return newPlayers.length > 0
-        ? [...currentPlayers, ...newPlayers]
+        ? [...newPlayers, ...currentPlayers]
         : currentPlayers;
     });
   }, []);

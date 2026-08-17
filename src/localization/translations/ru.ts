@@ -26,6 +26,9 @@ export const ru = {
       peaceful: "Мирные",
       spies: "Шпионы",
       winner: "Победитель",
+      secretWord: "Загаданное слово",
+      secretWordMissing: "Слово не сохранено",
+      secretWordCategoryFallback: "СЛОВО",
       deletedPlayer: "Удалённый игрок",
       empty: "История партий пока пуста",
       emptyFilter: "У этого игрока пока нет завершённых партий",
@@ -121,48 +124,6 @@ export const ru = {
     },
   },
 
-  spyGame: {
-    description: "Найдите шпиона раньше,\nчем он узнает правду",
-    start: "Начать игру",
-  },
-
-  spyReveal: {
-    instruction: "%{name}, нажми на карточку, чтобы узнать локацию или роль",
-    revealCard: "Показать карточку игрока %{name}",
-    locationLabel: "ЛОКАЦИЯ",
-    wordLabel: "ПЕРСОНАЖ",
-    roleLabel: "РОЛЬ",
-    spyRoleName: "Шпион",
-    otherSpies: "Другие шпионы:",
-    allPlayersAreSpiesExcept: "Все игроки шпионы кроме:",
-    locationWarning:
-      "Отвечай осторожно.\nНе дай шпиону догадаться,\nгде вы находитесь.",
-    wordWarning:
-      "Отвечай осторожно.\nНе дай шпиону догадаться,\nкакого персонажа вы получили.",
-    spyWarning:
-      "Слушай внимательно.\nПопробуй понять, какую\nлокацию получили остальные.",
-    passPhone: "Передать телефон",
-    startGame: "Начать игру",
-    allRolesReceived: "Все роли\nполучены",
-    readyInstruction: "Нажмите на кнопку,\nчтобы начать игру",
-  },
-
-  spyTimer: {
-    finish: "Завершить",
-    expiredTitle: "Время вышло",
-    expiredMessage: "Обсудите и проголосуйте за того, кого считаете шпионом",
-    disabledTitle: "Таймер отключён",
-    disabledMessage:
-      "По завершении партии нажмите кнопку ниже, чтобы указать победителя",
-  },
-
-  spyResults: {
-    title: "Игра окончена!",
-    subtitle: "Кто выиграл эту партию?\nМожно выбрать несколько игроков.",
-    spy: "Шпион",
-    done: "Готово",
-  },
-
   exitGameDialog: {
     title: "Покинуть текущую партию?",
     message: "Текущая партия завершится,\nа её прогресс не сохранится.",
@@ -175,109 +136,6 @@ export const ru = {
     message: "У вас осталась незавершённая партия в «Шпиона».",
     leave: "Покинуть",
     resume: "Продолжить",
-  },
-
-  spySetup: {
-    title: "Настройка игры",
-    step: "Шаг %{current} из %{total}",
-    navigation: {
-      back: "Назад",
-      next: "Далее",
-    },
-    category: {
-      title: "Выбери категорию",
-      subtitle: "Выбери тип слов для игры",
-      locations: {
-        title: "Локации",
-        description: "Реальные и вымышленные места",
-      },
-      characters: {
-        title: "Персонажи",
-        description: "Герои игр, фильмов, книг и тд",
-      },
-      items: {
-        title: "Предметы",
-        description: "Еда, техника, одежда и другие вещи",
-      },
-      animals: {
-        title: "Животные",
-        description: "Домашние, дикие и фантастические существа",
-      },
-      professions: {
-        title: "Профессии",
-        description: "От обычных до самых необычных",
-      },
-      other: {
-        title: "Разное",
-        description: "Необычные и смешанные наборы",
-      },
-      mySets: {
-        title: "Мои наборы",
-        description: "Созданные тобой категории",
-      },
-    },
-    packs: {
-      title: "Выбери наборы",
-      subtitle: "Из каких наборов будут выбраны локации?",
-      locationCount: "%{count} локации",
-      items: {
-        nature: "Природа",
-        workplaces: "Рабочие места",
-        transport: "Транспорт",
-        cities: "Города",
-      },
-    },
-    options: {
-      title: "Настрой игру",
-      subtitle: "Осталось выбрать параметры партии",
-      players: "Игроки",
-      playerCount: {
-        one: "%{count} игрок",
-        few: "%{count} игрока",
-        many: "%{count} игроков",
-      },
-      spies: "Шпионов",
-      spiesRecommendation: {
-        one: "Для данного состава рекомендуется %{count} шпион",
-        few: "Для данного состава рекомендуется %{count} шпиона",
-        many: "Для данного состава рекомендуется %{count} шпионов",
-      },
-      spiesHint: "Минимум 1, максимум %{max}",
-      selectPlayersHint: "Сначала выбери минимум 3 игроков",
-      spiesKnowEachOther: "Шпионы знают друг друга?",
-      yes: "Да",
-      no: "Нет",
-      timer: "Таймер",
-      timerRecommendation: "Для данного состава рекомендуется %{count} минут",
-      minutesShort: "мин",
-      timerHint: "Минимум 1 минута",
-      noTimer: "Без таймера",
-    },
-    summary: {
-      title: "Всё готово! 🎉",
-      subtitle: "Проверь настройки и начнём игру.",
-      category: "Категория",
-      pack: "Наборы",
-      options: "Настройки игры",
-      start: "Начать игру",
-      information:
-        "После начала каждый игрок по очереди получит свою карточку.",
-      noPacks: "Набор не выбран",
-      noTimer: "без таймера",
-      minutes: "%{count} мин",
-      units: {
-        players: {
-          one: "%{count} игрок",
-          few: "%{count} игрока",
-          many: "%{count} игроков",
-        },
-        spies: {
-          one: "%{count} шпион",
-          few: "%{count} шпиона",
-          many: "%{count} шпионов",
-        },
-      },
-    },
   },
 
   playerSelection: {

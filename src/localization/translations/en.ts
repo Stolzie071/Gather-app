@@ -26,6 +26,9 @@ export const en = {
       peaceful: "Civilians",
       spies: "Spies",
       winner: "Winner",
+      secretWord: "Secret word",
+      secretWordMissing: "Word was not saved",
+      secretWordCategoryFallback: "WORD",
       deletedPlayer: "Deleted player",
       empty: "No completed games yet",
       emptyFilter: "This player has no completed games yet",
@@ -121,48 +124,6 @@ export const en = {
     },
   },
 
-  spyGame: {
-    description: "Find the spy before\nthey discover the truth",
-    start: "Start game",
-  },
-
-  spyReveal: {
-    instruction: "%{name}, tap the card to discover your location or role",
-    revealCard: "Reveal %{name}'s card",
-    locationLabel: "LOCATION",
-    wordLabel: "CHARACTER",
-    roleLabel: "ROLE",
-    spyRoleName: "Spy",
-    otherSpies: "Other spies:",
-    allPlayersAreSpiesExcept: "All players are spies except:",
-    locationWarning:
-      "Answer carefully.\nDon't let the spy figure out\nwhere you are.",
-    wordWarning:
-      "Answer carefully.\nDon't let the spy figure out\nwhich character you received.",
-    spyWarning:
-      "Listen carefully.\nTry to figure out which location\nthe others received.",
-    passPhone: "Pass the phone",
-    startGame: "Start game",
-    allRolesReceived: "All roles\nreceived",
-    readyInstruction: "Tap the button\nto start the game",
-  },
-
-  spyTimer: {
-    finish: "Finish",
-    expiredTitle: "Time is up",
-    expiredMessage: "Discuss and vote for the player you think is the spy",
-    disabledTitle: "Timer is off",
-    disabledMessage:
-      "When the round ends, tap the button below to choose the winner",
-  },
-
-  spyResults: {
-    title: "Game over!",
-    subtitle: "Who won this round?\nYou can select multiple players.",
-    spy: "Spy",
-    done: "Done",
-  },
-
   exitGameDialog: {
     title: "Leave the current round?",
     message: "The current round will end,\nand its progress won't be saved.",
@@ -175,109 +136,6 @@ export const en = {
     message: "You have an unfinished game of Spy.",
     leave: "Leave",
     resume: "Continue",
-  },
-
-  spySetup: {
-    title: "Game setup",
-    step: "Step %{current} of %{total}",
-    navigation: {
-      back: "Back",
-      next: "Next",
-    },
-    category: {
-      title: "Choose a category",
-      subtitle: "Choose the type of words for the game",
-      locations: {
-        title: "Locations",
-        description: "Real and imaginary places",
-      },
-      characters: {
-        title: "Characters",
-        description: "Heroes from games, movies, books, and more",
-      },
-      items: {
-        title: "Items",
-        description: "Food, technology, clothing, and other things",
-      },
-      animals: {
-        title: "Animals",
-        description: "Domestic, wild, and fantasy creatures",
-      },
-      professions: {
-        title: "Professions",
-        description: "From ordinary to the most unusual",
-      },
-      other: {
-        title: "Other",
-        description: "Unusual and mixed sets",
-      },
-      mySets: {
-        title: "My sets",
-        description: "Categories created by you",
-      },
-    },
-    packs: {
-      title: "Choose packs",
-      subtitle: "Which packs should the locations come from?",
-      locationCount: "%{count} locations",
-      items: {
-        nature: "Nature",
-        workplaces: "Workplaces",
-        transport: "Transport",
-        cities: "Cities",
-      },
-    },
-    options: {
-      title: "Set up the game",
-      subtitle: "Choose the remaining game settings",
-      players: "Players",
-      playerCount: {
-        one: "%{count} player",
-        few: "%{count} players",
-        many: "%{count} players",
-      },
-      spies: "Spies",
-      spiesRecommendation: {
-        one: "%{count} spy is recommended for this group",
-        few: "%{count} spies are recommended for this group",
-        many: "%{count} spies are recommended for this group",
-      },
-      spiesHint: "Minimum 1, maximum %{max}",
-      selectPlayersHint: "First select at least 3 players",
-      spiesKnowEachOther: "Do the spies know each other?",
-      yes: "Yes",
-      no: "No",
-      timer: "Timer",
-      timerRecommendation: "%{count} minutes are recommended for this group",
-      minutesShort: "min",
-      timerHint: "Minimum 1 minute",
-      noTimer: "No timer",
-    },
-    summary: {
-      title: "All ready! 🎉",
-      subtitle: "Check the settings and let's start the game.",
-      category: "Category",
-      pack: "Pack",
-      options: "Game settings",
-      start: "Start game",
-      information:
-        "After starting, each player will receive their card in turn.",
-      noPacks: "No pack selected",
-      noTimer: "no timer",
-      minutes: "%{count} min",
-      units: {
-        players: {
-          one: "%{count} player",
-          few: "%{count} players",
-          many: "%{count} players",
-        },
-        spies: {
-          one: "%{count} spy",
-          few: "%{count} spies",
-          many: "%{count} spies",
-        },
-      },
-    },
   },
 
   playerSelection: {

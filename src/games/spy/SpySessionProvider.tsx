@@ -5,10 +5,13 @@ import {
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
 } from "react";
 
 import { createSpySession } from "@/games/spy/logic/createSpySession";
+import { useSpyContent } from "@/games/spy/content/SpyContentProvider";
+import { getSpySessionContentError } from "@/games/spy/content/validation";
 import type { SpyDraft, SpySession } from "@/games/spy/types";
 import {
   loadActiveSpySession,
@@ -33,16 +36,39 @@ type SpySessionContextValue = {
 const SpySessionContext = createContext<SpySessionContextValue | null>(null);
 
 export function SpySessionProvider({ children }: PropsWithChildren) {
+  const { registry, isContentLoaded } = useSpyContent();
   const [activeSession, setActiveSession] = useState<SpySession | null>(null);
   const [isSessionLoaded, setIsSessionLoaded] = useState(false);
   const [needsRecovery, setNeedsRecovery] = useState(false);
+  const hasStartedLoadingRef = useRef(false);
 
   useEffect(() => {
+    if (!isContentLoaded || hasStartedLoadingRef.current) {
+      return;
+    }
+
+    hasStartedLoadingRef.current = true;
     let isMounted = true;
 
     loadActiveSpySession()
       .then((storedSession) => {
         if (!isMounted) {
+          return;
+        }
+
+        const contentError = storedSession
+          ? getSpySessionContentError(
+              storedSession,
+              registry,
+            )
+          : null;
+
+        if (contentError) {
+          console.warn(
+            `Discarding invalid saved Spy session: ${contentError}`,
+          );
+          setActiveSession(null);
+          setNeedsRecovery(false);
           return;
         }
 
@@ -61,7 +87,7 @@ export function SpySessionProvider({ children }: PropsWithChildren) {
     return () => {
       isMounted = false;
     };
-  }, []);
+  }, [isContentLoaded, registry]);
 
   useEffect(() => {
     if (!isSessionLoaded) {

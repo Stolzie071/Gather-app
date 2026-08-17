@@ -1,7 +1,8 @@
-import { memo, useMemo, useState, type ComponentType } from "react";
+import { memo, useState, type ComponentType } from "react";
 import {
   FlatList,
   type LayoutChangeEvent,
+  Pressable,
   StyleSheet,
   Text,
   View,
@@ -10,7 +11,8 @@ import { LinearGradient } from "expo-linear-gradient";
 import type { SvgProps } from "react-native-svg";
 
 import { PackCard, SetupStepNavigation } from "@/components";
-import { SPY_LOCATION_PACKS } from "@/games/spy/data/packs";
+import type { SpyContentCategoryId } from "@/games/spy/content/categories";
+import { useAppHaptics } from "@/haptics/useAppHaptics";
 import { useLocalization } from "@/localization/LocalizationProvider";
 import { colors } from "@/theme/colors";
 
@@ -26,58 +28,43 @@ const LIST_TO_NAVIGATION_GAP = 16;
 
 export type SpyPackListItem = {
   id: string;
-  Illustration: ComponentType<SvgProps>;
+  title?: string;
+  Illustration?: ComponentType<SvgProps>;
   wordCount: number;
   enabled: boolean;
+  isCustom?: boolean;
 };
 
 type PacksStepProps = {
   top: number;
   sceneScale: number;
   bottomInset: number;
-  packs?: readonly SpyPackListItem[];
+  categoryId: SpyContentCategoryId;
+  packs: readonly SpyPackListItem[];
   selectedPackIds: ReadonlySet<string>;
   onPackPress: (packId: string) => void;
+  onCreatePack?: () => void;
+  onEditPack?: (packId: string) => void;
   onBack: () => void;
   onNext: () => void;
 };
-
-const CHARACTER_PACK_IDS = new Set([
-  "dota-2-heroes",
-  "marvel-cinematic-universe",
-  "dc-screen-characters",
-]);
-const ANIMAL_PACK_IDS = new Set(["domestic-animals", "wild-animals"]);
 
 export const PacksStep = memo(function PacksStep({
   top,
   sceneScale,
   bottomInset,
+  categoryId,
   packs,
   selectedPackIds,
   onPackPress,
+  onCreatePack,
+  onEditPack,
   onBack,
   onNext,
 }: PacksStepProps) {
   const { t } = useLocalization();
+  const { playPrimaryAction } = useAppHaptics();
   const [headingHeight, setHeadingHeight] = useState(PAGE_HEADING_HEIGHT);
-  const displayedPacks = useMemo<readonly SpyPackListItem[]>(
-    () =>
-      packs ??
-      SPY_LOCATION_PACKS.map(({ id, Illustration, wordIds, enabled }) => ({
-        id,
-        Illustration,
-        wordCount: wordIds.length,
-        enabled,
-      })),
-    [packs],
-  );
-  const showsCharacterPacks = displayedPacks.some(({ id }) =>
-    CHARACTER_PACK_IDS.has(id),
-  );
-  const showsAnimalPacks = displayedPacks.some(({ id }) =>
-    ANIMAL_PACK_IDS.has(id),
-  );
   const listTop =
     (top + headingHeight + HEADING_GAP - CARD_SHADOW_SPACE) * sceneScale;
   const listBottom =
@@ -90,16 +77,8 @@ export const PacksStep = memo(function PacksStep({
     setHeadingHeight(event.nativeEvent.layout.height);
   };
 
-  const subtitleKey = showsCharacterPacks
-    ? "spySetup.packs.charactersSubtitle"
-    : showsAnimalPacks
-      ? "spySetup.packs.animalsSubtitle"
-      : "spySetup.packs.subtitle";
-  const countKey = showsCharacterPacks
-    ? "spySetup.packs.characterCount"
-    : showsAnimalPacks
-      ? "spySetup.packs.animalCount"
-      : "spySetup.packs.locationCount";
+  const categoryTranslationKey = `spySetup.category.${categoryId}`;
+  const isCustomPacksCategory = categoryId === "mySets";
 
   return (
     <View pointerEvents="box-none" style={styles.container}>
@@ -117,23 +96,82 @@ export const PacksStep = memo(function PacksStep({
           onLayout={handleHeadingLayout}
         >
           <Text style={styles.pageTitle}>{t("spySetup.packs.title")}</Text>
-          <Text style={styles.pageSubtitle}>{t(subtitleKey)}</Text>
+          <Text style={styles.pageSubtitle}>
+            {t(`${categoryTranslationKey}.packsSubtitle`)}
+          </Text>
         </View>
       </View>
 
       <FlatList
-        data={displayedPacks}
+        data={packs}
         keyExtractor={(item) => item.id}
-        renderItem={({ item: { id, Illustration, wordCount, enabled } }) => (
-          <PackCard
-            illustration={<Illustration width={116} height={84} />}
-            title={t(`spySetup.packs.items.${id}`)}
-            wordCountLabel={t(countKey, { count: wordCount })}
-            selected={selectedPackIds.has(id)}
-            disabled={!enabled}
-            onPress={() => onPackPress(id)}
-          />
-        )}
+        renderItem={({ item }) => {
+          const { id, title, Illustration, wordCount, enabled, isCustom } = item;
+          const resolvedTitle = title ?? t(`spySetup.packs.items.${id}`);
+          const hasManagement = Boolean(isCustom && onEditPack);
+
+          return (
+            <PackCard
+              illustration={
+                Illustration ? (
+                  <Illustration
+                    width={isCustomPacksCategory ? 76 : 116}
+                    height={isCustomPacksCategory ? 64 : 84}
+                  />
+                ) : (
+                  <View style={styles.fallbackIllustration} />
+                )
+              }
+              title={resolvedTitle}
+              wordCountLabel={t(`${categoryTranslationKey}.wordCount`, {
+                count: wordCount,
+              })}
+              selected={selectedPackIds.has(id)}
+              disabled={!enabled}
+              managementExpanded={
+                hasManagement && selectedPackIds.has(id)
+              }
+              editLabel={
+                hasManagement ? t("spySetup.packs.editCustomPack") : undefined
+              }
+              onEdit={
+                hasManagement
+                  ? () => {
+                      onEditPack?.(id);
+                    }
+                  : undefined
+              }
+              onPress={() => onPackPress(id)}
+            />
+          );
+        }}
+        ListHeaderComponent={
+          isCustomPacksCategory ? (
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel={t("spySetup.packs.createCustomPack")}
+              onPress={() => {
+                playPrimaryAction();
+                onCreatePack?.();
+              }}
+              style={({ pressed }) => [
+                styles.createPackButton,
+                pressed && styles.createPackButtonPressed,
+              ]}
+            >
+              <Text style={styles.createPackButtonText}>
+                + {t("spySetup.packs.createCustomPack")}
+              </Text>
+            </Pressable>
+          ) : null
+        }
+        ListEmptyComponent={
+          isCustomPacksCategory ? (
+            <Text style={styles.emptyCustomPacksText}>
+              {t("spySetup.packs.noCustomPacks")}
+            </Text>
+          ) : null
+        }
         style={[
           styles.packList,
           {
@@ -227,6 +265,41 @@ const styles = StyleSheet.create({
   packListContent: {
     gap: 16,
     paddingBottom: 16,
+  },
+  fallbackIllustration: {
+    width: 84,
+    height: 64,
+    borderRadius: 16,
+    backgroundColor: colors.secondary3,
+  },
+  createPackButton: {
+    width: "100%",
+    height: 112,
+    borderWidth: 1.5,
+    borderStyle: "dashed",
+    borderColor: colors.primary,
+    borderRadius: 20,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: colors.secondary3,
+  },
+  createPackButtonPressed: {
+    opacity: 0.72,
+  },
+  createPackButtonText: {
+    color: colors.textSecondary,
+    fontFamily: "Nunito_700Bold",
+    fontSize: 18,
+    lineHeight: 25,
+  },
+  emptyCustomPacksText: {
+    paddingVertical: 12,
+    color: colors.textSecondary,
+    fontFamily: "Nunito_600SemiBold",
+    fontSize: 14,
+    lineHeight: 19,
+    textAlign: "center",
+    opacity: 0.7,
   },
   topListFade: {
     position: "absolute",

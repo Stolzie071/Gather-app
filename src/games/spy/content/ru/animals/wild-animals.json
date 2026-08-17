@@ -167,22 +167,6 @@
     {
       "id": "peacock",
       "name": "Павлин"
-    },
-    {
-      "id": "shark",
-      "name": "Акула"
-    },
-    {
-      "id": "dolphin",
-      "name": "Дельфин"
-    },
-    {
-      "id": "whale",
-      "name": "Кит"
-    },
-    {
-      "id": "orca",
-      "name": "Косатка"
     }
   ]
 }

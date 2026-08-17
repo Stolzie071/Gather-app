@@ -37,6 +37,11 @@ function createFixtureGame({
     categoryId: "locations",
     packIds: ["workplaces"],
     secretWordId: "cinema",
+    secretWord: {
+      id: "cinema",
+      name: "Кинотеатр",
+      categoryId: "locations",
+    },
     spiesKnowEachOther: false,
     timerEnabled: true,
     timerMinutes: 10,

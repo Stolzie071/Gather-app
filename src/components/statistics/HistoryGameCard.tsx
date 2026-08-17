@@ -22,6 +22,12 @@ export type HistoryParticipant = {
   isWinner: boolean;
 };
 
+export type HistorySecretWordSummary = {
+  label: string;
+  categoryLabel: string;
+  wordName: string;
+};
+
 type HistoryGameCardProps = {
   gameName: string;
   dateLabel: string;
@@ -30,6 +36,7 @@ type HistoryGameCardProps = {
   peacefulLabel: string;
   spiesLabel: string;
   winnerLabel: string;
+  secretWord?: HistorySecretWordSummary;
   peacefulPlayers: readonly HistoryParticipant[];
   spyPlayers: readonly HistoryParticipant[];
   expanded: boolean;
@@ -40,6 +47,8 @@ const HEADER_HEIGHT = 94;
 const DETAILS_TOP_OVERLAP = 49;
 const DETAILS_BASE_HEIGHT = 101;
 const DETAILS_ROW_HEIGHT = 33;
+const SECRET_WORD_HEIGHT = 64;
+const SECRET_WORD_GAP = 12;
 
 function ParticipantRow({
   participant,
@@ -87,6 +96,7 @@ export const HistoryGameCard = memo(function HistoryGameCard({
   peacefulLabel,
   spiesLabel,
   winnerLabel,
+  secretWord,
   peacefulPlayers,
   spyPlayers,
   expanded,
@@ -97,7 +107,10 @@ export const HistoryGameCard = memo(function HistoryGameCard({
   const expansionProgress = useSharedValue(expanded ? 1 : 0);
   const [detailsMounted, setDetailsMounted] = useState(expanded);
   const rowCount = Math.max(peacefulPlayers.length, spyPlayers.length, 1);
-  const detailsHeight = DETAILS_BASE_HEIGHT + rowCount * DETAILS_ROW_HEIGHT;
+  const detailsHeight =
+    DETAILS_BASE_HEIGHT +
+    rowCount * DETAILS_ROW_HEIGHT +
+    (secretWord ? SECRET_WORD_HEIGHT + SECRET_WORD_GAP : 0);
 
   useEffect(() => {
     if (expanded) {
@@ -200,31 +213,54 @@ export const HistoryGameCard = memo(function HistoryGameCard({
             strokeColor={colors.secondary3}
             strokeWidth={1.5}
           >
-            <View style={styles.detailsColumn}>
-              <Text style={styles.columnTitle}>{peacefulLabel}</Text>
-              <View style={styles.participantsList}>
-                {peacefulPlayers.map((participant) => (
-                  <ParticipantRow
-                    key={participant.id}
-                    participant={participant}
-                    winnerLabel={winnerLabel}
-                  />
-                ))}
-              </View>
-            </View>
+            <View style={styles.detailsContent}>
+              {secretWord && (
+                <View style={styles.secretWordSummary}>
+                  <View style={styles.secretWordText}>
+                    <Text style={styles.secretWordLabel}>
+                      {secretWord.label}
+                    </Text>
+                    <Text style={styles.secretWordName} numberOfLines={2}>
+                      {secretWord.wordName}
+                    </Text>
+                  </View>
 
-            <View style={styles.divider} />
+                  <View style={styles.secretWordCategory}>
+                    <Text style={styles.secretWordCategoryLabel}>
+                      {secretWord.categoryLabel}
+                    </Text>
+                  </View>
+                </View>
+              )}
 
-            <View style={styles.detailsColumn}>
-              <Text style={styles.columnTitle}>{spiesLabel}</Text>
-              <View style={styles.participantsList}>
-                {spyPlayers.map((participant) => (
-                  <ParticipantRow
-                    key={participant.id}
-                    participant={participant}
-                    winnerLabel={winnerLabel}
-                  />
-                ))}
+              <View style={styles.participantColumns}>
+                <View style={styles.detailsColumn}>
+                  <Text style={styles.columnTitle}>{peacefulLabel}</Text>
+                  <View style={styles.participantsList}>
+                    {peacefulPlayers.map((participant) => (
+                      <ParticipantRow
+                        key={participant.id}
+                        participant={participant}
+                        winnerLabel={winnerLabel}
+                      />
+                    ))}
+                  </View>
+                </View>
+
+                <View style={styles.divider} />
+
+                <View style={styles.detailsColumn}>
+                  <Text style={styles.columnTitle}>{spiesLabel}</Text>
+                  <View style={styles.participantsList}>
+                    {spyPlayers.map((participant) => (
+                      <ParticipantRow
+                        key={participant.id}
+                        participant={participant}
+                        winnerLabel={winnerLabel}
+                      />
+                    ))}
+                  </View>
+                </View>
               </View>
             </View>
           </Squircle>
@@ -294,6 +330,58 @@ const styles = StyleSheet.create({
     paddingTop: 65,
     paddingBottom: 16,
     paddingHorizontal: 20,
+  },
+  detailsContent: {
+    flex: 1,
+    gap: SECRET_WORD_GAP,
+  },
+  secretWordSummary: {
+    height: SECRET_WORD_HEIGHT,
+    paddingVertical: 8,
+    paddingHorizontal: 14,
+    borderWidth: 1,
+    borderColor: colors.secondary4,
+    borderRadius: 14,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+    backgroundColor: colors.background,
+  },
+  secretWordText: {
+    flex: 1,
+    minWidth: 0,
+    alignSelf: "stretch",
+    justifyContent: "center",
+  },
+  secretWordLabel: {
+    color: colors.textSecondary,
+    fontFamily: "Nunito_600SemiBold",
+    fontSize: 12,
+    lineHeight: 16,
+  },
+  secretWordName: {
+    color: colors.textPrimary,
+    fontFamily: "Nunito_800ExtraBold",
+    fontSize: 14,
+    lineHeight: 19,
+  },
+  secretWordCategory: {
+    minHeight: 24,
+    maxWidth: 112,
+    paddingHorizontal: 8,
+    borderRadius: 8,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: colors.secondary4,
+  },
+  secretWordCategoryLabel: {
+    color: colors.primary,
+    fontFamily: "Nunito_700Bold",
+    fontSize: 10,
+    lineHeight: 14,
+    textAlign: "center",
+  },
+  participantColumns: {
     flexDirection: "row",
   },
   detailsColumn: {

@@ -16,7 +16,9 @@ import Animated, {
 import {
   HistoryGameCard,
   type HistoryParticipant,
+  type HistorySecretWordSummary,
 } from "@/components/statistics/HistoryGameCard";
+import { useSpyContent } from "@/games/spy/content/SpyContentProvider";
 import { PlayerHistoryFilter } from "@/components/statistics/PlayerHistoryFilter";
 import type { GameHistoryEntry } from "@/history/types";
 import { getCountForm } from "@/localization/countForms";
@@ -53,6 +55,7 @@ export function HistoryStatisticsView({
   bottomFadeHeight,
 }: HistoryStatisticsViewProps) {
   const { language, t } = useLocalization();
+  const { registry: contentRegistry } = useSpyContent();
   const [selectedPlayerId, setSelectedPlayerId] = useState<string | null>(null);
   const [expandedGameId, setExpandedGameId] = useState<string | null>(null);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
@@ -175,6 +178,27 @@ export function HistoryStatisticsView({
       const spyPlayers = item.playerIds
         .filter((playerId) => spyIdSet.has(playerId))
         .map((playerId) => resolveParticipant(item, playerId));
+      let secretWord: HistorySecretWordSummary | undefined;
+
+      if (item.gameId === "spy") {
+        const categoryId = item.secretWord?.categoryId ?? item.categoryId;
+        const currentWord = contentRegistry.getWord(
+          item.categoryId,
+          item.secretWordId,
+        );
+        const category = contentRegistry.getCategory(categoryId);
+
+        secretWord = {
+          label: t("statistics.history.secretWord"),
+          categoryLabel: category
+            ? t(`spyReveal.categories.${categoryId}.wordLabel`)
+            : t("statistics.history.secretWordCategoryFallback"),
+          wordName:
+            item.secretWord?.name ??
+            currentWord?.name ??
+            t("statistics.history.secretWordMissing"),
+        };
+      }
 
       return (
         <Animated.View
@@ -190,6 +214,7 @@ export function HistoryStatisticsView({
             peacefulLabel={t("statistics.history.peaceful")}
             spiesLabel={t("statistics.history.spies")}
             winnerLabel={t("statistics.history.winner")}
+            secretWord={secretWord}
             peacefulPlayers={peacefulPlayers}
             spyPlayers={spyPlayers}
             expanded={expandedGameId === item.id}
@@ -203,6 +228,7 @@ export function HistoryStatisticsView({
       );
     },
     [
+      contentRegistry,
       expandedGameId,
       formatDate,
       formatPlayersCount,

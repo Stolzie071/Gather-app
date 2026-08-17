@@ -39,6 +39,7 @@ export function createSpyContentRegistry({
   const categoryById = new Map<string, SpyContentCategory>();
   const packByKey = new Map<string, SpyContentPack>();
   const packsByCategory = new Map<string, SpyContentPack[]>();
+  const categoryIdsByPackId = new Map<string, Set<string>>();
   const wordByKey = new Map<string, SpyContentWord>();
 
   categories.forEach((category) => {
@@ -102,6 +103,10 @@ export function createSpyContentRegistry({
 
     packByKey.set(packKey, pack);
 
+    const packCategoryIds = categoryIdsByPackId.get(source.id) ?? new Set();
+    packCategoryIds.add(source.categoryId);
+    categoryIdsByPackId.set(source.id, packCategoryIds);
+
     const categoryPacks = packsByCategory.get(source.categoryId) ?? [];
     categoryPacks.push(pack);
     packsByCategory.set(source.categoryId, categoryPacks);
@@ -122,18 +127,53 @@ export function createSpyContentRegistry({
       wordByKey.get(createRegistryKey(categoryId, wordId)),
 
     getWordIds: (categoryId, selectedPackIds) => {
-      const selectedPackIdSet = new Set(selectedPackIds);
+      const category = categoryById.get(categoryId);
 
-      return [
-        ...new Set(
-          (packsByCategory.get(categoryId) ?? [])
-            .filter(
-              (pack) =>
-                pack.enabled && selectedPackIdSet.has(pack.id),
-            )
-            .flatMap((pack) => pack.wordIds),
-        ),
+      if (!category) {
+        throw new Error(`Unknown Spy category: ${categoryId}`);
+      }
+
+      if (!category.enabled) {
+        throw new Error(`Spy category "${categoryId}" is disabled`);
+      }
+
+      const uniqueSelectedPackIds = [...new Set(selectedPackIds)];
+
+      if (uniqueSelectedPackIds.length === 0) {
+        throw new Error("At least one Spy pack must be selected");
+      }
+
+      const selectedPacks = uniqueSelectedPackIds.map((packId) => {
+        const pack = packByKey.get(createRegistryKey(categoryId, packId));
+
+        if (!pack) {
+          const knownCategoryIds = categoryIdsByPackId.get(packId);
+
+          if (knownCategoryIds?.size) {
+            throw new Error(
+              `Spy pack "${packId}" does not belong to category "${categoryId}"`,
+            );
+          }
+
+          throw new Error(`Unknown Spy pack: ${packId}`);
+        }
+
+        if (!pack.enabled) {
+          throw new Error(`Spy pack "${packId}" is disabled`);
+        }
+
+        return pack;
+      });
+
+      const wordIds = [
+        ...new Set(selectedPacks.flatMap((pack) => pack.wordIds)),
       ];
+
+      if (wordIds.length === 0) {
+        throw new Error("Selected Spy packs do not contain words");
+      }
+
+      return wordIds;
     },
   };
 }

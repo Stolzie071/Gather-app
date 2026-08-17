@@ -3,6 +3,7 @@ import type { SpyGameHistoryEntry } from "@/history/types";
 
 export function createSpyGameHistoryEntry(
   session: SpySession,
+  secretWordName: string,
   completedAt = new Date(),
 ): SpyGameHistoryEntry {
   const playerIds = [...new Set(session.revealOrder)];
@@ -26,6 +27,10 @@ export function createSpyGameHistoryEntry(
     throw new Error("Cannot complete a Spy game without winners");
   }
 
+  if (!secretWordName.trim()) {
+    throw new Error("Cannot complete a Spy game without a secret word name");
+  }
+
   return {
     id: session.id,
     gameId: "spy",
@@ -38,6 +43,11 @@ export function createSpyGameHistoryEntry(
     categoryId: session.draft.categoryId,
     packIds: [...new Set(session.draft.packIds)],
     secretWordId: session.secretWordId,
+    secretWord: {
+      id: session.secretWordId,
+      name: secretWordName,
+      categoryId: session.draft.categoryId,
+    },
     spiesKnowEachOther: session.draft.spiesKnowEachOther,
     timerEnabled: session.draft.timerEnabled,
     timerMinutes: session.draft.timerMinutes,

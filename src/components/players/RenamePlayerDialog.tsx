@@ -1,5 +1,8 @@
 import {
+  BackHandler,
   Keyboard,
+  type KeyboardEvent,
+  Platform,
   Pressable,
   StyleSheet,
   Text,
@@ -14,6 +17,7 @@ import {
   useState,
   type ReactNode,
 } from "react";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import Animated, {
   Easing,
@@ -30,6 +34,9 @@ import { Squircle } from "@/components/Squircle";
 import { useLocalization } from "@/localization/LocalizationProvider";
 import { normalizePlayerName } from "@/players/playerUtils";
 import { colors } from "@/theme/colors";
+
+const DESIGN_DIALOG_HEIGHT = 226;
+const KEYBOARD_GAP = 12;
 
 type DialogButtonProps = {
   children: ReactNode;
@@ -97,7 +104,8 @@ export function RenamePlayerDialog({
   onRename,
 }: RenamePlayerDialogProps) {
   const { t } = useLocalization();
-  const { width: screenWidth } = useWindowDimensions();
+  const insets = useSafeAreaInsets();
+  const { width: screenWidth, height: screenHeight } = useWindowDimensions();
   const dialogWidth = Math.min(370, screenWidth - 32);
 
   const [name, setName] = useState(playerName);
@@ -108,6 +116,7 @@ export function RenamePlayerDialog({
   const wasVisible = useRef(false);
   const visibilityProgress = useSharedValue(0);
   const renameDialogOpacity = useSharedValue(1);
+  const keyboardOffset = useSharedValue(0);
 
   const overlayAnimatedStyle = useAnimatedStyle(() => ({
     opacity: visibilityProgress.value * 0.42,
@@ -117,7 +126,9 @@ export function RenamePlayerDialog({
     opacity: visibilityProgress.value * renameDialogOpacity.value,
     transform: [
       {
-        translateY: interpolate(visibilityProgress.value, [0, 1], [10, 0]),
+        translateY:
+          interpolate(visibilityProgress.value, [0, 1], [10, 0]) -
+          keyboardOffset.value,
       },
       {
         scale: interpolate(visibilityProgress.value, [0, 1], [0.97, 1]),
@@ -127,6 +138,15 @@ export function RenamePlayerDialog({
 
   const finishHiding = useCallback(() => {
     setRendered(false);
+  }, []);
+
+  const handleClose = useCallback(() => {
+    Keyboard.dismiss();
+    onClose();
+  }, [onClose]);
+
+  const handleDuplicateCancel = useCallback(() => {
+    setIsDuplicateAlertOpen(false);
   }, []);
 
   useEffect(() => {
@@ -168,6 +188,81 @@ export function RenamePlayerDialog({
     });
   }, [isDuplicateAlertOpen, renameDialogOpacity]);
 
+  useEffect(() => {
+    if (!visible) {
+      keyboardOffset.value = 0;
+      return;
+    }
+
+    const dialogHeight = Math.min(
+      DESIGN_DIALOG_HEIGHT,
+      screenHeight - insets.top - insets.bottom - 32,
+    );
+
+    const handleKeyboardShow = (event: KeyboardEvent) => {
+      const dialogTop = (screenHeight - dialogHeight) / 2;
+      const dialogBottom = dialogTop + dialogHeight;
+      const requestedOffset = Math.max(
+        0,
+        dialogBottom - event.endCoordinates.screenY + KEYBOARD_GAP,
+      );
+      const maximumOffset = Math.max(0, dialogTop - insets.top - KEYBOARD_GAP);
+      const duration = event.duration > 0 ? event.duration : 220;
+
+      keyboardOffset.value = withTiming(
+        Math.min(requestedOffset, maximumOffset),
+        { duration },
+      );
+    };
+
+    const handleKeyboardHide = (event: KeyboardEvent) => {
+      const duration = event.duration > 0 ? event.duration : 180;
+
+      keyboardOffset.value = withTiming(0, { duration });
+    };
+
+    const showSubscription = Keyboard.addListener(
+      Platform.OS === "ios" ? "keyboardWillShow" : "keyboardDidShow",
+      handleKeyboardShow,
+    );
+    const hideSubscription = Keyboard.addListener(
+      Platform.OS === "ios" ? "keyboardWillHide" : "keyboardDidHide",
+      handleKeyboardHide,
+    );
+
+    return () => {
+      showSubscription.remove();
+      hideSubscription.remove();
+    };
+  }, [
+    insets.bottom,
+    insets.top,
+    keyboardOffset,
+    screenHeight,
+    visible,
+  ]);
+
+  useEffect(() => {
+    if (!visible) {
+      return;
+    }
+
+    const subscription = BackHandler.addEventListener(
+      "hardwareBackPress",
+      () => {
+        if (isDuplicateAlertOpen) {
+          handleDuplicateCancel();
+        } else {
+          handleClose();
+        }
+
+        return true;
+      },
+    );
+
+    return () => subscription.remove();
+  }, [handleClose, handleDuplicateCancel, isDuplicateAlertOpen, visible]);
+
   if (!rendered) {
     return null;
   }
@@ -191,10 +286,6 @@ export function RenamePlayerDialog({
     }
 
     onRename(normalizedName);
-  };
-
-  const handleDuplicateCancel = () => {
-    setIsDuplicateAlertOpen(false);
   };
 
   const handleDuplicateRename = () => {
@@ -224,7 +315,7 @@ export function RenamePlayerDialog({
       <Pressable
         style={StyleSheet.absoluteFillObject}
         disabled={isDuplicateAlertOpen}
-        onPress={onClose}
+        onPress={handleClose}
       />
 
       <Animated.View
@@ -269,7 +360,10 @@ export function RenamePlayerDialog({
           </Squircle>
 
           <View style={styles.buttons}>
-            <DialogButton disabled={isDuplicateAlertOpen} onPress={onClose}>
+            <DialogButton
+              disabled={isDuplicateAlertOpen}
+              onPress={handleClose}
+            >
               <Squircle
                 style={styles.button}
                 cornerRadius={8}

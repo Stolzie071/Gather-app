@@ -1,5 +1,3 @@
-export type SpyContentLocale = "ru" | "en";
-
 export type SpyWordPresentation = "image" | "text";
 
 export type SpyContentCategory = {

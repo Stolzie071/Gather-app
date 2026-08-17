@@ -1,3 +1,9 @@
+export type SpyHistorySecretWord = {
+  id: string;
+  name: string;
+  categoryId: string;
+};
+
 export type SpyGameHistoryEntry = {
   id: string;
   gameId: "spy";
@@ -10,6 +16,7 @@ export type SpyGameHistoryEntry = {
   categoryId: string;
   packIds: readonly string[];
   secretWordId: string;
+  secretWord: SpyHistorySecretWord | null;
   spiesKnowEachOther: boolean;
   timerEnabled: boolean;
   timerMinutes: number;

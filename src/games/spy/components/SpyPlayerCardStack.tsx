@@ -52,7 +52,12 @@ function CardOrnament({ style }: CardOrnamentProps) {
   );
 }
 
+function preventIntraWordWrap(value: string) {
+  return value.replace(/\S(?=\S)/g, "$&\u2060");
+}
+
 type SpyPlayerCardStackProps = {
+  categoryId: string;
   playerName: string;
   wordName: string;
   wordImage?: ImageSourcePropType;
@@ -85,6 +90,7 @@ type RenderedPlayer = {
 };
 
 export const SpyPlayerCardStack = memo(function SpyPlayerCardStack({
+  categoryId,
   playerName,
   wordName,
   wordImage,
@@ -119,6 +125,7 @@ export const SpyPlayerCardStack = memo(function SpyPlayerCardStack({
     phase === "revealed" ||
     phase === "passing";
   const isSpy = renderedPlayer.revealType === "spy";
+  const categoryRevealTranslationKey = `spyReveal.categories.${categoryId}`;
 
   const closedCardAnimatedStyle = useAnimatedStyle(() => ({
     transform: [
@@ -361,22 +368,24 @@ export const SpyPlayerCardStack = memo(function SpyPlayerCardStack({
                   fillColor={colors.secondary4}
                 >
                   <Text style={styles.wordLabelText}>
-                    {t(isSpy ? "spyReveal.roleLabel" : "spyReveal.wordLabel")}
+                    {t(
+                      isSpy
+                        ? "spyReveal.roleLabel"
+                        : `${categoryRevealTranslationKey}.wordLabel`,
+                    )}
                   </Text>
                 </Squircle>
 
-                <Text
-                  style={[
-                    styles.wordTitle,
-                    presentation === "text" && !isSpy && styles.textWordTitle,
-                    isSpy && styles.roleTitle,
-                  ]}
-                  numberOfLines={presentation === "text" && !isSpy ? 3 : 1}
-                  adjustsFontSizeToFit
-                  minimumFontScale={0.5}
-                >
-                  {isSpy ? t("spyReveal.spyRoleName") : wordName}
-                </Text>
+                {(isSpy || presentation === "image") && (
+                  <Text
+                    style={[styles.wordTitle, isSpy && styles.roleTitle]}
+                    numberOfLines={1}
+                    adjustsFontSizeToFit
+                    minimumFontScale={0.5}
+                  >
+                    {isSpy ? t("spyReveal.spyRoleName") : wordName}
+                  </Text>
+                )}
 
                 {isSpy ? (
                   <Image
@@ -397,8 +406,11 @@ export const SpyPlayerCardStack = memo(function SpyPlayerCardStack({
                       numberOfLines={4}
                       adjustsFontSizeToFit
                       minimumFontScale={0.45}
+                      android_hyphenationFrequency="none"
+                      textBreakStrategy="simple"
+                      accessibilityLabel={wordName}
                     >
-                      {wordName}
+                      {preventIntraWordWrap(wordName)}
                     </Text>
                   </View>
                 )}
@@ -439,7 +451,9 @@ export const SpyPlayerCardStack = memo(function SpyPlayerCardStack({
                 <View style={styles.warningArea}>
                   <Text style={styles.wordWarning}>
                     {t(
-                      isSpy ? "spyReveal.spyWarning" : "spyReveal.wordWarning",
+                      `${categoryRevealTranslationKey}.${
+                        isSpy ? "spyWarning" : "wordWarning"
+                      }`,
                     )}
                   </Text>
                 </View>
@@ -484,7 +498,9 @@ export const SpyPlayerCardStack = memo(function SpyPlayerCardStack({
               style={[styles.hiddenOrnament, styles.bottomOrnament]}
             />
             <Text style={styles.instruction}>
-              {t("spyReveal.instruction", { name: renderedPlayer.name })}
+              {t(`${categoryRevealTranslationKey}.instruction`, {
+                name: renderedPlayer.name,
+              })}
             </Text>
             <ClickIcon
               pointerEvents="none"
@@ -611,12 +627,10 @@ const styles = StyleSheet.create({
     textAlign: "center",
     textAlignVertical: "center",
   },
-  textWordTitle: { opacity: 0, height: 0 },
   roleTitle: { marginTop: 8 },
   wordImage: { width: 270, height: 214, borderRadius: 20, overflow: "hidden" },
   textWordArea: {
     width: 286,
-    height: 170,
     paddingHorizontal: 8,
     alignItems: "center",
     justifyContent: "center",
@@ -625,8 +639,8 @@ const styles = StyleSheet.create({
     width: "100%",
     color: colors.textPrimary,
     fontFamily: "Nunito_800ExtraBold",
-    fontSize: 52,
-    lineHeight: 62,
+    fontSize: 42,
+    lineHeight: 50,
     textAlign: "center",
     textAlignVertical: "center",
   },
@@ -708,6 +722,7 @@ const styles = StyleSheet.create({
     height: 50,
   },
   textWordMainContent: {
-    paddingTop: 20,
+    paddingTop: 32,
+    gap: 32,
   },
 });

@@ -34,6 +34,7 @@ import { FavoritesProvider } from "@/favorites/FavoritesProvider";
 import { PlayersProvider } from "@/players/PlayersProvider";
 import { SettingsProvider } from "@/settings/SettingsProvider";
 import { SpySessionProvider } from "@/games/spy/SpySessionProvider";
+import { SpyContentProvider } from "@/games/spy/content/SpyContentProvider";
 import { GameHistoryProvider } from "@/history/GameHistoryProvider";
 import { useSpySession } from "@/games/spy/SpySessionProvider";
 import { ExitGameDialog } from "@/components";
@@ -175,11 +176,13 @@ export default function App() {
           <LocalizationProvider>
             <FavoritesProvider>
               <PlayersProvider>
-                <GameHistoryProvider>
-                  <SpySessionProvider>
-                    <AppNavigation />
-                  </SpySessionProvider>
-                </GameHistoryProvider>
+                <SpyContentProvider>
+                  <GameHistoryProvider>
+                    <SpySessionProvider>
+                      <AppNavigation />
+                    </SpySessionProvider>
+                  </GameHistoryProvider>
+                </SpyContentProvider>
               </PlayersProvider>
             </FavoritesProvider>
           </LocalizationProvider>

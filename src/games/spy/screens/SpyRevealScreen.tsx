@@ -20,7 +20,7 @@ import {
   SettingsSheet,
 } from "@/components";
 import { getSpyWordImage } from "@/games/spy/content/assets";
-import { builtInSpyContentRegistry } from "@/games/spy/content/builtInContent";
+import { useSpyContent } from "@/games/spy/content/SpyContentProvider";
 import { SpyPlayerCardStack } from "@/games/spy/components/SpyPlayerCardStack";
 import { useSpySession } from "@/games/spy/SpySessionProvider";
 import type { RootStackParamList } from "@/navigation/types";
@@ -35,6 +35,7 @@ type SpyRevealScreenProps = BlankStackScreenProps<
 >;
 
 export function SpyRevealScreen({ navigation }: SpyRevealScreenProps) {
+  const { registry: contentRegistry } = useSpyContent();
   const { players } = usePlayers();
   const { activeSession, clearSession, updateSession } = useSpySession();
   const insets = useSafeAreaInsets();
@@ -52,10 +53,10 @@ export function SpyRevealScreen({ navigation }: SpyRevealScreenProps) {
     [currentPlayerId, players],
   );
   const currentCategory = activeSession
-    ? builtInSpyContentRegistry.getCategory(activeSession.draft.categoryId)
+    ? contentRegistry.getCategory(activeSession.draft.categoryId)
     : undefined;
   const currentWord = activeSession
-    ? builtInSpyContentRegistry.getWord(
+    ? contentRegistry.getWord(
         activeSession.draft.categoryId,
         activeSession.secretWordId,
       )
@@ -239,6 +240,7 @@ export function SpyRevealScreen({ navigation }: SpyRevealScreenProps) {
           {currentCategory && currentWord && (
             <SpyPlayerCardStack
               key={`${activeSession?.id ?? "empty"}-${debugCardKey}`}
+              categoryId={currentCategory.id}
               playerName={currentPlayer?.name ?? ""}
               wordName={currentWord.name}
               wordImage={currentWordImage}
