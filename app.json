@@ -46,6 +46,15 @@
           "savePhotosPermission": "Gather сохраняет фотографии игроков в галерею.",
           "granularPermissions": []
         }
+      ],
+      [
+        "expo-build-properties",
+        {
+          "android": {
+            "enableMinifyInReleaseBuilds": true,
+            "enableShrinkResourcesInReleaseBuilds": true
+          }
+        }
       ]
     ],
     "extra": {
