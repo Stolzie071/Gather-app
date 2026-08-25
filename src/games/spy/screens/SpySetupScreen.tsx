@@ -66,7 +66,7 @@ const WAVE_LEFT = -29;
 const SURFACE_EXTENSION_TOP = WAVE_TOP + 694;
 const COMPACT_MAX_HEIGHT = 700;
 const COMPACT_MAX_WIDTH = 350;
-const COMPACT_GAME_AREA_OFFSET = -16;
+const COMPACT_GAME_AREA_OFFSET = -85;
 const PAGE_CONTENT_TOP = 340;
 
 type SetupStep = 1 | 2 | 3 | 4;
@@ -552,6 +552,7 @@ export function SpySetupScreen({ navigation }: SpySetupScreenProps) {
           styles.designScene,
           {
             transform: [{ scale: sceneScale }],
+            height: Math.max(DESIGN_HEIGHT, screenHeight / sceneScale),
           },
         ]}
       >
@@ -586,7 +587,9 @@ export function SpySetupScreen({ navigation }: SpySetupScreenProps) {
             />
           </Animated.View>
 
-          <SpySetupDice width={190} height={132} style={styles.dice} />
+          {!isCompactScreen && (
+            <SpySetupDice width={190} height={132} style={styles.dice} />
+          )}
 
           <Image
             source={SpySetupWaveShadow}
@@ -610,7 +613,9 @@ export function SpySetupScreen({ navigation }: SpySetupScreenProps) {
           />
 
           <SpySetupWave width={460} height={713} style={styles.wave} />
-          <SpySetupDiceHand width={17} height={12} style={styles.diceHand} />
+          {!isCompactScreen && (
+            <SpySetupDiceHand width={17} height={12} style={styles.diceHand} />
+          )}
         </Animated.View>
       </View>
 

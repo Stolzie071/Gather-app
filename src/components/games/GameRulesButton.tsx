@@ -12,7 +12,11 @@ import { Squircle } from "@/components/Squircle";
 import { useLocalization } from "@/localization/LocalizationProvider";
 import { colors } from "@/theme/colors";
 
-export function GameRulesButton() {
+type GameRulesButtonProps = {
+  onPress: () => void;
+};
+
+export function GameRulesButton({ onPress }: GameRulesButtonProps) {
   const { t } = useLocalization();
   const scale = useSharedValue(1);
 
@@ -22,7 +26,7 @@ export function GameRulesButton() {
 
   return (
     <Pressable
-      onPress={() => {}}
+      onPress={onPress}
       onPressIn={() => {
         scale.value = withTiming(0.98, { duration: 70 });
       }}

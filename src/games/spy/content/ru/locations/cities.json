@@ -1,0 +1,30 @@
+{
+  "id": "cities",
+  "categoryId": "locations",
+  "enabled": true,
+  "illustrationKey": "cities",
+  "words": [
+    { "id": "cities-london", "name": "Лондон", "imageKey": "cities-london" },
+    { "id": "cities-moscow", "name": "Москва", "imageKey": "cities-moscow" },
+    { "id": "cities-tokyo", "name": "Токио", "imageKey": "cities-tokyo" },
+    { "id": "cities-paris", "name": "Париж", "imageKey": "cities-paris" },
+    { "id": "cities-new-york", "name": "Нью-Йорк", "imageKey": "cities-new-york" },
+    { "id": "cities-rome", "name": "Рим", "imageKey": "cities-rome" },
+    { "id": "cities-berlin", "name": "Берлин", "imageKey": "cities-berlin" },
+    { "id": "cities-istanbul", "name": "Стамбул", "imageKey": "cities-istanbul" },
+    { "id": "cities-dubai", "name": "Дубай", "imageKey": "cities-dubai" },
+    { "id": "cities-beijing", "name": "Пекин", "imageKey": "cities-beijing" },
+    { "id": "cities-seoul", "name": "Сеул", "imageKey": "cities-seoul" },
+    { "id": "cities-sydney", "name": "Сидней", "imageKey": "cities-sydney" },
+    { "id": "cities-barcelona", "name": "Барселона", "imageKey": "cities-barcelona" },
+    { "id": "cities-amsterdam", "name": "Амстердам", "imageKey": "cities-amsterdam" },
+    { "id": "cities-prague", "name": "Прага", "imageKey": "cities-prague" },
+    { "id": "cities-venice", "name": "Венеция", "imageKey": "cities-venice" },
+    { "id": "cities-cairo", "name": "Каир", "imageKey": "cities-cairo" },
+    { "id": "cities-rio-de-janeiro", "name": "Рио-де-Жанейро", "imageKey": "cities-rio-de-janeiro" },
+    { "id": "cities-saint-petersburg", "name": "Санкт-Петербург", "imageKey": "cities-saint-petersburg" },
+    { "id": "cities-los-angeles", "name": "Лос-Анджелес", "imageKey": "cities-los-angeles" },
+    { "id": "cities-nizhny-novgorod", "name": "Нижний Новгород", "imageKey": "cities-nizhny-novgorod" },
+    { "id": "cities-vladivostok", "name": "Владивосток", "imageKey": "cities-vladivostok" }
+  ]
+}

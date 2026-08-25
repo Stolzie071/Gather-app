@@ -12,7 +12,11 @@ import {
   createPlayerProfile,
   normalizePlayerName,
 } from "@/players/playerUtils";
-import type { CreatePlayerInput, Player } from "@/players/types";
+import type {
+  CreatePlayerInput,
+  Player,
+  PlayerAvatar,
+} from "@/players/types";
 import {
   clearStoredPlayerPhotos,
   deleteStoredPlayerPhoto,
@@ -25,6 +29,7 @@ type PlayersContextValue = {
   addPlayer: (input: CreatePlayerInput) => Player;
   commitPlayers: (players: readonly Player[]) => void;
   renamePlayer: (playerId: string, name: string) => void;
+  updatePlayerAvatar: (playerId: string, avatar: PlayerAvatar) => void;
   deletePlayer: (playerId: string) => void;
   clearPlayers: () => void;
   clearPlayerPhotos: () => void;
@@ -91,6 +96,33 @@ export function PlayersProvider({ children }: PropsWithChildren) {
     return player;
   }, []);
 
+  const updatePlayerAvatar = useCallback(
+    (playerId: string, avatar: PlayerAvatar) => {
+      const currentAvatar = players.find(
+        (player) => player.id === playerId,
+      )?.avatar;
+
+      if (
+        currentAvatar?.type === "photo" &&
+        (avatar.type !== "photo" ||
+          avatar.fileName !== currentAvatar.fileName)
+      ) {
+        try {
+          deleteStoredPlayerPhoto(currentAvatar.fileName);
+        } catch (error: unknown) {
+          console.warn("Failed to delete replaced player photo", error);
+        }
+      }
+
+      setPlayers((currentPlayers) =>
+        currentPlayers.map((player) =>
+          player.id === playerId ? { ...player, avatar } : player,
+        ),
+      );
+    },
+    [players],
+  );
+
   const commitPlayers = useCallback((playersToCommit: readonly Player[]) => {
     setPlayers((currentPlayers) => {
       const currentPlayerIds = new Set(
@@ -152,6 +184,7 @@ export function PlayersProvider({ children }: PropsWithChildren) {
       addPlayer,
       commitPlayers,
       renamePlayer,
+      updatePlayerAvatar,
       deletePlayer,
       clearPlayers,
       clearPlayerPhotos,
@@ -165,6 +198,7 @@ export function PlayersProvider({ children }: PropsWithChildren) {
       isPlayersLoaded,
       players,
       renamePlayer,
+      updatePlayerAvatar,
     ],
   );
 

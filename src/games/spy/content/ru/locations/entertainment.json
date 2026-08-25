@@ -1,0 +1,28 @@
+{
+  "id": "entertainment",
+  "categoryId": "locations",
+  "enabled": true,
+  "illustrationKey": "entertainment",
+  "words": [
+    { "id": "entertainment-cinema", "name": "Кинотеатр", "imageKey": "entertainment-cinema" },
+    { "id": "entertainment-theater", "name": "Театр", "imageKey": "entertainment-theater" },
+    { "id": "entertainment-circus", "name": "Цирк", "imageKey": "entertainment-circus" },
+    { "id": "entertainment-amusement-park", "name": "Парк аттракционов", "imageKey": "entertainment-amusement-park" },
+    { "id": "entertainment-water-park", "name": "Аквапарк", "imageKey": "entertainment-water-park" },
+    { "id": "entertainment-bowling", "name": "Боулинг", "imageKey": "entertainment-bowling" },
+    { "id": "entertainment-karaoke", "name": "Караоке", "imageKey": "entertainment-karaoke" },
+    { "id": "entertainment-nightclub", "name": "Ночной клуб", "imageKey": "entertainment-nightclub" },
+    { "id": "entertainment-planetarium", "name": "Планетарий", "imageKey": "entertainment-planetarium" },
+    { "id": "entertainment-museum", "name": "Музей", "imageKey": "entertainment-museum" },
+    { "id": "entertainment-zoo", "name": "Зоопарк", "imageKey": "entertainment-zoo" },
+    { "id": "entertainment-escape-room", "name": "Квест-комната", "imageKey": "entertainment-escape-room" },
+    { "id": "entertainment-trampoline-center", "name": "Батутный центр", "imageKey": "entertainment-trampoline-center" },
+    { "id": "entertainment-ice-rink", "name": "Каток", "imageKey": "entertainment-ice-rink" },
+    { "id": "entertainment-stadium", "name": "Стадион", "imageKey": "entertainment-stadium" },
+    { "id": "entertainment-casino", "name": "Казино", "imageKey": "entertainment-casino" },
+    { "id": "entertainment-anticafe", "name": "Антикафе", "imageKey": "entertainment-anticafe" },
+    { "id": "entertainment-restaurant", "name": "Ресторан", "imageKey": "entertainment-restaurant" },
+    { "id": "entertainment-spa-center", "name": "Спа-центр", "imageKey": "entertainment-spa-center" },
+    { "id": "entertainment-karting", "name": "Картинг", "imageKey": "entertainment-karting" }
+  ]
+}

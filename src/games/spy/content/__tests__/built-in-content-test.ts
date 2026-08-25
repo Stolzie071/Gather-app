@@ -1,13 +1,65 @@
 import { spyEn } from "@/games/spy/localization/en";
 import { spyRu } from "@/games/spy/localization/ru";
+import { SPY_PACK_ILLUSTRATIONS, SPY_WORD_IMAGES } from "../assets";
 import { SPY_CONTENT_CATEGORIES } from "../categories";
 import { createSpyContentRegistry } from "../registry";
 import { BUILT_IN_SPY_PACK_SOURCES } from "../sources";
+import { validateSpyContentAssets } from "../validation";
 
 describe("built-in Spy content", () => {
   const registry = createSpyContentRegistry({
     categories: SPY_CONTENT_CATEGORIES,
     packs: BUILT_IN_SPY_PACK_SOURCES,
+  });
+
+  test("combines all playable location packs", () => {
+    expect(
+      registry.getWordIds("locations", [
+        "nature",
+        "entertainment",
+        "cities",
+      ]),
+    ).toHaveLength(62);
+  });
+
+  test("registers an illustration for every playable location", () => {
+    expect(() =>
+      validateSpyContentAssets({
+        categories: SPY_CONTENT_CATEGORIES,
+        packs: BUILT_IN_SPY_PACK_SOURCES,
+        packIllustrationKeys: new Set(
+          Object.keys(SPY_PACK_ILLUSTRATIONS),
+        ),
+        wordImageKeys: new Set(Object.keys(SPY_WORD_IMAGES)),
+      }),
+    ).not.toThrow();
+  });
+
+  test("uses the board-game-club illustration for Anticafe", () => {
+    expect(
+      registry.getWord("locations", "entertainment-anticafe"),
+    ).toMatchObject({
+      name: "Антикафе",
+      imageKey: "entertainment-anticafe",
+    });
+  });
+
+  test("lists playable location packs before unfinished packs", () => {
+    expect(
+      registry
+        .getPacksByCategory("locations")
+        .map(({ id, enabled, wordIds }) => ({
+          id,
+          enabled,
+          wordCount: wordIds.length,
+        })),
+    ).toEqual([
+      { id: "nature", enabled: true, wordCount: 20 },
+      { id: "entertainment", enabled: true, wordCount: 20 },
+      { id: "cities", enabled: true, wordCount: 22 },
+      { id: "workplaces", enabled: false, wordCount: 0 },
+      { id: "transport", enabled: false, wordCount: 0 },
+    ]);
   });
 
   test("combines two real character packs", () => {

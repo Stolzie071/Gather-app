@@ -186,7 +186,7 @@ export function PackCard({
             </View>
 
             <View style={styles.information}>
-              <Text style={styles.title} numberOfLines={hasManagement ? 2 : 1}>
+              <Text style={styles.title} numberOfLines={2}>
                 {title}
               </Text>
               <Text style={styles.wordCount} numberOfLines={1}>

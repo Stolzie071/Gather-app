@@ -125,6 +125,7 @@ export const SpyPlayerCardStack = memo(function SpyPlayerCardStack({
     phase === "revealed" ||
     phase === "passing";
   const isSpy = renderedPlayer.revealType === "spy";
+  const textWordLineCount = /\s/u.test(wordName.trim()) ? 4 : 1;
   const categoryRevealTranslationKey = `spyReveal.categories.${categoryId}`;
 
   const closedCardAnimatedStyle = useAnimatedStyle(() => ({
@@ -403,7 +404,7 @@ export const SpyPlayerCardStack = memo(function SpyPlayerCardStack({
                   <View style={styles.textWordArea}>
                     <Text
                       style={styles.textWordName}
-                      numberOfLines={4}
+                      numberOfLines={textWordLineCount}
                       adjustsFontSizeToFit
                       minimumFontScale={0.45}
                       android_hyphenationFrequency="none"

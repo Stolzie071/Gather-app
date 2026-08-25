@@ -122,6 +122,7 @@ export const spyEn = {
       editCustomPack: "Edit pack",
       items: {
         nature: "Nature",
+        entertainment: "Entertainment",
         workplaces: "Workplaces",
         transport: "Transport",
         cities: "Cities",

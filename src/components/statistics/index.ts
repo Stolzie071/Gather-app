@@ -9,6 +9,7 @@ export {
 } from "./PlayerDetailCards";
 export { PlayerEditButton } from "./PlayerEditButton";
 export { PlayerActionsSheet } from "./PlayerActionsSheet";
+export { PlayerAvatarPreviewDialog } from "./PlayerAvatarPreviewDialog";
 export {
   StatisticsTabs,
   type StatisticsTab,

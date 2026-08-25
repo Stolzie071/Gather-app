@@ -1,0 +1,28 @@
+{
+  "id": "nature",
+  "categoryId": "locations",
+  "enabled": true,
+  "illustrationKey": "nature",
+  "words": [
+    { "id": "nature-forest", "name": "Лес", "imageKey": "nature-forest" },
+    { "id": "nature-beach", "name": "Пляж", "imageKey": "nature-beach" },
+    { "id": "nature-desert", "name": "Пустыня", "imageKey": "nature-desert" },
+    { "id": "nature-mountains", "name": "Горы", "imageKey": "nature-mountains" },
+    { "id": "nature-cave", "name": "Пещера", "imageKey": "nature-cave" },
+    { "id": "nature-waterfall", "name": "Водопад", "imageKey": "nature-waterfall" },
+    { "id": "nature-volcano", "name": "Вулкан", "imageKey": "nature-volcano" },
+    { "id": "nature-jungle", "name": "Джунгли", "imageKey": "nature-jungle" },
+    { "id": "nature-swamp", "name": "Болото", "imageKey": "nature-swamp" },
+    { "id": "nature-lake", "name": "Озеро", "imageKey": "nature-lake" },
+    { "id": "nature-island", "name": "Остров", "imageKey": "nature-island" },
+    { "id": "nature-glacier", "name": "Ледник", "imageKey": "nature-glacier" },
+    { "id": "nature-canyon", "name": "Каньон", "imageKey": "nature-canyon" },
+    { "id": "nature-savanna", "name": "Саванна", "imageKey": "nature-savanna" },
+    { "id": "nature-coral-reef", "name": "Коралловый риф", "imageKey": "nature-coral-reef" },
+    { "id": "nature-geyser", "name": "Гейзер", "imageKey": "nature-geyser" },
+    { "id": "nature-meadow", "name": "Луг", "imageKey": "nature-meadow" },
+    { "id": "nature-riverbank", "name": "Берег реки", "imageKey": "nature-riverbank" },
+    { "id": "nature-north-pole", "name": "Северный полюс", "imageKey": "nature-north-pole" },
+    { "id": "nature-camping", "name": "Кемпинг", "imageKey": "nature-camping" }
+  ]
+}

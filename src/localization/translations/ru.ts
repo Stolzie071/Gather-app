@@ -39,6 +39,31 @@ export const ru = {
       editPlayer: "Редактировать игрока",
       closeActions: "Закрыть меню игрока",
       renamePlayer: "Переименовать игрока",
+      avatar: {
+        open: "Открыть аватар игрока",
+        close: "Закрыть просмотр аватара",
+        openDetail: "Открыть фотографию на весь экран",
+        closeDetail: "Закрыть полноэкранный просмотр",
+        openMenu: "Открыть меню фотографии",
+        editAvatar: "Редактировать аватар",
+        replace: "Заменить",
+        deletePhoto: "Удалить фото",
+        saveToGallery: "Сохранить в галерею",
+        zoomHint: "Используйте два пальца, чтобы приблизить фотографию",
+        replaceDialog: {
+          title: "Заменить аватар",
+          subtitle: "Выберите новый аватар",
+          presets: "Готовые аватары",
+        },
+        save: {
+          savedToast: "Сохранено",
+          permissionTitle: "Нет доступа к галерее",
+          permissionMessage:
+            "Разрешите Gather сохранять фотографии в галерею.",
+          errorTitle: "Не удалось сохранить фотографию",
+          errorMessage: "Попробуйте ещё раз.",
+        },
+      },
       renameDialog: {
         title: "Переименовать игрока",
         playerName: "Имя игрока",
@@ -105,6 +130,7 @@ export const ru = {
     },
     emptyFavorites: "Избранных игр пока что нет",
     emptySearch: "Игры не найдены",
+    comingSoon: "Скоро",
     games: {
       spy: {
         title: "Шпион",
@@ -206,6 +232,7 @@ export const ru = {
       title: "Не помнишь правила?",
       description: "Быстро освежим за пару минут.",
       read: "Читать правила",
+      comingSoon: "Правила скоро появятся :)",
     },
   },
 
@@ -236,6 +263,14 @@ export const ru = {
       clearPhotos: "Очистить все фотографии",
       savedGames: "Сохранено партий: %{count}",
       clearGameHistory: "Очистить историю партий",
+    },
+
+    about: {
+      title: "О Gather",
+      description:
+        "Gather — приложение для встреч с друзьями. Выбирайте игры, создавайте свои наборы слов, сохраняйте игроков и следите за результатами партий.",
+      version: "Версия 1.0.0",
+      close: "Понятно",
     },
 
     hapticTests: {

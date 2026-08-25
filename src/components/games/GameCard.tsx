@@ -19,7 +19,8 @@ type GameCardProps = {
   players: string;
   duration: string;
   illustration: ReactNode;
-  onPress: () => void;
+  onPress?: () => void;
+  comingSoonLabel?: string;
 };
 
 export function GameCard({
@@ -28,6 +29,7 @@ export function GameCard({
   duration,
   illustration,
   onPress,
+  comingSoonLabel,
 }: GameCardProps) {
   const { playPrimaryAction } = useAppHaptics();
   const scale = useSharedValue(1);
@@ -37,18 +39,32 @@ export function GameCard({
   }));
   return (
     <Pressable
+      disabled={!onPress}
       onPress={() => {
+        if (!onPress) {
+          return;
+        }
+
         playPrimaryAction();
         onPress();
       }}
       style={styles.pressable}
       accessibilityRole="button"
+      accessibilityState={{ disabled: !onPress }}
       onPressIn={() => {
+        if (!onPress) {
+          return;
+        }
+
         scale.value = withTiming(0.97, {
           duration: 75,
         });
       }}
       onPressOut={() => {
+        if (!onPress) {
+          return;
+        }
+
         scale.value = withSpring(1, {
           damping: 18,
           stiffness: 320,
@@ -57,38 +73,50 @@ export function GameCard({
       }}
     >
       <Animated.View style={[styles.shadow, animatedStyle]}>
-        <Squircle
-          style={styles.card}
-          cornerRadius={20}
-          fillColor={colors.surface}
+        <View
+          style={[styles.cardVisual, !onPress && styles.cardVisualDisabled]}
         >
-          <View style={styles.illustration}>{illustration}</View>
+          <Squircle
+            style={styles.card}
+            cornerRadius={20}
+            fillColor={colors.surface}
+          >
+            <View style={styles.illustration}>{illustration}</View>
 
-          <View style={styles.information}>
-            <Text style={styles.title} numberOfLines={1}>
-              {title}
-            </Text>
+            <View style={styles.information}>
+              <Text style={styles.title} numberOfLines={1}>
+                {title}
+              </Text>
 
-            <View style={styles.detailRow}>
-              <PlayersIcon width={14} height={14} />
+              <View style={styles.detailRow}>
+                <PlayersIcon width={14} height={14} />
 
-              <Text style={styles.detailText}>{players}</Text>
+                <Text style={styles.detailText}>{players}</Text>
+              </View>
+
+              <View style={styles.detailRow}>
+                <TimeIcon width={14} height={14} />
+
+                <Text style={styles.detailText}>{duration}</Text>
+              </View>
             </View>
 
-            <View style={styles.detailRow}>
-              <TimeIcon width={14} height={14} />
+            <ArrowIcon
+              width={9}
+              height={17}
+              color={colors.textPrimary}
+              style={styles.arrow}
+            />
+          </Squircle>
+        </View>
 
-              <Text style={styles.detailText}>{duration}</Text>
+        {comingSoonLabel ? (
+          <View pointerEvents="none" style={styles.comingSoonOverlay}>
+            <View pointerEvents="none" style={styles.comingSoonStamp}>
+              <Text style={styles.comingSoonText}>{comingSoonLabel}</Text>
             </View>
           </View>
-
-          <ArrowIcon
-            width={9}
-            height={17}
-            color={colors.textPrimary}
-            style={styles.arrow}
-          />
-        </Squircle>
+        ) : null}
       </Animated.View>
     </Pressable>
   );
@@ -101,6 +129,7 @@ const styles = StyleSheet.create({
 
   shadow: {
     width: "100%",
+    height: 80,
     borderRadius: 20,
     backgroundColor: colors.surface,
 
@@ -164,5 +193,46 @@ const styles = StyleSheet.create({
     position: "absolute",
     top: 31.5,
     right: 20,
+  },
+
+  cardVisual: {
+    width: "100%",
+    height: "100%",
+  },
+
+  cardVisualDisabled: {
+    opacity: 0.38,
+  },
+
+  comingSoonOverlay: {
+    position: "absolute",
+    top: 0,
+    right: 0,
+    bottom: 0,
+    left: 0,
+
+    alignItems: "center",
+    justifyContent: "center",
+  },
+
+  comingSoonStamp: {
+    paddingVertical: 5,
+    paddingHorizontal: 16,
+
+    backgroundColor: "rgba(239, 233, 248, 0.3)",
+    borderWidth: 2.5,
+    borderColor: colors.primary,
+    borderRadius: 7,
+
+    transform: [{ rotate: "-12deg" }],
+  },
+
+  comingSoonText: {
+    color: colors.primary,
+    fontFamily: "Nunito_900Black",
+    fontSize: 16,
+    lineHeight: 21,
+    textTransform: "uppercase",
+    letterSpacing: 0.7,
   },
 });

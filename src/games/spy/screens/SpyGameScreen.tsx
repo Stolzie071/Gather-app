@@ -8,7 +8,8 @@ import {
 import type { BlankStackScreenProps } from "react-native-screen-transitions/blank-stack";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import Animated, { FadeInUp, FadeOutDown } from "react-native-reanimated";
 import { colors } from "@/theme/colors";
 
 import {
@@ -48,7 +49,7 @@ type SpyGameScreenProps = BlankStackScreenProps<RootStackParamList, "SpyGame">;
 
 export function SpyGameScreen({ navigation }: SpyGameScreenProps) {
   const { t } = useLocalization();
-  const { playSuccess } = useAppHaptics();
+  const { playPrimaryAction, playSuccess } = useAppHaptics();
   const insets = useSafeAreaInsets();
   const { width: screenWidth, height: screenHeight } = useWindowDimensions();
   const sceneScale = screenWidth / DESIGN_WIDTH;
@@ -56,6 +57,8 @@ export function SpyGameScreen({ navigation }: SpyGameScreenProps) {
   const gameAreaTop = isCompactScreen ? COMPACT_GAME_AREA_TOP : GAME_AREA_TOP;
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [hasOpenedSettings, setHasOpenedSettings] = useState(false);
+  const [isRulesToastVisible, setIsRulesToastVisible] = useState(false);
+  const rulesToastTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const { isFavorite, toggleFavorite } = useFavorites();
   const spyIsFavorite = isFavorite("spy");
   const gameDescription = isCompactScreen
@@ -71,6 +74,29 @@ export function SpyGameScreen({ navigation }: SpyGameScreenProps) {
     playSuccess();
     navigation.navigate("SpySetup");
   }, [navigation, playSuccess]);
+
+  const handleRulesPress = useCallback(() => {
+    playPrimaryAction();
+    setIsRulesToastVisible(true);
+
+    if (rulesToastTimerRef.current) {
+      clearTimeout(rulesToastTimerRef.current);
+    }
+
+    rulesToastTimerRef.current = setTimeout(() => {
+      setIsRulesToastVisible(false);
+      rulesToastTimerRef.current = null;
+    }, 2_000);
+  }, [playPrimaryAction]);
+
+  useEffect(
+    () => () => {
+      if (rulesToastTimerRef.current) {
+        clearTimeout(rulesToastTimerRef.current);
+      }
+    },
+    [],
+  );
 
   return (
     <LinearGradient
@@ -214,7 +240,7 @@ export function SpyGameScreen({ navigation }: SpyGameScreenProps) {
                 ]}
               />
 
-              <GameRulesButton />
+              <GameRulesButton onPress={handleRulesPress} />
             </View>
           </View>
         </View>
@@ -241,6 +267,25 @@ export function SpyGameScreen({ navigation }: SpyGameScreenProps) {
           compact={isCompactScreen}
         />
       </View>
+
+      {isRulesToastVisible && (
+        <Animated.View
+          entering={FadeInUp.duration(160)}
+          exiting={FadeOutDown.duration(140)}
+          pointerEvents="none"
+          style={styles.rulesToastPosition}
+        >
+          <Squircle
+            style={styles.rulesToast}
+            cornerRadius={16}
+            fillColor="rgba(254, 254, 253, 0.96)"
+          >
+            <Text style={styles.rulesToastText}>
+              {t("gameScreen.rules.comingSoon")}
+            </Text>
+          </Squircle>
+        </Animated.View>
+      )}
 
       {hasOpenedSettings && (
         <SettingsSheet
@@ -273,6 +318,43 @@ const styles = StyleSheet.create({
     position: "absolute",
     right: 16,
     gap: 16,
+  },
+
+  rulesToastPosition: {
+    position: "absolute",
+    top: "48%",
+    right: 24,
+    left: 24,
+    zIndex: 20,
+    alignItems: "center",
+  },
+
+  rulesToast: {
+    minWidth: 232,
+    minHeight: 48,
+    paddingHorizontal: 20,
+    paddingVertical: 11,
+    borderRadius: 16,
+    backgroundColor: "rgba(254, 254, 253, 0.96)",
+    alignItems: "center",
+    justifyContent: "center",
+    boxShadow: [
+      {
+        offsetX: 0,
+        offsetY: 2,
+        blurRadius: 8,
+        spreadDistance: 0,
+        color: "rgba(47, 37, 86, 0.22)",
+      },
+    ],
+  },
+
+  rulesToastText: {
+    color: colors.textPrimary,
+    fontFamily: "Nunito_700Bold",
+    fontSize: 15,
+    lineHeight: 21,
+    textAlign: "center",
   },
 
   designScene: {

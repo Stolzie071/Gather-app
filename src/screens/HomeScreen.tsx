@@ -184,7 +184,7 @@ export function HomeScreen({ navigation }: HomeScreenProps) {
         </View>
       </View>
 
-      <Text style={[styles.version, { bottom: insets.bottom + 2 }]}>v.0.1</Text>
+      <Text style={[styles.version, { bottom: insets.bottom + 2 }]}>v 1.0</Text>
       <SettingsButton
         onPress={handleOpenSettings}
         compact={isCompactScreen}

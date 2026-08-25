@@ -38,6 +38,14 @@
           "cameraPermission": "Gather использует камеру, чтобы создавать аватары игроков.",
           "microphonePermission": false
         }
+      ],
+      [
+        "expo-media-library",
+        {
+          "photosPermission": "Gather использует медиатеку для просмотра фотографий игроков.",
+          "savePhotosPermission": "Gather сохраняет фотографии игроков в галерею.",
+          "granularPermissions": []
+        }
       ]
     ],
     "extra": {

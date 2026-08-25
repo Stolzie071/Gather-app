@@ -39,6 +39,31 @@ export const en = {
       editPlayer: "Edit player",
       closeActions: "Close player menu",
       renamePlayer: "Rename player",
+      avatar: {
+        open: "Open player avatar",
+        close: "Close avatar preview",
+        openDetail: "Open photo full screen",
+        closeDetail: "Close full-screen preview",
+        openMenu: "Open photo menu",
+        editAvatar: "Edit avatar",
+        replace: "Replace",
+        deletePhoto: "Delete photo",
+        saveToGallery: "Save to gallery",
+        zoomHint: "Use two fingers to zoom the photo",
+        replaceDialog: {
+          title: "Replace avatar",
+          subtitle: "Choose a new avatar",
+          presets: "Preset avatars",
+        },
+        save: {
+          savedToast: "Saved",
+          permissionTitle: "Gallery access required",
+          permissionMessage:
+            "Allow Gather to save player photos to your gallery.",
+          errorTitle: "Couldn't save the photo",
+          errorMessage: "Please try again.",
+        },
+      },
       renameDialog: {
         title: "Rename player",
         playerName: "Player name",
@@ -105,6 +130,7 @@ export const en = {
     },
     emptyFavorites: "No favorite games yet",
     emptySearch: "No games found",
+    comingSoon: "Coming soon",
     games: {
       spy: {
         title: "Spy",
@@ -206,6 +232,7 @@ export const en = {
       title: "Forgot the rules?",
       description: "Refresh them in a couple of minutes.",
       read: "Read rules",
+      comingSoon: "Rules are coming soon :)",
     },
   },
 
@@ -236,6 +263,14 @@ export const en = {
       clearPhotos: "Clear all photos",
       savedGames: "Saved games: %{count}",
       clearGameHistory: "Clear game history",
+    },
+
+    about: {
+      title: "About Gather",
+      description:
+        "Gather is an app for getting together with friends. Choose games, create your own word packs, save players, and keep track of game results.",
+      version: "Version 1.0.0",
+      close: "Got it",
     },
 
     hapticTests: {

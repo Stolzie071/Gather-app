@@ -411,6 +411,11 @@ export function CustomPackEditorDialog({
   );
 
   const handleAddWord = useCallback(() => {
+    if (currentDuplicateWord) {
+      showDuplicateWordAlert(currentDuplicateWord);
+      return;
+    }
+
     playPrimaryAction();
     wordSequence.current += 1;
     const wordId = `draft_word_${wordSequence.current}`;
@@ -424,7 +429,7 @@ export function CustomPackEditorDialog({
     requestAnimationFrame(() => {
       listRef.current?.scrollToOffset({ animated: true, offset: 0 });
     });
-  }, [playPrimaryAction]);
+  }, [currentDuplicateWord, playPrimaryAction, showDuplicateWordAlert]);
 
   const handleSubmit = useCallback(() => {
     if (saveDisabled) {

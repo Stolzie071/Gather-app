@@ -9,6 +9,8 @@ type SettingsRowProps = {
   rightContent?: ReactNode;
   showDivider?: boolean;
   onPress?: () => void;
+  disabled?: boolean;
+  pressedShape?: "rounded" | "top";
 };
 
 export function SettingsRow({
@@ -17,15 +19,20 @@ export function SettingsRow({
   rightContent,
   showDivider,
   onPress,
+  disabled = false,
+  pressedShape = "rounded",
 }: SettingsRowProps) {
   return (
     <Pressable
       accessibilityRole={onPress ? "button" : undefined}
-      disabled={!onPress}
+      disabled={disabled || !onPress}
       onPress={onPress}
+      accessibilityState={{ disabled }}
       style={({ pressed }) => [
         styles.row,
         pressed && onPress && styles.rowPressed,
+        pressed && onPress && pressedShape === "top" && styles.rowPressedTop,
+        disabled && styles.rowDisabled,
       ]}
     >
       <View style={styles.leftContent}>
@@ -56,6 +63,15 @@ const styles = StyleSheet.create({
   rowPressed: {
     borderRadius: 20,
     backgroundColor: colors.secondary3,
+  },
+
+  rowPressedTop: {
+    borderBottomLeftRadius: 0,
+    borderBottomRightRadius: 0,
+  },
+
+  rowDisabled: {
+    opacity: 0.45,
   },
 
   leftContent: {

@@ -253,7 +253,14 @@ export function GameListScreen({ navigation }: GameListScreenProps) {
             players={t(item.playersKey)}
             duration={t(item.durationKey)}
             illustration={<Illustration width={96} height={86} opacity={0.5} />}
-            onPress={() => navigation.navigate(item.route)}
+            onPress={
+              item.available
+                ? () => navigation.navigate(item.route)
+                : undefined
+            }
+            comingSoonLabel={
+              item.available ? undefined : t("gameList.comingSoon")
+            }
           />
         </Animated.View>
       );

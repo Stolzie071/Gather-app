@@ -74,6 +74,7 @@ const BOTTOM_LIST_FADE_HEIGHT = 16;
 const LIST_BOTTOM_SPACE = 16;
 const COMPACT_MAX_HEIGHT = 700;
 const COMPACT_MAX_WIDTH = 350;
+const COMPACT_SURFACE_OFFSET = -120;
 const CONTENT_REVEAL_DELAY = 370;
 
 function normalizeSearchValue(value: string) {
@@ -106,7 +107,8 @@ export function StatisticsScreen({ navigation }: StatisticsScreenProps) {
   const sceneScale = screenWidth / DESIGN_WIDTH;
   const isCompactScreen =
     screenHeight < COMPACT_MAX_HEIGHT || screenWidth < COMPACT_MAX_WIDTH;
-  const contentTop = CONTENT_TOP * sceneScale;
+  const surfaceOffset = isCompactScreen ? COMPACT_SURFACE_OFFSET : 0;
+  const contentTop = (CONTENT_TOP + surfaceOffset) * sceneScale;
   const pagesTop = contentTop + PAGE_TOP_OFFSET;
   const listBottom = insets.bottom + LIST_BOTTOM_SPACE;
   const topListFadeHeight = TOP_LIST_FADE_HEIGHT * sceneScale;
@@ -329,6 +331,7 @@ export function StatisticsScreen({ navigation }: StatisticsScreenProps) {
           styles.designScene,
           {
             transform: [{ scale: sceneScale }],
+            height: Math.max(DESIGN_HEIGHT, screenHeight / sceneScale),
           },
         ]}
       >
@@ -344,21 +347,32 @@ export function StatisticsScreen({ navigation }: StatisticsScreenProps) {
           style={styles.topReadabilityGradient}
         />
 
-        <StatsHeroDice
-          width={HERO_DICE_WIDTH}
-          height={HERO_DICE_HEIGHT}
-          style={styles.heroDice}
-        />
+        {!isCompactScreen && (
+          <StatsHeroDice
+            width={HERO_DICE_WIDTH}
+            height={HERO_DICE_HEIGHT}
+            style={styles.heroDice}
+          />
+        )}
 
         <Image
           source={StatsWaveShadow}
           resizeMode="stretch"
-          style={styles.wave}
+          style={[styles.wave, { transform: [{ translateY: surfaceOffset }] }]}
         />
 
-        <View style={styles.surfaceExtension} />
+        <View
+          style={[
+            styles.surfaceExtension,
+            { transform: [{ translateY: surfaceOffset }] },
+          ]}
+        />
 
-        <StatsWave width={460} height={713} style={styles.wave} />
+        <StatsWave
+          width={460}
+          height={713}
+          style={[styles.wave, { transform: [{ translateY: surfaceOffset }] }]}
+        />
       </View>
 
       <View

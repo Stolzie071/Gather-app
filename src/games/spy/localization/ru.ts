@@ -150,6 +150,7 @@ export const spyRu = {
       editCustomPack: "Редактировать набор",
       items: {
         nature: "Природа",
+        entertainment: "Развлечения",
         workplaces: "Рабочие места",
         transport: "Транспорт",
         cities: "Города",

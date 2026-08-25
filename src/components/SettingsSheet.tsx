@@ -16,9 +16,6 @@ import { SettingsSection } from "@/components/settings/SettingsSection";
 import { SettingsRow } from "@/components/settings/SettingsRow";
 import {
   ArrowIcon,
-  DarkthemeIcon,
-  SoundsIcon,
-  MusicIcon,
   VibrationIcon,
   LanguageIcon,
   LockIcon,
@@ -30,8 +27,7 @@ import {
 } from "@assets/icons";
 
 import { AnimatedSwitch } from "@/components/AnimatedSwitch";
-import { AppSlider } from "@/components/AppSlider";
-
+import { AboutGatherDialog } from "@/components/settings/AboutGatherDialog";
 import { LanguageSelector } from "@/components/settings/LanguageSelector";
 import { useLocalization } from "@/localization/LocalizationProvider";
 import { usePlayers } from "@/players/PlayersProvider";
@@ -156,6 +152,7 @@ export function SettingsSheet({
   const { settings, updateSetting } = useSettings();
   const { clearPlayers, clearPlayerPhotos } = usePlayers();
   const [savedGameCount, setSavedGameCount] = useState(0);
+  const [isAboutOpen, setIsAboutOpen] = useState(false);
 
   const translateY = useSharedValue(HIDDEN_POSITION);
   const onHiddenRef = useRef(onHidden);
@@ -253,13 +250,18 @@ export function SettingsSheet({
     const backSubscription = BackHandler.addEventListener(
       "hardwareBackPress",
       () => {
+        if (isAboutOpen) {
+          setIsAboutOpen(false);
+          return true;
+        }
+
         onClose();
         return true;
       },
     );
 
     return () => backSubscription.remove();
-  }, [visible, onClose]);
+  }, [isAboutOpen, visible, onClose]);
 
   return (
     <View style={styles.container} pointerEvents={visible ? "auto" : "none"}>
@@ -281,54 +283,11 @@ export function SettingsSheet({
         >
           <Text style={styles.title}>{t("settings.title")}</Text>
 
-          <SettingsSection>
-            <SettingsRow
-              icon={<DarkthemeIcon width={36} height={36} />}
-              title={t("settings.darkTheme")}
-              rightContent={
-                <AnimatedSwitch
-                  value={settings.darkThemeEnabled}
-                  onValueChange={(value) =>
-                    updateSetting("darkThemeEnabled", value)
-                  }
-                  compact={compact}
-                />
-              }
-            />
-          </SettingsSection>
-
-          <SettingsSection title={t("settings.sections.sound")}>
-            <SettingsRow
-              icon={<SoundsIcon width={36} height={36} />}
-              title={t("settings.items.sounds")}
-              showDivider
-              rightContent={
-                <AppSlider
-                  value={settings.soundVolume}
-                  onValueChange={(value) =>
-                    updateSetting("soundVolume", value)
-                  }
-                  compact={compact}
-                />
-              }
-            />
-            <SettingsRow
-              icon={<MusicIcon width={36} height={36} />}
-              title={t("settings.items.music")}
-              showDivider
-              rightContent={
-                <AppSlider
-                  value={settings.musicVolume}
-                  onValueChange={(value) =>
-                    updateSetting("musicVolume", value)
-                  }
-                  compact={compact}
-                />
-              }
-            />
+          <SettingsSection title={t("settings.sections.application")}>
             <SettingsRow
               icon={<VibrationIcon width={36} height={36} />}
               title={t("settings.items.hapticFeedback")}
+              showDivider
               rightContent={
                 <AnimatedSwitch
                   value={settings.hapticsEnabled}
@@ -340,8 +299,6 @@ export function SettingsSheet({
                 />
               }
             />
-          </SettingsSection>
-          <SettingsSection title={t("settings.sections.application")}>
             <SettingsRow
               icon={<LanguageIcon width={36} height={36} />}
               title={t("settings.items.language")}
@@ -373,6 +330,8 @@ export function SettingsSheet({
               icon={<InfoIcon width={36} height={36} />}
               title={t("settings.items.about")}
               showDivider
+              onPress={() => setIsAboutOpen(true)}
+              pressedShape="top"
               rightContent={
                 <ArrowIcon
                   width={8}
@@ -387,6 +346,7 @@ export function SettingsSheet({
               icon={<SupportIcon width={36} height={36} />}
               title={t("settings.items.feedback")}
               showDivider
+              disabled
               rightContent={
                 <ArrowIcon
                   width={8}
@@ -401,6 +361,7 @@ export function SettingsSheet({
               icon={<PrivacyIcon width={36} height={36} />}
               title={t("settings.items.privacyPolicy")}
               showDivider
+              disabled
               rightContent={
                 <ArrowIcon
                   width={8}
@@ -415,6 +376,7 @@ export function SettingsSheet({
               icon={<RateIcon width={36} height={36} />}
               title={t("settings.items.rateApp")}
               showDivider
+              disabled
               rightContent={
                 <ArrowIcon
                   width={8}
@@ -428,6 +390,7 @@ export function SettingsSheet({
             <SettingsRow
               icon={<DonationIcon width={36} height={36} />}
               title={t("settings.items.supportDeveloper")}
+              disabled
               rightContent={
                 <ArrowIcon
                   width={8}
@@ -486,6 +449,11 @@ export function SettingsSheet({
           )}
         </ScrollView>
       </Animated.View>
+
+      <AboutGatherDialog
+        visible={isAboutOpen}
+        onClose={() => setIsAboutOpen(false)}
+      />
     </View>
   );
 }

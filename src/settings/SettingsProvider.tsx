@@ -7,6 +7,7 @@ import {
   useMemo,
   useState,
 } from "react";
+import { useKeepAwake } from "expo-keep-awake";
 
 import { i18n } from "@/localization/i18n";
 import {
@@ -33,6 +34,12 @@ type SettingsContextValue = {
 };
 
 const SettingsContext = createContext<SettingsContextValue | null>(null);
+
+function KeepAwakeController() {
+  useKeepAwake("gather-user-setting");
+
+  return null;
+}
 
 export function SettingsProvider({ children }: PropsWithChildren) {
   const [settings, setSettings] = useState(DEFAULT_SETTINGS);
@@ -94,6 +101,9 @@ export function SettingsProvider({ children }: PropsWithChildren) {
 
   return (
     <SettingsContext.Provider value={value}>
+      {storageLoaded && settings.keepAwakeEnabled ? (
+        <KeepAwakeController />
+      ) : null}
       {children}
     </SettingsContext.Provider>
   );

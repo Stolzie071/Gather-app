@@ -8,6 +8,7 @@ import type { GameRouteName } from "@/navigation/types";
 export type Game = {
   id: string;
   route: GameRouteName;
+  available: boolean;
   titleKey: string;
   playersKey: string;
   durationKey: string;
@@ -19,6 +20,7 @@ export const games: Game[] = [
   {
     id: "spy",
     route: "SpyGame",
+    available: true,
     titleKey: "gameList.games.spy.title",
     playersKey: "gameList.games.spy.players",
     durationKey: "gameList.games.spy.duration",
@@ -28,6 +30,7 @@ export const games: Game[] = [
   {
     id: "alias",
     route: "AliasGame",
+    available: false,
     titleKey: "gameList.games.alias.title",
     playersKey: "gameList.games.alias.players",
     durationKey: "gameList.games.alias.duration",
@@ -37,51 +40,7 @@ export const games: Game[] = [
   {
     id: "mafia",
     route: "MafiaGame",
-    titleKey: "gameList.games.mafia.title",
-    playersKey: "gameList.games.mafia.players",
-    durationKey: "gameList.games.mafia.duration",
-    searchTerms: ["мафия", "mafia"],
-    Illustration: SpyDice,
-  },
-  {
-    id: "mafia2",
-    route: "MafiaGame",
-    titleKey: "gameList.games.mafia.title",
-    playersKey: "gameList.games.mafia.players",
-    durationKey: "gameList.games.mafia.duration",
-    searchTerms: ["мафия", "mafia"],
-    Illustration: SpyDice,
-  },
-  {
-    id: "mafia3",
-    route: "MafiaGame",
-    titleKey: "gameList.games.mafia.title",
-    playersKey: "gameList.games.mafia.players",
-    durationKey: "gameList.games.mafia.duration",
-    searchTerms: ["мафия", "mafia"],
-    Illustration: SpyDice,
-  },
-  {
-    id: "mafia4",
-    route: "MafiaGame",
-    titleKey: "gameList.games.mafia.title",
-    playersKey: "gameList.games.mafia.players",
-    durationKey: "gameList.games.mafia.duration",
-    searchTerms: ["мафия", "mafia"],
-    Illustration: SpyDice,
-  },
-  {
-    id: "mafia5",
-    route: "MafiaGame",
-    titleKey: "gameList.games.mafia.title",
-    playersKey: "gameList.games.mafia.players",
-    durationKey: "gameList.games.mafia.duration",
-    searchTerms: ["мафия", "mafia"],
-    Illustration: SpyDice,
-  },
-  {
-    id: "mafia6",
-    route: "MafiaGame",
+    available: false,
     titleKey: "gameList.games.mafia.title",
     playersKey: "gameList.games.mafia.players",
     durationKey: "gameList.games.mafia.duration",

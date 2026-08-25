@@ -2,6 +2,7 @@ import { useCallback, useMemo, useState } from "react";
 import {
   ActivityIndicator,
   Image,
+  Pressable,
   ScrollView,
   StyleSheet,
   Text,
@@ -36,17 +37,24 @@ import {
 import {
   PlayerDistributionCard,
   PlayerActionsSheet,
+  PlayerAvatarPreviewDialog,
   PlayerEditButton,
   PlayerGameStatisticsSection,
   PlayerOverviewCard,
   type PlayerGameStatRow,
 } from "@/components/statistics";
 import { PlayerAvatarView } from "@/components/players/PlayerAvatarView";
+import { useAppHaptics } from "@/haptics/useAppHaptics";
 import { useGameHistory } from "@/history/GameHistoryProvider";
 import { getCountForm } from "@/localization/countForms";
 import { useLocalization } from "@/localization/LocalizationProvider";
 import type { RootStackParamList } from "@/navigation/types";
 import { usePlayers } from "@/players/PlayersProvider";
+import type { PlayerAvatarPresetId } from "@/players/types";
+import {
+  createStoredPlayerPhoto,
+  type PlayerPhotoSource,
+} from "@/storage/playerPhotoStorage";
 import { calculatePlayerDetailStatistics } from "@/statistics/calculatePlayerDetailStatistics";
 import {
   DEV_STATISTICS_HISTORY,
@@ -84,8 +92,15 @@ export function PlayerStatisticsScreen({
   route,
 }: PlayerStatisticsScreenProps) {
   const { language, t } = useLocalization();
-  const { players, isPlayersLoaded, deletePlayer, renamePlayer } = usePlayers();
+  const {
+    players,
+    isPlayersLoaded,
+    deletePlayer,
+    renamePlayer,
+    updatePlayerAvatar,
+  } = usePlayers();
   const { history, isHistoryLoaded, refreshHistory } = useGameHistory();
+  const { playTopAction } = useAppHaptics();
   const insets = useSafeAreaInsets();
   const { width: screenWidth, height: screenHeight } = useWindowDimensions();
   const [expandedGameId, setExpandedGameId] = useState<GameSectionId | null>(
@@ -97,6 +112,8 @@ export function PlayerStatisticsScreen({
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [isEntranceReady, setIsEntranceReady] = useState(false);
   const [isRenameDialogOpen, setIsRenameDialogOpen] = useState(false);
+  const [isAvatarPreviewOpen, setIsAvatarPreviewOpen] = useState(false);
+  const [isAvatarPreviewActive, setIsAvatarPreviewActive] = useState(false);
 
   const handleOpenRenameDialog = () => {
     setIsPlayerActionsOpen(false);
@@ -128,6 +145,47 @@ export function PlayerStatisticsScreen({
     () =>
       player ? calculatePlayerDetailStatistics(player, playerHistory) : null,
     [player, playerHistory],
+  );
+
+  const handleOpenAvatarPreview = useCallback(() => {
+    if (!player) {
+      return;
+    }
+
+    playTopAction();
+    setIsAvatarPreviewActive(true);
+    setIsAvatarPreviewOpen(true);
+  }, [playTopAction, player]);
+
+  const handleReplacePlayerPhoto = useCallback(
+    async (source: PlayerPhotoSource) => {
+      if (!player || isDevStatisticsPlayer) {
+        return;
+      }
+
+      const avatar = await createStoredPlayerPhoto(source);
+      updatePlayerAvatar(player.id, avatar);
+    },
+    [isDevStatisticsPlayer, player, updatePlayerAvatar],
+  );
+
+  const handleDeletePlayerPhoto = useCallback(() => {
+    if (!player || isDevStatisticsPlayer || player.avatar.type !== "photo") {
+      return;
+    }
+
+    updatePlayerAvatar(player.id, { type: "default" });
+  }, [isDevStatisticsPlayer, player, updatePlayerAvatar]);
+
+  const handleReplacePlayerPreset = useCallback(
+    (avatarId: PlayerAvatarPresetId) => {
+      if (!player || isDevStatisticsPlayer) {
+        return;
+      }
+
+      updatePlayerAvatar(player.id, { type: "preset", id: avatarId });
+    },
+    [isDevStatisticsPlayer, player, updatePlayerAvatar],
   );
 
   const prepareEntrance = useCallback(() => {
@@ -284,7 +342,7 @@ export function PlayerStatisticsScreen({
   return (
     <View style={styles.container}>
       <View
-        pointerEvents="none"
+        pointerEvents="box-none"
         style={[styles.designScene, { transform: [{ scale: sceneScale }] }]}
       >
         <Image
@@ -303,14 +361,24 @@ export function PlayerStatisticsScreen({
 
         {isContentReady && player && (
           <>
-            <Animated.View
-              entering={FadeInDown.duration(260).easing(
-                Easing.out(Easing.cubic),
-              )}
-              style={styles.avatarFrame}
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel={t("statistics.playerDetails.avatar.open")}
+              onPress={handleOpenAvatarPreview}
+              style={styles.avatarPressable}
             >
-              <PlayerAvatarView avatar={player.avatar} size={113} />
-            </Animated.View>
+              <Animated.View
+                entering={FadeInDown.duration(260).easing(
+                  Easing.out(Easing.cubic),
+                )}
+                style={[
+                  styles.avatarFrame,
+                  isAvatarPreviewActive && styles.avatarFrameHidden,
+                ]}
+              >
+                <PlayerAvatarView avatar={player.avatar} size={113} />
+              </Animated.View>
+            </Pressable>
             <Animated.Text
               entering={FadeInDown.delay(45)
                 .duration(240)
@@ -493,6 +561,22 @@ export function PlayerStatisticsScreen({
         onRename={handleRenamePlayer}
       />
 
+      {player && (
+        <PlayerAvatarPreviewDialog
+          visible={isAvatarPreviewOpen}
+          avatar={player.avatar}
+          sourceTop={99 * sceneScale}
+          sourceLeft={(screenWidth - 123 * sceneScale) / 2}
+          sourceSize={123 * sceneScale}
+          editable={!isDevStatisticsPlayer}
+          onClose={() => setIsAvatarPreviewOpen(false)}
+          onHidden={() => setIsAvatarPreviewActive(false)}
+          onReplacePhoto={handleReplacePlayerPhoto}
+          onReplacePreset={handleReplacePlayerPreset}
+          onDeletePhoto={handleDeletePlayerPhoto}
+        />
+      )}
+
       {hasOpenedSettings && (
         <SettingsSheet
           visible={isSettingsOpen}
@@ -543,17 +627,26 @@ const styles = StyleSheet.create({
     height: 600,
     backgroundColor: colors.background,
   },
-  avatarFrame: {
+  avatarPressable: {
     position: "absolute",
     top: 99,
     left: (DESIGN_WIDTH - 123) / 2,
     width: 123,
     height: 123,
+  },
+  avatarFrame: {
+    width: "100%",
+    height: "100%",
     borderRadius: 61.5,
+    alignItems: "center",
+    justifyContent: "center",
     overflow: "hidden",
     backgroundColor: colors.surface,
     borderWidth: 5,
     borderColor: colors.secondary3,
+  },
+  avatarFrameHidden: {
+    opacity: 0,
   },
   playerName: {
     position: "absolute",
