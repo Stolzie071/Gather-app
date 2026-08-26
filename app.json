@@ -55,7 +55,8 @@
             "enableShrinkResourcesInReleaseBuilds": true
           }
         }
-      ]
+      ],
+      "./plugins/withAndroidReleaseSigning"
     ],
     "extra": {
       "eas": {
